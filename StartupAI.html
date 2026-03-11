@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Startup AI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden;font-size:15px;}
+::-webkit-scrollbar{display:none;}
+
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:#000;transition:transform .28s cubic-bezier(.4,0,.2,1);overflow:hidden;}
+.screen.off{transform:translateX(100%);pointer-events:none;}
+
+/* HOME */
+#home{overflow-y:auto;}
+.home-top{padding:54px 20px 22px;border-bottom:1px solid #1c1c1c;}
+.logo-row{display:flex;align-items:center;gap:11px;margin-bottom:10px;}
+.logo-box{width:42px;height:42px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.logo-text{font-size:22px;font-weight:700;color:#fff;}
+.logo-text em{font-style:normal;color:#0ed2d2;}
+.home-desc{font-size:14px;color:#666;line-height:1.55;}
+.home-body{padding:22px 20px 50px;display:flex;flex-direction:column;gap:16px;}
+.lbl{font-size:13px;color:#666;margin-bottom:6px;display:block;}
+.inp{width:100%;background:#0d0d0d;border:1px solid #222;border-radius:11px;padding:13px 15px;font-size:15px;color:#fff;outline:none;font-family:inherit;transition:border-color .2s;}
+.inp:focus{border-color:#555;}
+.inp::placeholder{color:#333;}
+textarea.inp{resize:none;line-height:1.5;}
+.go-btn{width:100%;height:52px;border-radius:11px;border:none;background:#fff;color:#000;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.1px;}
+.go-btn:disabled{background:#1c1c1c;color:#333;cursor:not-allowed;}
+.go-btn:active{opacity:.85;}
+.or-line{text-align:center;color:#333;font-size:13px;}
+.ex-list{display:flex;flex-direction:column;gap:9px;}
+.ex-card{background:#0d0d0d;border:1px solid #1c1c1c;border-radius:11px;padding:13px 15px;color:#888;font-size:14px;font-family:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;gap:11px;}
+.ex-card:active{border-color:#444;color:#fff;}
+.ex-em{font-size:19px;flex-shrink:0;}
+
+/* REPORT LIST */
+#app{display:flex;flex-direction:column;}
+.nav-bar{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;border-bottom:1px solid #1c1c1c;flex-shrink:0;}
+.nav-back{font-size:24px;color:#fff;cursor:pointer;line-height:1;}
+.nav-title{font-size:17px;font-weight:600;}
+.nav-count{font-size:13px;color:#0ed2d2;}
+.pbar{height:1px;background:#1c1c1c;flex-shrink:0;}
+.pfill{height:100%;background:#fff;transition:width .3s;}
+.rep-scroll{flex:1;overflow-y:auto;}
+.cat-wrap{padding:0 20px;}
+.cat-hd{font-size:11px;font-weight:700;color:#0ed2d2;letter-spacing:1.2px;padding:18px 0 9px;border-bottom:1px solid #1c1c1c;margin-bottom:0;}
+.rep-row{display:flex;align-items:center;gap:13px;padding:14px 0;border-bottom:1px solid #111;cursor:pointer;}
+.rep-row:active{opacity:.6;}
+.rep-ball{width:42px;height:42px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.rep-row.done .rep-ball{background:#0a1f1f;}
+.rep-inf{flex:1;min-width:0;}
+.rep-nm{font-size:15px;color:#fff;font-weight:400;line-height:1.3;}
+.rep-st{font-size:12px;color:#444;margin-top:3px;}
+.rep-row.done .rep-st{color:#0e7c7b;}
+.rep-arr{font-size:19px;color:#222;flex-shrink:0;}
+.rep-row.done .rep-arr{color:#0e7c7b;}
+
+/* RESULT */
+#result{display:flex;flex-direction:column;}
+.res-nav{display:flex;align-items:center;gap:11px;padding:15px 20px;border-bottom:1px solid #1c1c1c;flex-shrink:0;}
+.res-back{font-size:24px;color:#fff;cursor:pointer;flex-shrink:0;line-height:1;}
+.res-inf{flex:1;min-width:0;}
+.res-nm{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.res-biz{font-size:12px;color:#444;margin-top:2px;}
+.redo-btn{height:32px;padding:0 13px;border-radius:8px;border:1px solid #222;background:transparent;color:#666;font-size:13px;cursor:pointer;font-family:inherit;flex-shrink:0;}
+.redo-btn:active{border-color:#fff;color:#fff;}
+.res-body{flex:1;overflow-y:auto;padding:20px 20px 50px;}
+
+/* CONTENT */
+.res-chip{background:#0d0d0d;border:1px solid #1c1c1c;border-radius:11px;padding:13px 15px;margin-bottom:20px;display:flex;align-items:center;gap:11px;}
+.res-chip-ico{font-size:22px;}
+.res-chip-nm{font-size:14px;font-weight:600;color:#fff;}
+.res-chip-biz{font-size:12px;color:#444;margin-top:2px;}
+
+/* THE KEY: Normal readable text - no bold, no colors */
+.ct{font-size:15px;line-height:1.8;color:#ccc;font-weight:400;}
+.ct h3{font-size:15px;font-weight:600;color:#fff;margin:20px 0 8px;padding-left:11px;border-left:2px solid #fff;}
+.ct p{margin-bottom:8px;}
+.ct li{padding-left:14px;margin-bottom:4px;color:#ccc;}
+.ct li::before{content:"• ";color:#666;}
+.ct strong{color:#fff;font-weight:600;}
+.ct code{background:#111;padding:1px 6px;border-radius:4px;font-size:13px;color:#ccc;font-family:monospace;}
+
+/* LOADING */
+.ld{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:16px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sp{width:36px;height:36px;border:2px solid #222;border-top-color:#fff;border-radius:50%;animation:spin .9s linear infinite;}
+.ld-t{font-size:15px;font-weight:600;color:#fff;}
+.ld-s{font-size:13px;color:#444;text-align:center;line-height:1.5;}
+
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:flex;align-items:flex-end;transition:opacity .22s;}
+.ov.off{opacity:0;pointer-events:none;}
+.sheet{background:#0d0d0d;border-radius:18px 18px 0 0;border-top:1px solid #1c1c1c;padding:18px 20px 38px;width:100%;}
+.sh-handle{width:34px;height:3px;background:#333;border-radius:2px;margin:0 auto 18px;}
+.sh-title{font-size:17px;font-weight:700;margin-bottom:16px;}
+.sh-save{width:100%;height:50px;border-radius:11px;border:none;background:#fff;color:#000;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(10px);background:#1c1c1c;border:1px solid #2a2a2a;border-radius:9px;padding:9px 16px;font-size:13px;color:#fff;z-index:400;opacity:0;transition:all .22s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.ok{border-color:#1a3a1a;color:#4ade80;}
+.toast.err{border-color:#3a1a1a;color:#f87171;}
+
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.fi{animation:fi .2s ease both;}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="screen" id="home">
+  <div class="home-top">
+    <div class="logo-row">
+      <div class="logo-box">⚡</div>
+      <div class="logo-text">Startup <em>AI</em></div>
+    </div>
+    <div class="home-desc">Enter your business name and idea to generate 38 detailed AI reports — free, no signup required.</div>
+  </div>
+  <div class="home-body">
+    <div>
+      <label class="lbl">Business Name</label>
+      <input class="inp" type="text" id="biz-name" placeholder="E.g., FitBuddy, TaskFlow, QuickHire"/>
+    </div>
+    <div>
+      <label class="lbl">Business Idea</label>
+      <textarea class="inp" id="biz-desc" rows="5" placeholder="Describe your startup — what it does, who it's for, and what problem it solves."></textarea>
+    </div>
+    <button class="go-btn" id="go-btn" onclick="startApp()" disabled>Enter your name and idea to continue</button>
+    <div class="or-line">— or try an example —</div>
+    <div class="ex-list">
+      <button class="ex-card" onclick="setEx('FitBuddy','AI-powered personalized fitness coach app for Indians doing home workouts. Creates custom workout plans, tracks progress, and motivates users through gamification. Targets working professionals aged 25-40.')">
+        <span class="ex-em">🏋️</span><span>AI Fitness Coach App</span>
+      </button>
+      <button class="ex-card" onclick="setEx('FreelanceHub','AI platform for Indian freelancers to find clients, manage projects, generate invoices, and get paid. Targeting 15 million freelancers across design, development, and writing.')">
+        <span class="ex-em">💼</span><span>Freelancer Platform</span>
+      </button>
+      <button class="ex-card" onclick="setEx('RestroOps','B2B inventory and order management SaaS for small restaurants and cloud kitchens in India. Reduces food waste by 40 percent and automates reordering with Zomato and Swiggy integration.')">
+        <span class="ex-em">🍽️</span><span>Restaurant B2B SaaS</span>
+      </button>
+      <button class="ex-card" onclick="setEx('LearnPath','AI adaptive learning platform for Indian students preparing for JEE, NEET, and UPSC. Personalized study plans, AI doubt solving, and mock tests targeting tier 2 and 3 city students.')">
+        <span class="ex-em">📚</span><span>EdTech Platform</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT LIST -->
+<div class="screen off" id="app">
+  <div class="nav-bar">
+    <div class="nav-back" onclick="showScreen('home')">←</div>
+    <div class="nav-title">Select Report</div>
+    <div class="nav-count" id="prog-cnt">0 / 38</div>
+  </div>
+  <div class="pbar"><div class="pfill" id="pfill"></div></div>
+  <div class="rep-scroll" id="rep-scroll"></div>
+</div>
+
+<!-- RESULT -->
+<div class="screen off" id="result">
+  <div class="res-nav">
+    <div class="res-back" onclick="goBack()">←</div>
+    <div class="res-inf">
+      <div class="res-nm" id="r-title">Report</div>
+      <div class="res-biz" id="r-biz">Business</div>
+    </div>
+    <button class="redo-btn" id="redo-btn" onclick="redoCurrent()" style="display:none">↻ Redo</button>
+  </div>
+  <div class="res-body" id="res-body"></div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="ov off" id="modal" onclick="modalBg(event)">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Settings</div>
+    <label class="lbl">Business Name</label>
+    <input class="inp" type="text" id="m-name" style="margin-bottom:14px"/>
+    <label class="lbl">Business Idea</label>
+    <textarea class="inp" id="m-desc" rows="4" style="margin-bottom:8px"></textarea>
+    <div style="font-size:12px;color:#555;margin-bottom:10px;">Changing your idea will clear all generated reports.</div>
+    <button class="sh-save" onclick="saveModal()">Save Changes</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SECTIONS=[
+  {id:'overview',label:'Business Overview',icon:'📋',cat:'IDEA & VISION'},
+  {id:'problem',label:'Problem & Solution',icon:'💡',cat:'IDEA & VISION'},
+  {id:'whynow',label:'Why Now?',icon:'⏰',cat:'IDEA & VISION'},
+  {id:'vision',label:'Vision & Mission',icon:'🎯',cat:'IDEA & VISION'},
+  {id:'market',label:'Market Potential',icon:'📊',cat:'MARKET RESEARCH'},
+  {id:'segments',label:'Customer Segmentation',icon:'👥',cat:'MARKET RESEARCH'},
+  {id:'painpoints',label:'User Pain Points',icon:'⚠️',cat:'MARKET RESEARCH'},
+  {id:'trends',label:'Market & Consumer Trends',icon:'📈',cat:'MARKET RESEARCH'},
+  {id:'competition',label:'Competition & Alternatives',icon:'⚔️',cat:'MARKET RESEARCH'},
+  {id:'stories',label:'User Stories',icon:'📖',cat:'PRODUCT & MVP'},
+  {id:'mvp',label:'Minimum Viable Product',icon:'🚀',cat:'PRODUCT & MVP'},
+  {id:'roadmap',label:'Product Roadmap',icon:'🗺️',cat:'PRODUCT & MVP'},
+  {id:'moscow',label:'Feature Prioritization (MoSCoW)',icon:'✅',cat:'PRODUCT & MVP'},
+  {id:'ai',label:'AI & Automation Opportunities',icon:'🤖',cat:'PRODUCT & MVP'},
+  {id:'techstack',label:'Tech Stack & Tools',icon:'⚙️',cat:'PRODUCT & MVP'},
+  {id:'design',label:'Design & Mockup Guide',icon:'🎨',cat:'PRODUCT & MVP'},
+  {id:'bizmodel',label:'Business Model & Monetization',icon:'💰',cat:'BUSINESS MODEL'},
+  {id:'revenue',label:'Revenue Forecast',icon:'📉',cat:'BUSINESS MODEL'},
+  {id:'gtm',label:'Go-to-Market Strategy',icon:'📣',cat:'BUSINESS MODEL'},
+  {id:'distribution',label:'Distribution Channels',icon:'🚚',cat:'BUSINESS MODEL'},
+  {id:'acquisition',label:'User Acquisition & Retention',icon:'🔄',cat:'BUSINESS MODEL'},
+  {id:'journey',label:'Customer Journey Map',icon:'🗺️',cat:'BUSINESS MODEL'},
+  {id:'marketing',label:'Marketing & Promotion',icon:'📢',cat:'BUSINESS MODEL'},
+  {id:'seo',label:'SEO & Ad Campaigns',icon:'🔍',cat:'BUSINESS MODEL'},
+  {id:'team',label:'Team Structure & Hiring',icon:'👤',cat:'TEAM & OPERATIONS'},
+  {id:'costs',label:'Operational Costs',icon:'💸',cat:'TEAM & OPERATIONS'},
+  {id:'kpis',label:'Key Performance Indicators',icon:'📊',cat:'TEAM & OPERATIONS'},
+  {id:'support',label:'Support & Customer Success',icon:'🎧',cat:'TEAM & OPERATIONS'},
+  {id:'legal',label:'Legal & Compliance',icon:'⚖️',cat:'TEAM & OPERATIONS'},
+  {id:'traction',label:'Traction & Metrics',icon:'📈',cat:'FUNDING & GROWTH'},
+  {id:'valuation',label:'Business Valuation',icon:'💎',cat:'FUNDING & GROWTH'},
+  {id:'funding',label:'Seed / Pre-seed Funding',icon:'💵',cat:'FUNDING & GROWTH'},
+  {id:'investors',label:'Finding Investors',icon:'🔎',cat:'FUNDING & GROWTH'},
+  {id:'pitch',label:'Investor Pitch Outline',icon:'🎤',cat:'FUNDING & GROWTH'},
+  {id:'exit',label:'Exit Strategy',icon:'🚪',cat:'FUNDING & GROWTH'},
+  {id:'naming',label:'Name & Tagline Ideas',icon:'✏️',cat:'BRAND & PARTNERSHIPS'},
+  {id:'partnerships',label:'Partnerships & Collaborations',icon:'🤝',cat:'BRAND & PARTNERSHIPS'},
+  {id:'brand',label:'Brand Positioning',icon:'🎯',cat:'BRAND & PARTNERSHIPS'},
+];
+const CATS=[...new Set(SECTIONS.map(s=>s.cat))];
+let BIZ={name:'',desc:''},CONTENT={},activeSection=null,isLoading=false;
+
+function getPrompt(id,name,desc){
+  const base=`You are a senior startup consultant. Write a detailed, specific, realistic report for the startup "${name}": ${desc}.\n\nIMPORTANT: Respond in plain English only. Use ### for section headers. Use ** only for truly important terms. Use - for bullet points. Do NOT explain your formatting or reasoning. Just write the report directly. Use real data, real market numbers, real competitor names, real tools. India market focus.\n\n`;
+  const p={
+    overview:base+'Write a complete Business Overview with these sections:\n### Executive Summary\n### Core Value Proposition\n### Business Model\n### Target Market\n### Capital Required for MVP\n### Key Success Factors',
+    problem:base+'Write a Problem & Solution analysis:\n### The Core Problem\n### Who Is Affected\n### Current Inadequate Solutions\n### Our Solution\n### Key Differentiators\n### Why Users Will Switch',
+    whynow:base+'Write a Why Now analysis:\n### Market Timing\n### Technology Enablers\n### Behavioral Shifts Post-2020\n### Regulatory Tailwinds\n### Economic Factors\n### Window of Opportunity',
+    vision:base+'Write Vision & Mission:\n### 10-Year Vision\n### Mission Statement\n### Core Values\n### Strategic Pillars\n### North Star Metric\n### Social Impact',
+    market:base+'Write Market Potential analysis:\n### Total Addressable Market\n### Serviceable Addressable Market\n### Serviceable Obtainable Market\n### Market Growth Rate\n### Key Growth Drivers\n### India Tier Breakdown\n### Market Risks',
+    segments:base+'Write Customer Segmentation with 3 detailed personas. For each persona include name, age, job, location, income, pain points, tools they use, willingness to pay, and where they spend time online. End with primary target recommendation.',
+    painpoints:base+'Write User Pain Points analysis. Cover 5 pain points. For each: name, severity score, time lost, money wasted, current workaround and why it fails. Also include Jobs-to-be-Done and emotional pain.',
+    trends:base+'Write Market & Consumer Trends:\n### Key Macro Trends\n### Micro Trends\n### India-Specific Dynamics\n### Consumer Behavior Shifts 2023-2025\n### 2026 Predictions',
+    competition:base+'Write Competition & Alternatives analysis. Cover 3-4 real competitors. For each: funding, user base, pricing, strengths, weaknesses. Then add competitive matrix, our unfair advantages, and blue ocean opportunity.',
+    stories:base+'Write 10 User Stories grouped into 3 epics. For each story: As a [persona], I want [feature] so that [benefit]. Include acceptance criteria, priority, and story points. End with Definition of Done.',
+    mvp:base+'Write MVP Definition:\n### Core MVP Features\n### Excluded from v1\n### Success Metrics\n### Build Timeline\n### Cost Estimate\n### Validation Method',
+    roadmap:base+'Write 12-Month Product Roadmap with 4 phases. For each phase: features, team size, budget in INR, success metrics. End with Year 2 vision.',
+    moscow:base+'Write MoSCoW Feature Prioritization:\n### Must Have\n### Should Have\n### Could Have\n### Will Not Have Now\n### Total Effort Summary',
+    ai:base+'Write AI & Automation Opportunities. Cover 5 AI features with technology, functionality, user value, and complexity. Add process automations, APIs to integrate with costs, and competitive moat.',
+    techstack:base+'Write Tech Stack Recommendations. For each layer (Frontend, Backend, Database, Auth, Payments, Cloud, Analytics, CI/CD): specific technology, monthly cost in INR, reason. End with total cost at scale and build vs buy decisions.',
+    design:base+'Write Design & UX Guide:\n### Design Philosophy\n### Color Palette\n### Typography\n### Key Screens\n### UX Principles\n### Accessibility\n### Timeline',
+    bizmodel:base+'Write Business Model & Monetization:\n### Revenue Model\n### Pricing Tiers\n### Unit Economics\n### Path to 1 Crore ARR',
+    revenue:base+'Write Revenue Forecast with assumptions, month-by-month Year 1 projections, Year 2-3 quarterly projections, break-even analysis, and best/base/worst case scenarios.',
+    gtm:base+'Write Go-to-Market Strategy:\n### GTM Motion\n### First 100 Customers Plan\n### Channel Strategy\n### Launch Messaging\n### PR Strategy\n### 90-Day KPIs',
+    distribution:base+'Write Distribution Channels strategy. Cover 5 channels with CAC, volume, tactics, and timeline. Add app store, B2B, and integration strategies.',
+    acquisition:base+'Write User Acquisition & Retention:\n### Acquisition Channels\n### Onboarding Flow\n### Activation Metric\n### Retention Targets\n### Retention Mechanisms\n### Churn Intervention\n### Referral Program',
+    journey:base+'Write Customer Journey Map covering all stages: Awareness, Interest, Consideration, Decision, Onboarding, Value, Loyalty, Advocacy. For each: user action, emotion, touchpoint, opportunity, metric.',
+    marketing:base+'Write Marketing & Promotion Plan:\n### Brand Voice\n### Content Marketing\n### Social Media Plan\n### Influencer Strategy\n### Email Marketing\n### Content Calendar',
+    seo:base+'Write SEO & Ad Campaigns strategy with target keywords, content plan, Google Ads strategy, Meta Ads strategy, traffic goals, and conversion targets.',
+    team:base+'Write Team Structure & Hiring Plan:\n### Founding Team\n### First 5 Hires\n### Equity Distribution\n### Org Chart\n### Culture Principles\n### Remote vs Hybrid',
+    costs:base+'Write Operational Costs breakdown for months 1-2, 3-4, and 5-6. For each period: technology, salaries, marketing, legal, total burn. End with 6-month runway needed and cost optimization strategies.',
+    kpis:base+'Write KPIs Framework with North Star Metric, Business KPIs, Product KPIs, Financial KPIs, Team KPIs, and Red Flag Thresholds.',
+    support:base+'Write Support & Customer Success Plan:\n### Support Channels & SLAs\n### Top 8 FAQs\n### Escalation Matrix\n### Customer Health Score\n### CS Playbook\n### Tools Stack',
+    legal:base+'Write Legal & Compliance for India:\n### Business Structure\n### Registration Process\n### Required Licenses\n### Data Privacy\n### IP Protection\n### GST\n### Legal Risks\n### Year 1 Legal Budget',
+    traction:base+'Write Traction & Metrics Strategy with 30/60/90 day milestones, traction channels, investor metrics, early adopter strategy, and proof of concept plan.',
+    valuation:base+'Write Business Valuation using 3 methods with real Indian startup comparables. Include current valuation range, post-MVP and post-seed targets, and key value drivers.',
+    funding:base+'Write Seed Funding Strategy:\n### Amount to Raise\n### Use of Funds\n### Dilution Strategy\n### Valuation Ask\n### Milestones Before Raising\n### Fundraising Timeline',
+    investors:base+'Write Finding Investors Guide for India with top 5 VCs, angel investors, accelerators to apply to, warm intro strategy, and cold outreach email template.',
+    pitch:base+'Write Investor Pitch Outline for 10 slides. For each: key message, data point, visual suggestion. Add story arc, top 5 objections with rebuttals, and ask slide details.',
+    exit:base+'Write Exit Strategy with 5 potential acquirers (real companies), IPO feasibility, 7-year exit path, and factors that maximize exit value.',
+    naming:base+'Write Name & Tagline Ideas with 10 name options, 5 taglines, brand voice guidelines, logo concept, name testing methods, and trademark process.',
+    partnerships:base+'Write Partnerships & Collaborations strategy with 6 real partner companies, partnership type, value exchange, approach, impact, and key terms to negotiate.',
+    brand:base+'Write Brand Positioning:\n### Positioning Statement\n### Brand Archetype\n### Perceptual Map\n### Messaging Hierarchy\n### Brand Promise\n### Tone of Voice\n### Category Ownership Strategy',
+  };
+  return p[id]||base+`Write a comprehensive ${id} analysis.`;
+}
+
+window.onload=()=>{
+  document.getElementById('biz-name').addEventListener('input',checkForm);
+  document.getElementById('biz-desc').addEventListener('input',checkForm);
+};
+
+function checkForm(){
+  const n=document.getElementById('biz-name').value.trim();
+  const d=document.getElementById('biz-desc').value.trim();
+  const btn=document.getElementById('go-btn');
+  btn.disabled=!(n&&d);
+  btn.textContent=(n&&d)?'Select Report →':'Enter your name and idea to continue';
+}
+
+function setEx(name,desc){
+  document.getElementById('biz-name').value=name;
+  document.getElementById('biz-desc').value=desc;
+  checkForm();
+}
+
+function startApp(){
+  const n=document.getElementById('biz-name').value.trim();
+  const d=document.getElementById('biz-desc').value.trim();
+  if(!n||!d)return;
+  BIZ={name:n,desc:d};CONTENT={};
+  buildList();showScreen('app');
+}
+
+function buildList(){
+  const s=document.getElementById('rep-scroll');
+  s.innerHTML='';
+  CATS.forEach(cat=>{
+    const secs=SECTIONS.filter(x=>x.cat===cat);
+    const w=document.createElement('div');w.className='cat-wrap';
+    const h=document.createElement('div');h.className='cat-hd';
+    h.textContent=`${cat} (${secs.length})`;w.appendChild(h);
+    secs.forEach(sec=>{
+      const r=document.createElement('div');
+      r.className='rep-row'+(CONTENT[sec.id]?' done':'');
+      r.onclick=()=>openSec(sec);
+      r.innerHTML=`<div class="rep-ball">${sec.icon}</div><div class="rep-inf"><div class="rep-nm">${sec.label}</div><div class="rep-st">${CONTENT[sec.id]?'Generated — tap to view':'Tap to generate'}</div></div><div class="rep-arr">${CONTENT[sec.id]?'✓':'›'}</div>`;
+      w.appendChild(r);
+    });
+    s.appendChild(w);
+  });
+  updProg();
+}
+
+function updProg(){
+  const d=Object.keys(CONTENT).length;
+  document.getElementById('pfill').style.width=(d/38*100)+'%';
+  document.getElementById('prog-cnt').textContent=d+' / 38';
+}
+
+function openSec(sec){
+  activeSection=sec;
+  document.getElementById('r-title').textContent=sec.label;
+  document.getElementById('r-biz').textContent=BIZ.name;
+  showScreen('result');
+  if(CONTENT[sec.id])renderRes();else doGen(sec);
+}
+
+function renderRes(){
+  const body=document.getElementById('res-body');
+  const redo=document.getElementById('redo-btn');
+  if(isLoading){
+    redo.style.display='none';
+    body.innerHTML=`<div class="ld"><div class="sp"></div><div class="ld-t">Generating report...</div><div class="ld-s">${activeSection.label}<br>for ${BIZ.name}</div></div>`;
+  }else if(CONTENT[activeSection.id]){
+    redo.style.display='block';
+    body.innerHTML=`<div class="res-chip fi"><div class="res-chip-ico">${activeSection.icon}</div><div><div class="res-chip-nm">${activeSection.label}</div><div class="res-chip-biz">for ${BIZ.name}</div></div></div><div class="ct fi">${fmt(CONTENT[activeSection.id])}</div>`;
+  }
+}
+
+function fmt(raw){
+  // Clean any leftover markdown artifacts first
+  let t=raw
+    .replace(/^#{1,3}\s*(.+)$/gm,'<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/`([^`\n]+)`/g,'<code>$1</code>')
+    .replace(/^[-•*]\s(.+)$/gm,'<li>$1</li>')
+    .replace(/^\d+\.\s(.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g,m=>'<ul style="list-style:none;padding:0;margin:6px 0">'+m+'</ul>')
+    .replace(/\n\n/g,'<p></p>')
+    .replace(/\n/g,'<br>');
+  return t;
+}
+
+async function doGen(sec){
+  isLoading=true;renderRes();
+  try{
+    const resp=await fetch('https://text.pollinations.ai/',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'openai',
+        messages:[
+          {role:'system',content:'You are a senior startup consultant. Write the report DIRECTLY. Do NOT think out loud. Do NOT say things like let me check or I will research. Do NOT show your reasoning. Just write the final professional report immediately. Use ### for headers, ** for bold key terms, - for bullets. English only.'},
+          {role:'user',content:getPrompt(sec.id,BIZ.name,BIZ.desc)}
+        ],
+        seed:Math.floor(Math.random()*99999),
+        private:true
+      })
+    });
+    if(!resp.ok)throw new Error('Server error '+resp.status);
+    const text=await resp.text();
+    if(!text||text.length<100)throw new Error('Empty response — tap Redo');
+    CONTENT[sec.id]=text;
+    isLoading=false;renderRes();buildList();
+    showToast('Report ready!','ok');
+  }catch(e){
+    isLoading=false;
+    CONTENT[sec.id]='Something went wrong: '+e.message+'\n\nTap Redo to try again.';
+    renderRes();showToast('Error — tap Redo','err');
+  }
+}
+
+async function redoCurrent(){
+  if(!activeSection||isLoading)return;
+  delete CONTENT[activeSection.id];
+  buildList();await doGen(activeSection);
+}
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('off',s.id!==id));}
+function goBack(){showScreen('app');buildList();}
+function openModal(){document.getElementById('m-name').value=BIZ.name;document.getElementById('m-desc').value=BIZ.desc;document.getElementById('modal').classList.remove('off');}
+function modalBg(e){if(e.target.id==='modal')document.getElementById('modal').classList.add('off');}
+function saveModal(){
+  const n=document.getElementById('m-name').value.trim();
+  const d=document.getElementById('m-desc').value.trim();
+  if(!n||!d)return;
+  if(n!==BIZ.name||d!==BIZ.desc)CONTENT={};
+  BIZ={name:n,desc:d};
+  document.getElementById('modal').classList.add('off');
+  buildList();showToast('Saved!','ok');
+}
+function showToast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show '+type;
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
