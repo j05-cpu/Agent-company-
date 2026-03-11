@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>StartupAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{--bg:#07090e;--s1:#0d1117;--s2:#161b22;--s3:#1c2330;--b1:#21262d;--b2:#30363d;--acc:#00d4ff;--grn:#10b981;--pur:#7c3aed;--red:#ef4444;--t1:#e6edf3;--t2:#8b949e;--t3:#484f58;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-family:'Syne',sans-serif;}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:1;overflow:hidden;}
+.screen.off{transform:translateX(100%);pointer-events:none;}
+::-webkit-scrollbar{display:none;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* HOME */
+#home{overflow-y:auto;}
+.hero{padding:52px 24px 28px;background:linear-gradient(150deg,rgba(0,212,255,.08),rgba(124,58,237,.04));border-bottom:1px solid var(--b1);}
+.logo-row{display:flex;align-items:center;gap:13px;margin-bottom:14px;}
+.logo-box{width:50px;height:50px;background:linear-gradient(135deg,var(--acc),var(--pur));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 28px rgba(0,212,255,.35);}
+.logo-name{font-size:26px;font-weight:800;}
+.logo-name span{color:var(--acc);}
+.hero-sub{font-size:13px;color:var(--t2);line-height:1.65;}
+.sbody{padding:24px 20px 50px;display:flex;flex-direction:column;gap:18px;}
+.fl{display:block;font-size:10px;font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:9px;}
+.fi{width:100%;background:var(--s2);border:1.5px solid var(--b1);border-radius:13px;padding:15px 16px;font-family:'Syne',sans-serif;font-size:14px;color:var(--t1);outline:none;transition:border-color .2s;}
+.fi:focus{border-color:rgba(0,212,255,.5);}
+.fi::placeholder{color:var(--t3);}
+textarea.fi{resize:none;line-height:1.55;}
+.info-box{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.18);border-radius:11px;padding:12px 15px;font-size:12px;color:var(--grn);font-family:'JetBrains Mono',monospace;line-height:1.6;display:flex;gap:10px;align-items:flex-start;}
+.big-btn{width:100%;height:56px;border-radius:15px;border:none;background:linear-gradient(135deg,var(--acc),#09c);color:#000;font-family:'Syne',sans-serif;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 4px 24px rgba(0,212,255,.22);transition:transform .15s;}
+.big-btn:active{transform:scale(.97);}
+.big-btn:disabled{background:var(--b1);color:var(--t3);cursor:not-allowed;box-shadow:none;}
+.ex-grid{display:flex;flex-direction:column;gap:9px;}
+.ex-btn{padding:13px 16px;border-radius:13px;border:1px solid var(--b2);background:var(--s2);color:var(--t2);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;}
+.ex-btn:active{border-color:var(--acc);color:var(--t1);}
+.divlbl{text-align:center;font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+
+/* APP */
+#app{display:flex;flex-direction:column;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--b1);background:rgba(7,9,14,.97);backdrop-filter:blur(20px);flex-shrink:0;}
+.tlogo{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:800;}
+.tlogo-box{width:30px;height:30px;background:linear-gradient(135deg,var(--acc),var(--pur));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.tlogo span{color:var(--acc);}
+.prog-pill{display:flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--b1);border-radius:20px;padding:5px 11px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--t2);}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--grn);box-shadow:0 0 7px var(--grn);animation:blink 2s infinite;}
+.gear-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--b1);background:var(--s2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;}
+.gear-btn:active{border-color:var(--acc);}
+.prog-strip{height:3px;background:var(--s2);flex-shrink:0;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--pur));transition:width .4s ease;width:0%;}
+.cat-tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--b1);flex-shrink:0;background:var(--s1);}
+.cat-tab{padding:10px 14px;border:none;background:none;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;color:var(--t3);display:flex;flex-direction:column;align-items:center;gap:3px;}
+.cat-tab.on{border-bottom-color:var(--acc);color:var(--acc);}
+.sec-list{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:8px;}
+.cat-lbl{font-size:10px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;color:var(--acc);margin-bottom:4px;}
+.sec-card{background:var(--s2);border:1.5px solid var(--b1);border-radius:13px;padding:13px 15px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s;}
+.sec-card:active{background:var(--s3);}
+.sec-card.done{border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.02);}
+.sec-ico{width:42px;height:42px;border-radius:12px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.sec-card.done .sec-ico{background:rgba(16,185,129,.1);}
+.sec-inf{flex:1;min-width:0;}
+.sec-name{font-size:13px;font-weight:600;color:var(--t2);}
+.sec-card.done .sec-name{color:var(--t1);}
+.sec-st{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:2px;}
+.sec-card.done .sec-st{color:var(--grn);}
+.sec-arr{font-size:18px;color:var(--b2);flex-shrink:0;}
+.sec-card.done .sec-arr{color:var(--grn);}
+
+/* RESULT */
+#result{display:flex;flex-direction:column;}
+.rhdr{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--b1);background:rgba(7,9,14,.97);flex-shrink:0;}
+.back-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--b1);background:var(--s2);color:var(--t2);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.back-btn:active{border-color:var(--acc);}
+.rhdr-ico{font-size:20px;flex-shrink:0;}
+.rhdr-inf{flex:1;min-width:0;}
+.rhdr-inf h2{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rhdr-inf p{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:1px;}
+.redo-btn{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--b1);background:var(--s2);color:var(--t2);font-size:12px;cursor:pointer;font-family:'Syne',sans-serif;white-space:nowrap;flex-shrink:0;}
+.redo-btn:active{border-color:var(--acc);}
+.result-body{flex:1;overflow-y:auto;padding:18px 16px 40px;}
+.result-tag{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.12);border-radius:11px;padding:10px 14px;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.result-content{font-size:13px;line-height:1.78;color:#c9d1d9;}
+.rh{font-size:13px;font-weight:800;color:var(--acc);margin:16px 0 7px;font-family:'Syne',sans-serif;border-left:3px solid var(--acc);padding-left:10px;}
+.rl{padding:4px 0 4px 8px;font-size:13px;line-height:1.65;color:#c9d1d9;border-left:2px solid var(--b1);margin:2px 0;}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px;gap:18px;}
+.spinner{width:46px;height:46px;border:3px solid var(--b1);border-top-color:var(--acc);border-radius:50%;animation:spin 1s linear infinite;}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);z-index:200;display:flex;align-items:flex-end;transition:opacity .25s;}
+.overlay.off{opacity:0;pointer-events:none;}
+.modal{background:var(--s1);border-radius:22px 22px 0 0;border-top:1px solid var(--b1);padding:20px 20px 36px;width:100%;transition:transform .3s cubic-bezier(.4,0,.2,1);}
+.overlay.off .modal{transform:translateY(100%);}
+.mhandle{width:42px;height:4px;background:var(--b2);border-radius:2px;margin:0 auto 20px;}
+.mtitle{font-size:17px;font-weight:800;margin-bottom:16px;}
+.msave{width:100%;height:50px;border-radius:13px;border:none;background:linear-gradient(135deg,var(--acc),#09c);color:#000;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;}
+.msave:active{transform:scale(.97);}
+
+/* TOAST */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--s3);border:1px solid var(--b2);border-radius:11px;padding:10px 18px;font-size:13px;font-weight:600;z-index:400;opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap;max-width:90vw;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.ok{border-color:rgba(16,185,129,.4);color:var(--grn);}
+.toast.err{border-color:rgba(239,68,68,.4);color:var(--red);}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="screen" id="home">
+  <div class="hero">
+    <div class="logo-row">
+      <div class="logo-box">⚡</div>
+      <div class="logo-name">Startup<span>AI</span></div>
+    </div>
+    <div class="hero-sub">Enter your business name and idea — get 38 detailed AI-powered reports. Completely free, no signup needed!</div>
+  </div>
+  <div class="sbody">
+    <div class="info-box"><span>✅</span><span>38 sections · Business Overview → Exit Strategy · Real detailed data · Free forever</span></div>
+    <div>
+      <label class="fl">🏢 Business / Startup Name</label>
+      <input class="fi" type="text" id="biz-name" placeholder="E.g., FitBuddy, TaskFlow, QuickHire..."/>
+    </div>
+    <div>
+      <label class="fl">💡 Business Idea (describe in detail)</label>
+      <textarea class="fi" id="biz-desc" rows="5" placeholder="What does your startup do? Who is it for? What problem does it solve? More detail = better reports..."></textarea>
+    </div>
+    <button class="big-btn" id="start-btn" onclick="startApp()" disabled>Enter name and idea first...</button>
+    <div class="divlbl">— or try an example —</div>
+    <div class="ex-grid">
+      <button class="ex-btn" onclick="setEx('FitBuddy','AI-powered personalized fitness coach app for Indians doing home workouts — creates custom plans, tracks progress, motivates through gamification, targets working professionals aged 25-40')"><span>🏋️</span><span>AI Fitness Coach App</span></button>
+      <button class="ex-btn" onclick="setEx('FreelanceHub','AI-powered platform for Indian freelancers to find clients, manage projects, generate invoices, and get paid — targeting 15M+ freelancers in India across design, development, writing')"><span>💼</span><span>Freelancer SaaS Tool</span></button>
+      <button class="ex-btn" onclick="setEx('RestroOps','B2B inventory and order management SaaS for small restaurants and cloud kitchens in India — reduces food waste by 40%, automates reordering, integrates with Zomato/Swiggy')"><span>🍽️</span><span>Restaurant B2B Tool</span></button>
+      <button class="ex-btn" onclick="setEx('LearnPath','AI-powered adaptive learning platform for Indian students preparing for JEE, NEET, UPSC — personalized study plans, AI doubt solving, mock tests, targets tier 2/3 city students')"><span>📚</span><span>EdTech Platform</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="screen off" id="app">
+  <div class="topbar">
+    <div class="tlogo"><div class="tlogo-box">⚡</div>Startup<span>AI</span></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="prog-pill"><div class="live-dot"></div><span id="prog-cnt">0/38</span></div>
+      <div class="gear-btn" onclick="openModal()">⚙️</div>
+    </div>
+  </div>
+  <div class="prog-strip"><div class="prog-fill" id="prog-fill"></div></div>
+  <div class="cat-tabs" id="cat-tabs"></div>
+  <div class="sec-list" id="sec-list"></div>
+</div>
+
+<!-- RESULT -->
+<div class="screen off" id="result">
+  <div class="rhdr">
+    <div class="back-btn" onclick="goBack()">‹</div>
+    <div class="rhdr-ico" id="r-ico">📋</div>
+    <div class="rhdr-inf">
+      <h2 id="r-title">Section</h2>
+      <p id="r-biz">Business</p>
+    </div>
+    <button class="redo-btn" id="redo-btn" onclick="redoCurrent()">🔄 Redo</button>
+  </div>
+  <div class="result-body" id="result-body"></div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="overlay off" id="modal" onclick="modalOut(event)">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">⚙️ Settings</div>
+    <div style="margin-bottom:14px">
+      <label class="fl">Change Business Name</label>
+      <input class="fi" type="text" id="m-name" placeholder="Business name..."/>
+    </div>
+    <div style="margin-bottom:6px">
+      <label class="fl">Update Business Idea</label>
+      <textarea class="fi" id="m-desc" rows="4" placeholder="Updated idea description..."></textarea>
+    </div>
+    <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:11px 14px;font-size:12px;color:#f87171;font-family:'JetBrains Mono',monospace;margin-bottom:14px;line-height:1.5;">
+      ⚠️ Changing your idea will clear all previously generated reports
+    </div>
+    <button class="msave" onclick="saveModal()">✅ Save Changes</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ CONFIG — POLLINATIONS AI (FREE, NO KEY NEEDED) ══
+const POLLINATIONS_URL = 'https://text.pollinations.ai/';
+
+// ══ SECTIONS ══
+const SECTIONS = [
+  {id:'overview',label:'Business Overview',icon:'📋',cat:'IDEA & VISION'},
+  {id:'problem',label:'Problem & Solution',icon:'💡',cat:'IDEA & VISION'},
+  {id:'whynow',label:'Why Now?',icon:'⏰',cat:'IDEA & VISION'},
+  {id:'vision',label:'Vision & Mission',icon:'🎯',cat:'IDEA & VISION'},
+  {id:'market',label:'Market Potential',icon:'📊',cat:'MARKET RESEARCH'},
+  {id:'segments',label:'Customer Segmentation',icon:'👥',cat:'MARKET RESEARCH'},
+  {id:'painpoints',label:'User Pain Points',icon:'⚠️',cat:'MARKET RESEARCH'},
+  {id:'trends',label:'Market & Consumer Trends',icon:'📈',cat:'MARKET RESEARCH'},
+  {id:'competition',label:'Competition & Alternatives',icon:'⚔️',cat:'MARKET RESEARCH'},
+  {id:'stories',label:'User Stories',icon:'📖',cat:'PRODUCT & MVP'},
+  {id:'mvp',label:'Minimum Viable Product',icon:'🚀',cat:'PRODUCT & MVP'},
+  {id:'roadmap',label:'Product Roadmap',icon:'🗺️',cat:'PRODUCT & MVP'},
+  {id:'moscow',label:'Feature Prioritization (MoSCoW)',icon:'✅',cat:'PRODUCT & MVP'},
+  {id:'ai',label:'AI & Automation Opportunities',icon:'🤖',cat:'PRODUCT & MVP'},
+  {id:'techstack',label:'Tech Stack & Tools',icon:'⚙️',cat:'PRODUCT & MVP'},
+  {id:'design',label:'Design & Mockup Guide',icon:'🎨',cat:'PRODUCT & MVP'},
+  {id:'bizmodel',label:'Business Model & Monetization',icon:'💰',cat:'BUSINESS MODEL'},
+  {id:'revenue',label:'Revenue Forecast',icon:'📉',cat:'BUSINESS MODEL'},
+  {id:'gtm',label:'Go-to-Market Strategy',icon:'📣',cat:'BUSINESS MODEL'},
+  {id:'distribution',label:'Distribution Channels',icon:'🚚',cat:'BUSINESS MODEL'},
+  {id:'acquisition',label:'User Acquisition & Retention',icon:'🔄',cat:'BUSINESS MODEL'},
+  {id:'journey',label:'Customer Journey Map',icon:'🗺️',cat:'BUSINESS MODEL'},
+  {id:'marketing',label:'Marketing & Promotion',icon:'📢',cat:'BUSINESS MODEL'},
+  {id:'seo',label:'SEO & Ad Campaigns',icon:'🔍',cat:'BUSINESS MODEL'},
+  {id:'team',label:'Team Structure & Hiring',icon:'👤',cat:'TEAM & OPS'},
+  {id:'costs',label:'Operational Costs',icon:'💸',cat:'TEAM & OPS'},
+  {id:'kpis',label:'Key Performance Indicators',icon:'📊',cat:'TEAM & OPS'},
+  {id:'support',label:'Support & Customer Success',icon:'🎧',cat:'TEAM & OPS'},
+  {id:'legal',label:'Legal & Compliance',icon:'⚖️',cat:'TEAM & OPS'},
+  {id:'traction',label:'Traction & Metrics',icon:'📈',cat:'FUNDING & GROWTH'},
+  {id:'valuation',label:'Business Valuation',icon:'💎',cat:'FUNDING & GROWTH'},
+  {id:'funding',label:'Seed/Pre-seed Funding',icon:'💵',cat:'FUNDING & GROWTH'},
+  {id:'investors',label:'Finding Investors',icon:'🔎',cat:'FUNDING & GROWTH'},
+  {id:'pitch',label:'Investor Pitch Outline',icon:'🎤',cat:'FUNDING & GROWTH'},
+  {id:'exit',label:'Exit Strategy',icon:'🚪',cat:'FUNDING & GROWTH'},
+  {id:'naming',label:'Name & Tagline Ideas',icon:'✏️',cat:'BRAND'},
+  {id:'partnerships',label:'Partnerships & Collaborations',icon:'🤝',cat:'BRAND'},
+  {id:'brand',label:'Brand Positioning',icon:'🎯',cat:'BRAND'},
+];
+
+const CATS = [...new Set(SECTIONS.map(s=>s.cat))];
+
+// ══ STATE ══
+let BIZ = {name:'', desc:''};
+let CONTENT = {};
+let activeCat = CATS[0];
+let activeSection = null;
+let isLoading = false;
+
+// ══ PROMPTS ══
+function getPrompt(id, name, desc) {
+  const base = `You are a senior startup consultant with 20 years of experience. Generate a DETAILED, REALISTIC, SPECIFIC report for startup "${name}": ${desc}.\n\nCRITICAL RULES:\n- Use REAL data, real market numbers, real competitor names, real tools\n- Be SPECIFIC to this exact business — no generic advice\n- India market focus where applicable\n- Use ### for section headers\n- Use ** for bold key points\n- Use - for bullet points\n- Be comprehensive and actionable\n\n`;
+
+  const prompts = {
+    overview:`${base}Write a complete Business Overview. Include:\n### Executive Summary\n[3 powerful sentences about what this startup does]\n### Core Value Proposition\n[Exactly what value users get]\n### Business Model Type\n[SaaS/Marketplace/D2C/etc with explanation]\n### Target Market\n[Primary geography, demographics]\n### Stage & Capital Needed\n[Recommended stage to start, capital needed in INR for MVP]\n### Key Success Factors\n[5 must-haves for this business to succeed]`,
+
+    problem:`${base}Write a Problem & Solution analysis. Include:\n### The Problem\n[Exact problem with real statistics and data]\n### Who Suffers\n[Specific people affected, how badly, how often]\n### Current Inadequate Solutions\n[3 existing solutions and exactly why they fail]\n### Our Solution\n[How our product solves this, step by step]\n### Key Differentiators\n[Top 3 ways we're 10x better]\n### Why Users Will Switch\n[Compelling reasons to change behavior]`,
+
+    whynow:`${base}Write a Why Now analysis. Include:\n### Market Timing\n[Why this exact moment is perfect]\n### Technology Enablers\n[Tech that now exists to make this possible]\n### Behavioral Shifts\n[How user behavior has changed post-2020]\n### Regulatory Tailwinds\n[Any favorable regulations]\n### Economic Factors\n[Market conditions supporting this]\n### Window of Opportunity\n[How long this window stays open and risk of waiting]`,
+
+    vision:`${base}Write Vision & Mission. Include:\n### 10-Year Vision\n[Ambitious but believable long-term vision]\n### Mission Statement\n[Clear daily mission]\n### Core Values\n[5 values with 1-line explanation each]\n### Strategic Pillars\n[3 pillars that guide all decisions]\n### North Star Metric\n[The one number that defines success]\n### Social Impact\n[Positive change beyond profit]`,
+
+    market:`${base}Write Market Potential analysis. Include:\n### Total Addressable Market (TAM)\n[Global + India TAM in USD and INR with methodology]\n### Serviceable Addressable Market (SAM)\n[Realistic slice we can serve]\n### Serviceable Obtainable Market (SOM)\n[Year 1 and Year 3 targets]\n### Market Growth Rate\n[CAGR % with source]\n### Key Growth Drivers\n[5 drivers fueling market growth]\n### Geographic Breakdown\n[India tier 1/2/3 opportunity split]\n### Market Risks\n[Top 3 risks to market size]`,
+
+    segments:`${base}Write Customer Segmentation. Create 3 detailed user personas:\n### Persona 1: [Name]\n**Age/Job/Location:** [Details]\n**Income:** [Monthly INR]\n**Daily Pain:** [Specific daily struggle]\n**Current Tools:** [What they use today]\n**Willingness to Pay:** [INR/month]\n**Where They Hang Out:** [Online platforms]\n\n### Persona 2: [Name]\n[Same format]\n\n### Persona 3: [Name]\n[Same format]\n\n### Primary Target\n[Which persona to focus on first and why]`,
+
+    painpoints:`${base}Write User Pain Points analysis. Include:\n### Pain Point 1: [Name] — Severity: 9/10\n**Time Lost:** [Per week]\n**Money Wasted:** [Per month in INR]\n**Current Workaround:** [What they do now and why it fails]\n\n[Repeat for 5 total pain points]\n\n### Jobs-to-be-Done\n[3 core jobs users are hiring a solution to do]\n### Emotional Pain\n[Frustration, anxiety, embarrassment users feel]`,
+
+    trends:`${base}Write Market & Consumer Trends. Include:\n### Macro Trend 1: [Name]\n[Data, impact, timeline]\n\n[5 macro trends total]\n\n### Micro Trends\n[3 niche trends specific to this market]\n### India-Specific Dynamics\n[What's unique about Indian market behavior]\n### Consumer Behavior Shifts 2023-2025\n[Real behavioral changes with data]\n### 2026 Predictions\n[What the market will look like in 2 years]`,
+
+    competition:`${base}Write Competition & Alternatives analysis. Include:\n### Direct Competitor 1: [Real Company Name]\n**Funding:** [Amount raised]\n**Users:** [User base size]\n**Pricing:** [Their pricing]\n**Strengths:** [Top 3]\n**Weaknesses:** [Top 3 gaps]\n\n[3-4 real competitors total]\n\n### Competitive Matrix\n[Feature comparison table in text format]\n### Our Unfair Advantages\n[3 specific advantages we have]\n### Blue Ocean Opportunity\n[Gap in market no one is addressing]`,
+
+    stories:`${base}Write User Stories. Create 10 stories:\n### Epic 1: [Name]\n**Story 1:** As a [persona], I want [feature] so that [benefit]\n- Acceptance Criteria: [3 specific criteria]\n- Priority: High/Med/Low | Story Points: [1-8]\n\n[10 stories across 3 epics]\n\n### Definition of Done\n[What "done" means for this product]`,
+
+    mvp:`${base}Write MVP Definition. Include:\n### Core MVP Features (Must Ship)\n[7 features with 1-line description each]\n### Explicitly Excluded from v1\n[5 features and why they're deferred]\n### MVP Success Metrics\n[5 specific numbers that prove PMF]\n### Build Timeline\n[Week by week for 8 weeks]\n### Cost Estimate\n[INR breakdown: development, design, tools]\n### Validation Method\n[Exact experiment to prove product-market fit]`,
+
+    roadmap:`${base}Write 12-Month Product Roadmap. Include:\n### Phase 1: MVP (Month 1-3)\n**Features:** [List]\n**Team:** [Size]\n**Budget:** [INR]\n**Success Metrics:** [Numbers]\n\n### Phase 2: Growth (Month 4-6)\n[Same format]\n\n### Phase 3: Scale (Month 7-9)\n[Same format]\n\n### Phase 4: Expand (Month 10-12)\n[Same format]\n\n### Year 2 Vision\n[High level goals]`,
+
+    moscow:`${base}Write MoSCoW Feature Prioritization. Include:\n### MUST HAVE (Ship before launch)\n[8 features — each with: Effort S/M/L/XL, Impact 1-10, Rationale]\n\n### SHOULD HAVE (Next sprint)\n[6 features — same format]\n\n### COULD HAVE (Nice to have)\n[5 features — same format]\n\n### WON'T HAVE NOW (Explicitly deferred)\n[4 features with reason for deferral]\n\n### Total Effort Summary\n[Weeks needed for Must Have vs full list]`,
+
+    ai:`${base}Write AI & Automation Opportunities. Include:\n### AI Feature 1: [Name]\n**Technology:** [GPT-4/fine-tuned model/etc]\n**What it does:** [Specific functionality]\n**User Value:** [Exact benefit]\n**Implementation:** [Simple/Medium/Complex]\n\n[5 AI features total]\n\n### Process Automations\n[4 automations with time/cost saved each]\n### ML Models to Build\n[Specific models with training data needed]\n### AI APIs to Integrate\n[Real APIs with monthly cost in INR]\n### Competitive Moat from AI\n[Why AI makes us defensible]`,
+
+    techstack:`${base}Write Tech Stack recommendation. For each layer:\n### Frontend\n**Technology:** [Framework]\n**Monthly Cost:** ₹[X]\n**Why:** [Reason over alternatives]\n\n[Cover: Frontend, Backend, Database, Auth, Payments, Cloud/Hosting, Analytics, Communication, CI/CD]\n\n### Total Monthly Tech Cost\n[₹X at launch, ₹Y at 10k users, ₹Z at 100k users]\n### Build vs Buy Decisions\n[5 key decisions with recommendation]\n### Skills Needed\n[Developer profiles required]`,
+
+    design:`${base}Write Design & UX Guide. Include:\n### Design Philosophy\n[Core design principle in 1 sentence]\n### Color Palette\n**Primary:** #[hex] — [usage]\n**Secondary:** #[hex] — [usage]\n**Accent:** #[hex] — [usage]\n**Background:** #[hex]\n**Text:** #[hex]\n\n### Typography\n**Headings:** [Google Font name]\n**Body:** [Google Font name]\n\n### Key Screens to Design First\n[5 screens with layout description]\n### UX Principles\n[4 principles specific to this product]\n### Design Tools\n[Figma/etc with why]\n### Design Timeline\n[Weeks to complete design]`,
+
+    bizmodel:`${base}Write Business Model & Monetization. Include:\n### Primary Revenue Model\n[Type and explanation]\n\n### Pricing Tiers\n**Free Tier:** [Features, goal]\n**Tier 1 — [Name]: ₹[price]/month**\n[6 features included, target user]\n**Tier 2 — [Name]: ₹[price]/month** ⭐ Recommended\n[8 features included, target user]\n**Tier 3 — [Name]: ₹[price]/month**\n[10+ features, enterprise]\n\n### Unit Economics\n**CAC Target:** ₹[X]\n**LTV Target:** ₹[X]\n**LTV:CAC Ratio:** [X:1]\n**Payback Period:** [X months]\n\n### Path to ₹1 Crore ARR\n[Specific milestones]`,
+
+    revenue:`${base}Write Revenue Forecast. Include:\n### Key Assumptions\n[List all assumptions clearly]\n\n### Year 1 Monthly Forecast\n| Month | Users | Paying | MRR |\n[Month 1-12 with numbers]\n\n### Year 2-3 Projections\n[Quarterly]\n\n### Break-Even Analysis\n[Month when profitable, what drives it]\n\n### Scenario Analysis\n**Best Case:** [Numbers]\n**Base Case:** [Numbers]\n**Worst Case:** [Numbers]\n\n### Key Revenue Levers\n[What actions most impact revenue]`,
+
+    gtm:`${base}Write Go-to-Market Strategy. Include:\n### GTM Motion\n[PLG/SLG/Channel and why]\n\n### First 100 Customers Plan\n**Week 1-2:** [Actions]\n**Week 3-4:** [Actions]\n**Week 5-8:** [Actions]\n**Week 9-12:** [Actions]\n\n### Channel Strategy\n**Channel 1:** [Name] — Budget: X% — CAC: ₹[X]\n[3 channels total]\n\n### Launch Messaging\n[Core message for each segment]\n\n### PR & Buzz Strategy\n[How to get press and word-of-mouth]\n\n### 90-Day Launch KPIs\n[Specific numbers to hit]`,
+
+    distribution:`${base}Write Distribution Channels. Include:\n### Channel 1: [Name] — Priority: High\n**CAC:** ₹[X]\n**Volume Potential:** [Users/month]\n**Tactics:** [3 specific actions]\n**Time to Scale:** [Weeks]\n\n[5 channels total]\n\n### App Store Strategy\n[iOS/Android/Web approach]\n### B2B Distribution\n[If applicable — resellers, agencies]\n### API/Integration Distribution\n[Partners to integrate with for distribution]`,
+
+    acquisition:`${base}Write User Acquisition & Retention. Include:\n### Acquisition Channels\n[5 channels with CAC in INR and monthly volume each]\n\n### 7-Step Onboarding Flow\n[Step by step from signup to value]\n\n### Activation Metric\n**Target:** [Specific action in first X days]\n\n### Retention Targets\n**Day 1:** [X%]\n**Day 7:** [X%]\n**Day 30:** [X%]\n\n### Retention Mechanisms\n[5 specific features/tactics to keep users]\n\n### Churn Intervention\n[Triggers and automated responses]\n\n### Referral Program\n[Design with incentive structure]`,
+
+    journey:`${base}Write Customer Journey Map. For each stage:\n### Stage 1: Awareness\n**User Action:** [What they do]\n**Emotion:** 😐/😊/😟\n**Touchpoint:** [Where they encounter us]\n**Our Opportunity:** [What we do here]\n**Success Metric:** [How we measure]\n\n[Cover all stages: Awareness → Interest → Consideration → Decision → Onboarding → Value → Loyalty → Advocacy]`,
+
+    marketing:`${base}Write Marketing & Promotion plan. Include:\n### Brand Voice\n[3 adjectives + tone description]\n\n### Content Marketing\n**Blog Topics:** [5 pillar topics]\n**Posting Frequency:** [X per week]\n**Distribution:** [Channels]\n\n### Social Media Plan\n**Instagram:** [Content type, frequency, target followers 6-month]\n**LinkedIn:** [Same]\n**Twitter/X:** [Same]\n\n### Influencer Strategy\n[Nano/micro influencer approach with budget]\n\n### Email Marketing\n[Welcome sequence, nurture, convert — subject lines]\n\n### 6-Month Content Calendar\n[Monthly themes and key pieces]`,
+
+    seo:`${base}Write SEO & Ad Campaigns strategy. Include:\n### Target Keywords\n[10 keywords with monthly search volume and competition]\n\n### SEO Content Plan\n[5 pillar articles with titles and target keywords]\n\n### Google Ads Strategy\n**Monthly Budget:** ₹[X]\n**Target Keywords:** [Top 5]\n**Expected CPC:** ₹[X]\n**Expected Conversions:** [X/month]\n\n### Meta Ads Strategy\n**Monthly Budget:** ₹[X]\n**Audiences:** [3 specific audiences]\n**Creative Direction:** [Ad concepts]\n\n### 6-Month Traffic Goal\n[Organic + Paid targets]\n\n### Conversion Rate Targets\n[Visitor → Trial → Paid]`,
+
+    team:`${base}Write Team Structure & Hiring plan. Include:\n### Ideal Founding Team\n[2-3 co-founder profiles needed and why]\n\n### Hiring Roadmap\n**Hire 1 — [Role] (Month X):** Salary ₹[X]/month | Why now: [Reason]\n[5 hires total]\n\n### Equity Distribution\n**Founders:** [X%]\n**Employee Pool:** [X%]\n**Investors:** [X%]\n**Advisors:** [X%]\n\n### 12-Month Org Chart\n[Structure at end of year 1]\n\n### Culture Principles\n[5 values that guide hiring and behavior]\n\n### Remote vs Hybrid Decision\n[Recommendation with rationale]`,
+
+    costs:`${base}Write Operational Costs breakdown. Include:\n### Month 1-2 Costs\n**Technology:** ₹[X] — [breakdown]\n**Salaries:** ₹[X] — [who]\n**Marketing:** ₹[X] — [channels]\n**Legal & Compliance:** ₹[X]\n**Miscellaneous:** ₹[X]\n**Total Burn:** ₹[X]/month\n\n[Month 3-4 and Month 5-6 same format]\n\n### 6-Month Total Runway Needed\n₹[X] total\n\n### Cost Optimization Strategies\n[5 ways to reduce burn]\n\n### What to Cut First if Needed\n[Priority order for cuts]`,
+
+    kpis:`${base}Write KPIs Framework. Include:\n### North Star Metric\n**Metric:** [Name]\n**Why:** [Rationale]\n**Current Baseline:** [X]\n**6-Month Target:** [Y]\n\n### Business KPIs\n[5 KPIs with: target value, measurement tool, frequency, owner]\n\n### Product KPIs\n[5 KPIs same format]\n\n### Financial KPIs\n[3 KPIs same format]\n\n### Team KPIs\n[3 KPIs same format]\n\n### Red Flag Thresholds\n[What numbers trigger immediate action]`,
+
+    support:`${base}Write Support & Customer Success plan. Include:\n### Support Channels & SLAs\n**Chat:** Response in [X] minutes\n**Email:** Response in [X] hours\n**Phone:** [Yes/No, when]\n\n### Top 8 FAQs\n**Q1:** [Question]\n**A:** [Detailed answer]\n[8 total]\n\n### Escalation Matrix\n[Tier 1 → Tier 2 → Tier 3 with criteria]\n\n### Customer Health Score\n🟢 **Healthy:** [4 signals]\n🟡 **At Risk:** [4 signals]\n🔴 **Churning:** [4 signals]\n\n### CS Tools Stack\n[Tools with monthly cost in INR]\n\n### Scaling Plan\n[Support at 100/1000/10000 users]`,
+
+    legal:`${base}Write Legal & Compliance for India. Include:\n### Business Structure\n[Pvt Ltd vs LLP recommendation with pros/cons]\n\n### Registration Process\n[Steps and costs in INR]\n\n### Licenses Required\n[Specific licenses for this business type]\n\n### Data Privacy Compliance\n[IT Act requirements + GDPR if targeting global users]\n\n### IP Protection\n[Trademark, patent, copyright strategy]\n\n### Employment Law Basics\n[Key HR compliance points]\n\n### GST Applicability\n[GST rates, filing requirements]\n\n### Top 3 Legal Risks\n[Risks with mitigation strategy]\n\n### Estimated Legal Costs\n[Year 1 legal budget in INR]`,
+
+    traction:`${base}Write Traction & Metrics strategy. Include:\n### 30-Day Milestones\n[Specific numbers to hit in first month]\n\n### 60-Day Milestones\n[Numbers]\n\n### 90-Day Milestones\n[Numbers]\n\n### Traction Channels to Pursue\n[5 channels ranked by expected impact]\n\n### Investor Traction Metrics\n[What numbers VCs want to see for this stage]\n\n### Early Adopter Strategy\n[Exactly how to find and convert first 100 users]\n\n### Proof of Concept Plan\n[How to prove PMF before raising]`,
+
+    valuation:`${base}Write Business Valuation analysis. Include:\n### Valuation Method 1: Revenue Multiple\n[Calculation with current industry multiples]\n\n### Valuation Method 2: Comparable Transactions\n[Real Indian startup comparables with valuations]\n\n### Valuation Method 3: Scorecard\n[Factor-based valuation]\n\n### Current Pre-Revenue Valuation Range\n₹[X] — ₹[Y] Crore\n\n### Post-MVP Target Valuation\n₹[X] Crore — How to get there\n\n### Post-Seed Target Valuation\n₹[X] Crore — Milestones required\n\n### Key Value Drivers\n[5 factors that increase valuation]\n\n### How to Maximize Valuation\n[Specific actions to take now]`,
+
+    funding:`${base}Write Seed Funding strategy for India. Include:\n### How Much to Raise\n**Amount:** ₹[X] Crore / $[X]M\n**Why this amount:** [Rationale]\n**Runway:** [X months]\n\n### Use of Funds\n**Product & Engineering:** [X%] = ₹[X]\n**Marketing & Sales:** [X%] = ₹[X]\n**Team:** [X%] = ₹[X]\n**Operations:** [X%] = ₹[X]\n\n### Dilution Strategy\n[Seed dilution % and rationale]\n\n### Pre-Money Valuation Ask\n₹[X] Crore — justification\n\n### Milestones Before Raising\n[5 things to achieve first]\n\n### Fundraising Timeline\n[Week by week 12-week process]`,
+
+    investors:`${base}Write Finding Investors guide for India. Include:\n### Top Indian VCs to Target\n**1. [Real VC Name]**\n- Focus: [Sectors]\n- Ticket Size: ₹[X]-[Y] Crore\n- Portfolio: [2-3 companies]\n- How to Reach: [Specific approach]\n\n[5 VCs total]\n\n### Angel Investors/Communities\n[5 angels or communities with contact strategy]\n\n### Accelerators to Apply\n[YC, Surge, Antler, etc. with deadlines]\n\n### Warm Intro Strategy\n[Step by step to get introductions]\n\n### AngelList India Strategy\n[Profile optimization + outreach]\n\n### Outreach Template\n[Email template for cold outreach]`,
+
+    pitch:`${base}Write Investor Pitch outline. Include:\n### Slide 1: Problem\n**Key Message:** [One sentence]\n**Data Point:** [Shocking statistic]\n**Visual:** [Description]\n\n### Slide 2: Solution\n[Same format]\n\n[10 slides: Problem, Solution, Market, Product, Business Model, Traction, Team, Competition, Financials, The Ask]\n\n### Story Arc\n[How slides flow together emotionally]\n\n### Top 5 Investor Objections\n**Objection 1:** [Question]\n**Rebuttal:** [Answer]\n[5 total]\n\n### The Ask Slide\n**Raising:** ₹[X] at ₹[Y] pre-money\n**Use of funds:** [Summary]\n**Next milestone:** [What this gets us to]`,
+
+    exit:`${base}Write Exit Strategy. Include:\n### Potential Acquirer 1: [Real Company]\n**Why they'd buy us:** [Strategic rationale]\n**Their M&A history:** [Past acquisitions]\n**Estimated acquisition price:** ₹[X] at [X] years\n\n[5 acquirers total]\n\n### IPO Feasibility\n[Timeline and revenue required for IPO]\n\n### 7-Year Exit Path\n[Year by year milestones leading to exit]\n\n### Factors That Maximize Exit Value\n[5 specific things to do now]\n\n### What Makes Us a Strategic Target\n[Unique assets: data, technology, users, distribution]`,
+
+    naming:`${base}Write Name & Tagline Ideas. Include:\n### Name Options\n**1. [Name]** — [Rationale, domain likelihood, pronounceability]\n[10 names total]\n\n### Tagline Options\n**1. [Tagline]** — [Why it works]\n[5 taglines]\n\n### Brand Voice\n**Adjectives:** [3 words]\n**Tone:** [Description]\n**Example copy:** [2-3 lines]\n\n### Logo Concept\n[Visual direction description]\n\n### Name Testing Method\n[3 ways to test names with real users]\n\n### Trademark Process\n[How to check and register in India]`,
+
+    partnerships:`${base}Write Partnerships & Collaborations strategy. Include:\n### Strategic Partner 1: [Real Company Name]\n**Partnership Type:** [Tech/Distribution/Co-marketing]\n**What we offer them:** [Value]\n**What they offer us:** [Value]\n**How to approach:** [Specific person/channel]\n**Expected Impact:** [Users or ₹ revenue]\n**Timeline to close:** [Weeks]\n\n[6 partners total]\n\n### Partnership Prioritization\n[Which to pursue first and why]\n\n### Partnership Agreement Essentials\n[Key terms to negotiate]`,
+
+    brand:`${base}Write Brand Positioning. Include:\n### Positioning Statement\n"For [target customer] who [need], [brand] is the [category] that [key benefit] unlike [competitor] because [reason to believe]."\n\n### Brand Archetype\n[Which archetype and why: Hero/Sage/Creator/etc]\n\n### Perceptual Map\n[Text description of where we sit vs competitors on 2 axes]\n\n### Messaging Hierarchy\n**Category:** [What we are]\n**Differentiation:** [How we're different]\n**Proof Points:** [3 evidence points]\n\n### Brand Promise\n[One sentence commitment to users]\n\n### Tone of Voice\n[Description with do's and don'ts + examples]\n\n### How to Own a Category\n[Steps to become THE solution in India]`,
+  };
+  return prompts[id] || `${base}Write a comprehensive ${id} report for this startup.`;
+}
+
+// ══ INIT ══
+window.onload = () => {
+  document.getElementById('biz-name').addEventListener('input', checkForm);
+  document.getElementById('biz-desc').addEventListener('input', checkForm);
+};
+
+function checkForm() {
+  const n = document.getElementById('biz-name').value.trim();
+  const d = document.getElementById('biz-desc').value.trim();
+  const btn = document.getElementById('start-btn');
+  btn.disabled = !(n && d);
+  btn.textContent = (n && d) ? '⚡ Generate Reports →' : 'Enter name and idea first...';
+}
+
+// ══ START ══
+function startApp() {
+  const n = document.getElementById('biz-name').value.trim();
+  const d = document.getElementById('biz-desc').value.trim();
+  if (!n || !d) return;
+  BIZ = {name:n, desc:d};
+  CONTENT = {};
+  buildApp();
+  showScreen('app');
+}
+
+function setEx(name, desc) {
+  document.getElementById('biz-name').value = name;
+  document.getElementById('biz-desc').value = desc;
+  checkForm();
+}
+
+// ══ BUILD APP ══
+function buildApp() {
+  // Cat tabs
+  const tabsEl = document.getElementById('cat-tabs');
+  tabsEl.innerHTML = '';
+  CATS.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-tab' + (cat === activeCat ? ' on' : '');
+    btn.onclick = () => switchCat(cat);
+    const catDone = SECTIONS.filter(s=>s.cat===cat&&CONTENT[s.id]).length;
+    const catTotal = SECTIONS.filter(s=>s.cat===cat).length;
+    btn.innerHTML = `<span>${cat.split(' & ')[0]}</span><span style="font-size:9px;opacity:.7">${catDone}/${catTotal}</span>`;
+    btn.id = 'tab-' + cat;
+    tabsEl.appendChild(btn);
+  });
+  buildSecList();
+  updateProgress();
+}
+
+function switchCat(cat) {
+  activeCat = cat;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('tab-' + cat)?.classList.add('on');
+  buildSecList();
+}
+
+function buildSecList() {
+  const list = document.getElementById('sec-list');
+  list.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'cat-lbl';
+  label.textContent = activeCat;
+  list.appendChild(label);
+  SECTIONS.filter(s=>s.cat===activeCat).forEach((s,i) => {
+    const card = document.createElement('div');
+    card.className = 'sec-card' + (CONTENT[s.id] ? ' done' : '');
+    card.onclick = () => openSection(s);
+    card.style.animation = `fu .2s ease ${i*0.03}s both`;
+    card.innerHTML = `
+      <div class="sec-ico">${s.icon}</div>
+      <div class="sec-inf">
+        <div class="sec-name">${s.label}</div>
+        <div class="sec-st">${CONTENT[s.id] ? '✓ Generated — tap to view' : 'Tap to generate'}</div>
+      </div>
+      <div class="sec-arr">${CONTENT[s.id] ? '✓' : '›'}</div>`;
+    list.appendChild(card);
+  });
+}
+
+function updateProgress() {
+  const done = Object.keys(CONTENT).length;
+  const pct = Math.round((done/SECTIONS.length)*100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-cnt').textContent = done + '/38';
+  // Update cat tab counts
+  CATS.forEach(cat => {
+    const catDone = SECTIONS.filter(s=>s.cat===cat&&CONTENT[s.id]).length;
+    const catTotal = SECTIONS.filter(s=>s.cat===cat).length;
+    const tab = document.getElementById('tab-'+cat);
+    if (tab) tab.querySelector('span:last-child').textContent = `${catDone}/${catTotal}`;
+  });
+}
+
+// ══ OPEN SECTION ══
+function openSection(section) {
+  activeSection = section;
+  document.getElementById('r-ico').textContent = section.icon;
+  document.getElementById('r-title').textContent = section.label;
+  document.getElementById('r-biz').textContent = BIZ.name;
+  showScreen('result');
+  renderResult();
+  if (!CONTENT[section.id]) generateContent(section);
+}
+
+function renderResult() {
+  const body = document.getElementById('result-body');
+  const section = activeSection;
+  const redoBtn = document.getElementById('redo-btn');
+
+  if (isLoading) {
+    redoBtn.style.display = 'none';
+    body.innerHTML = `
+      <div class="loading">
+        <div class="spinner"></div>
+        <div style="text-align:center">
+          <div style="font-size:14px;font-weight:700;margin-bottom:6px">Generating...</div>
+          <div style="font-size:12px;color:var(--t3);font-family:'JetBrains Mono'">${section.label}</div>
+          <div style="font-size:11px;color:var(--b2);font-family:'JetBrains Mono';margin-top:4px">${BIZ.name} — analyzing real data for your startup</div>
+        </div>
+      </div>`;
+  } else if (CONTENT[section.id]) {
+    redoBtn.style.display = 'block';
+    body.innerHTML = `
+      <div class="result-tag">
+        <span style="font-size:18px">${section.icon}</span>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--acc)">${section.label}</div>
+          <div style="font-size:11px;color:var(--t3);font-family:'JetBrains Mono'">for ${BIZ.name}</div>
+        </div>
+      </div>
+      <div class="result-content fu">${fmt(CONTENT[section.id])}</div>`;
+  }
+}
+
+function fmt(t) {
+  return t
+    .replace(/###\s*(.*?)(?:\n|$)/g, '<div class="rh">$1</div>')
+    .replace(/##\s*(.*?)(?:\n|$)/g, '<div class="rh">$1</div>')
+    .replace(/# (.*?)(?:\n|$)/g, '<div class="rh">$1</div>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#e6edf3;font-weight:700">$1</strong>')
+    .replace(/`([^`\n]+)`/g, '<code style="background:rgba(0,212,255,.1);padding:2px 6px;border-radius:4px;font-family:JetBrains Mono,monospace;font-size:.85em;color:#00d4ff">$1</code>')
+    .replace(/^[-•]\s(.+)$/gm, '<div class="rl">• $1</div>')
+    .replace(/^\d+\.\s(.+)$/gm, m => `<div class="rl">${m.trim()}</div>`)
+    .replace(/\n\n/g, '<br/><br/>').replace(/\n/g, '<br/>');
+}
+
+// ══ API CALL — POLLINATIONS AI (FREE, NO KEY) ══
+async function generateContent(section) {
+  isLoading = true;
+  renderResult();
+  try {
+    const prompt = getPrompt(section.id, BIZ.name, BIZ.desc);
+    const resp = await fetch('https://text.pollinations.ai/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'openai',
+        messages: [
+          { role: 'system', content: 'You are a senior startup consultant with 20 years of experience. Always respond in English only. Provide detailed, realistic data with real numbers, real company names, and actionable insights.' },
+          { role: 'user', content: prompt }
+        ],
+        seed: Math.floor(Math.random() * 99999),
+        private: true
+      })
+    });
+    if (!resp.ok) throw new Error('Server error: ' + resp.status);
+    const text = await resp.text();
+    if (!text || text.length < 50) throw new Error('Empty response — please retry');
+    CONTENT[section.id] = text;
+    isLoading = false;
+    renderResult();
+    updateProgress();
+    buildSecList();
+    showToast('✓ ' + section.label + ' ready!', 'ok');
+  } catch(e) {
+    isLoading = false;
+    CONTENT[section.id] = '❌ Error: ' + e.message + '\n\nCheck your internet and tap Redo.';
+    renderResult();
+    showToast('Error occurred — please try Redo', 'err');
+  }
+}
+
+async function redoCurrent() {
+  if (!activeSection || isLoading) return;
+  delete CONTENT[activeSection.id];
+  buildSecList();
+  updateProgress();
+  await generateContent(activeSection);
+}
+
+// ══ NAVIGATION ══
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('off', s.id !== id));
+}
+
+function goBack() {
+  showScreen('app');
+  buildSecList();
+}
+
+// ══ MODAL ══
+function openModal() {
+  document.getElementById('m-name').value = BIZ.name;
+  document.getElementById('m-desc').value = BIZ.desc;
+  document.getElementById('modal').classList.remove('off');
+}
+function modalOut(e) { if(e.target.id==='modal') document.getElementById('modal').classList.add('off'); }
+function saveModal() {
+  const n = document.getElementById('m-name').value.trim();
+  const d = document.getElementById('m-desc').value.trim();
+  if (!n || !d) return;
+  if (n !== BIZ.name || d !== BIZ.desc) CONTENT = {};
+  BIZ = {name:n, desc:d};
+  document.getElementById('modal').classList.add('off');
+  buildApp();
+  showToast('✅ Saved!', 'ok');
+}
+
+// ══ TOAST ══
+function showToast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
+
