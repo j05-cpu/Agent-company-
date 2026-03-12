@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AutoStartup</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden;font-size:15px;}
+::-webkit-scrollbar{display:none;}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:#000;transition:transform .28s cubic-bezier(.4,0,.2,1);overflow:hidden;}
+.screen.off{transform:translateX(100%);pointer-events:none;}
+
+/* HOME */
+#home{overflow-y:auto;}
+.home-top{padding:54px 20px 22px;border-bottom:1px solid #1c1c1c;}
+.logo-row{display:flex;align-items:center;justify-content:space-between;}
+.logo-left{display:flex;align-items:center;gap:11px;}
+.logo-box{width:42px;height:42px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.logo-text{font-size:22px;font-weight:700;}
+.logo-text em{font-style:normal;color:#0ed2d2;}
+.hist-btn{width:38px;height:38px;border-radius:10px;border:1px solid #222;background:#0d0d0d;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0;}
+.hist-btn:active{border-color:#fff;}
+.home-desc{font-size:14px;color:#666;line-height:1.55;margin-top:10px;}
+.home-body{padding:22px 20px 50px;display:flex;flex-direction:column;gap:16px;}
+.lbl{font-size:13px;color:#666;margin-bottom:6px;display:block;}
+.inp{width:100%;background:#0d0d0d;border:1px solid #222;border-radius:11px;padding:13px 15px;font-size:15px;color:#fff;outline:none;font-family:inherit;transition:border-color .2s;}
+.inp:focus{border-color:#555;}
+.inp::placeholder{color:#333;}
+textarea.inp{resize:none;line-height:1.5;}
+.go-btn{width:100%;height:52px;border-radius:11px;border:none;background:#fff;color:#000;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;}
+.go-btn:disabled{background:#1c1c1c;color:#333;cursor:not-allowed;}
+.go-btn:active{opacity:.85;}
+.or-line{text-align:center;color:#333;font-size:13px;}
+.ex-list{display:flex;flex-direction:column;gap:9px;}
+.ex-card{background:#0d0d0d;border:1px solid #1c1c1c;border-radius:11px;padding:13px 15px;color:#888;font-size:14px;font-family:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;gap:11px;}
+.ex-card:active{border-color:#444;color:#fff;}
+.ex-em{font-size:19px;flex-shrink:0;}
+
+/* HISTORY SCREEN */
+#history{display:flex;flex-direction:column;}
+.hist-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;color:#444;}
+.hist-empty-ico{font-size:48px;}
+.hist-empty-t{font-size:16px;font-weight:600;color:#555;}
+.hist-empty-s{font-size:13px;color:#333;text-align:center;}
+.hist-scroll{flex:1;overflow-y:auto;padding:16px 20px 40px;}
+.hist-item{background:#0d0d0d;border:1px solid #1c1c1c;border-radius:12px;padding:15px;margin-bottom:10px;cursor:pointer;position:relative;}
+.hist-item:active{border-color:#444;}
+.hist-item-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.hist-item-name{font-size:16px;font-weight:600;color:#fff;}
+.hist-item-del{width:28px;height:28px;border-radius:7px;border:1px solid #222;background:transparent;color:#555;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hist-item-del:active{border-color:#f87171;color:#f87171;}
+.hist-item-desc{font-size:13px;color:#555;line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.hist-item-meta{display:flex;align-items:center;gap:10px;}
+.hist-item-count{font-size:12px;color:#0e7c7b;}
+.hist-item-date{font-size:12px;color:#333;}
+.hist-item-arrow{position:absolute;right:15px;bottom:15px;font-size:18px;color:#222;}
+
+/* REPORT LIST */
+#app{display:flex;flex-direction:column;}
+.nav-bar{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;border-bottom:1px solid #1c1c1c;flex-shrink:0;}
+.nav-back{font-size:24px;color:#fff;cursor:pointer;line-height:1;}
+.nav-title{font-size:17px;font-weight:600;}
+.nav-count{font-size:13px;color:#0ed2d2;}
+.pbar{height:1px;background:#1c1c1c;flex-shrink:0;}
+.pfill{height:100%;background:#fff;transition:width .3s;}
+.rep-scroll{flex:1;overflow-y:auto;}
+.cat-wrap{padding:0 20px;}
+.cat-hd{font-size:11px;font-weight:700;color:#0ed2d2;letter-spacing:1.2px;padding:18px 0 9px;border-bottom:1px solid #1c1c1c;}
+.rep-row{display:flex;align-items:center;gap:13px;padding:14px 0;border-bottom:1px solid #111;cursor:pointer;}
+.rep-row:active{opacity:.6;}
+.rep-ball{width:42px;height:42px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.rep-row.done .rep-ball{background:#0a1f1f;}
+.rep-inf{flex:1;min-width:0;}
+.rep-nm{font-size:15px;color:#fff;font-weight:400;line-height:1.3;}
+.rep-st{font-size:12px;color:#444;margin-top:3px;}
+.rep-row.done .rep-st{color:#0e7c7b;}
+.rep-arr{font-size:19px;color:#222;flex-shrink:0;}
+.rep-row.done .rep-arr{color:#0e7c7b;}
+
+/* RESULT */
+#result{display:flex;flex-direction:column;}
+.res-nav{display:flex;align-items:center;gap:11px;padding:15px 20px;border-bottom:1px solid #1c1c1c;flex-shrink:0;}
+.res-back{font-size:24px;color:#fff;cursor:pointer;flex-shrink:0;line-height:1;}
+.res-inf{flex:1;min-width:0;}
+.res-nm{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.res-biz{font-size:12px;color:#444;margin-top:2px;}
+.redo-btn{height:32px;padding:0 13px;border-radius:8px;border:1px solid #222;background:transparent;color:#666;font-size:13px;cursor:pointer;font-family:inherit;flex-shrink:0;}
+.redo-btn:active{border-color:#fff;color:#fff;}
+.res-body{flex:1;overflow-y:auto;padding:20px 20px 50px;}
+.res-chip{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:10px;padding:12px 15px;margin-bottom:22px;display:flex;align-items:center;gap:10px;}
+.res-chip-ico{font-size:20px;}
+.res-chip-nm{font-size:14px;font-weight:500;color:#fff;}
+.res-chip-biz{font-size:12px;color:#444;margin-top:1px;}
+
+/* CONTENT */
+.ct{font-size:15px;line-height:1.8;color:#bbb;font-weight:400;}
+.ct h3{font-size:15px;font-weight:600;color:#fff;margin:22px 0 8px;padding-left:10px;border-left:2px solid #444;display:block;}
+.ct p{margin-bottom:8px;color:#bbb;}
+.ct ul{list-style:none;padding:0;margin:6px 0;}
+.ct li{padding-left:14px;margin-bottom:5px;color:#bbb;position:relative;}
+.ct li::before{content:"·";color:#555;position:absolute;left:2px;}
+.ct strong{color:#ddd;font-weight:500;}
+.ct code{background:#111;padding:1px 6px;border-radius:4px;font-size:13px;color:#aaa;font-family:monospace;}
+
+/* LOADING */
+.ld{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:16px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sp{width:36px;height:36px;border:2px solid #222;border-top-color:#fff;border-radius:50%;animation:spin .9s linear infinite;}
+.ld-t{font-size:15px;font-weight:600;color:#fff;}
+.ld-s{font-size:13px;color:#444;text-align:center;line-height:1.5;}
+
+/* SETTINGS MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:flex;align-items:flex-end;transition:opacity .22s;}
+.ov.off{opacity:0;pointer-events:none;}
+.sheet{background:#0d0d0d;border-radius:18px 18px 0 0;border-top:1px solid #1c1c1c;padding:18px 20px 38px;width:100%;}
+.sh-handle{width:34px;height:3px;background:#333;border-radius:2px;margin:0 auto 18px;}
+.sh-title{font-size:17px;font-weight:700;margin-bottom:16px;}
+.sh-save{width:100%;height:50px;border-radius:11px;border:none;background:#fff;color:#000;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;}
+
+
+
+/* TOAST */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(10px);background:#1c1c1c;border:1px solid #2a2a2a;border-radius:9px;padding:9px 16px;font-size:13px;color:#fff;z-index:600;opacity:0;transition:all .22s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.ok{border-color:#1a3a1a;color:#4ade80;}
+.toast.err{border-color:#3a1a1a;color:#f87171;}
+
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.fi{animation:fi .2s ease both;}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="screen" id="home">
+  <div class="home-top">
+    <div class="logo-row">
+      <div class="logo-left">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="90" height="90" style="border-radius:16px">
+          <rect width="400" height="400" fill="#000"/>
+          <circle cx="200" cy="185" r="130" fill="none" stroke="#fff" stroke-width="1" opacity="0.15"/>
+          <g transform="translate(200,185) rotate(-40)">
+            <rect x="-4" y="-115" width="8" height="175" rx="2" fill="#fff"/>
+            <polygon points="0,-155 -4,-115 4,-115" fill="#fff"/>
+            <rect x="-1" y="-80" width="2" height="60" rx="1" fill="#000" opacity="0.4"/>
+            <rect x="-4" y="-30" width="8" height="2" rx="1" fill="#000" opacity="0.5"/>
+            <rect x="-4" y="-10" width="8" height="2" rx="1" fill="#000" opacity="0.5"/>
+            <polygon points="-4,40 -20,72 -4,58" fill="#fff"/>
+            <polygon points="4,40 20,72 4,58" fill="#fff"/>
+            <polygon points="-4,-70 -14,-55 -4,-60" fill="#fff" opacity="0.8"/>
+            <polygon points="4,-70 14,-55 4,-60" fill="#fff" opacity="0.8"/>
+            <polygon points="-4,8 -13,22 -4,16" fill="#fff" opacity="0.65"/>
+            <polygon points="4,8 13,22 4,16" fill="#fff" opacity="0.65"/>
+            <rect x="-4" y="58" width="8" height="6" rx="1" fill="#fff" opacity="0.7"/>
+            <ellipse cx="0" cy="65" rx="3" ry="2" fill="#000"/>
+            <ellipse cx="0" cy="74" rx="3" ry="12" fill="#fff" opacity="1"/>
+            <ellipse cx="0" cy="85" rx="2.5" ry="12" fill="#fff" opacity="0.7"/>
+            <ellipse cx="0" cy="96" rx="1.8" ry="12" fill="#fff" opacity="0.4"/>
+            <ellipse cx="0" cy="106" rx="1.2" ry="10" fill="#fff" opacity="0.2"/>
+            <ellipse cx="0" cy="114" rx="0.8" ry="8" fill="#fff" opacity="0.1"/>
+          </g>
+          <line x1="176" y1="212" x2="80" y2="275" stroke="#fff" stroke-width="1" opacity="0.2"/>
+          <line x1="170" y1="220" x2="88" y2="274" stroke="#fff" stroke-width="0.7" opacity="0.13"/>
+          <line x1="182" y1="205" x2="95" y2="260" stroke="#fff" stroke-width="0.7" opacity="0.1"/>
+          <circle cx="200" cy="58" r="2" fill="#fff" opacity="0.35"/>
+          <circle cx="327" cy="185" r="2" fill="#fff" opacity="0.35"/>
+          <circle cx="73" cy="185" r="2" fill="#fff" opacity="0.35"/>
+          <circle cx="200" cy="312" r="2" fill="#fff" opacity="0.35"/>
+        </svg>
+        <div class="logo-text">Auto<em>Startup</em></div>
+      </div>
+      <div class="hist-btn" onclick="showScreen('history')" title="History">🕐</div>
+    </div>
+    <div class="home-desc">Enter your business name and idea to generate 38 detailed AI reports — free.</div>
+  </div>
+  <div class="home-body">
+    <div>
+      <label class="lbl">Business Name</label>
+      <input class="inp" type="text" id="biz-name" placeholder="E.g., FitBuddy, TaskFlow, QuickHire"/>
+    </div>
+    <div>
+      <label class="lbl">Business Idea</label>
+      <textarea class="inp" id="biz-desc" rows="5" placeholder="Describe your startup — what it does, who it's for, and what problem it solves."></textarea>
+    </div>
+    <button class="go-btn" id="go-btn" onclick="startApp()" disabled>Enter your name and idea to continue</button>
+    <div class="or-line">— or try an example —</div>
+    <div class="ex-list">
+      <button class="ex-card" onclick="setEx('FitBuddy','AI-powered personalized fitness coach app for Indians doing home workouts. Creates custom workout plans, tracks progress, and motivates users through gamification. Targets working professionals aged 25-40.')">
+        <span class="ex-em">🏋️</span><span>AI Fitness Coach App</span>
+      </button>
+      <button class="ex-card" onclick="setEx('FreelanceHub','AI platform for Indian freelancers to find clients, manage projects, generate invoices, and get paid. Targeting 15 million freelancers across design, development, and writing.')">
+        <span class="ex-em">💼</span><span>Freelancer Platform</span>
+      </button>
+      <button class="ex-card" onclick="setEx('RestroOps','B2B inventory and order management SaaS for small restaurants and cloud kitchens in India. Reduces food waste by 40 percent and automates reordering with Zomato and Swiggy integration.')">
+        <span class="ex-em">🍽️</span><span>Restaurant B2B SaaS</span>
+      </button>
+      <button class="ex-card" onclick="setEx('LearnPath','AI adaptive learning platform for Indian students preparing for JEE, NEET, and UPSC. Personalized study plans, AI doubt solving, and mock tests targeting tier 2 and 3 city students.')">
+        <span class="ex-em">📚</span><span>EdTech Platform</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="screen off" id="history">
+  <div class="nav-bar">
+    <div class="nav-back" onclick="showScreen('home')">←</div>
+    <div class="nav-title">My Projects</div>
+    <div style="width:24px"></div>
+  </div>
+  <div id="hist-body" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;"></div>
+</div>
+
+<!-- REPORT LIST -->
+<div class="screen off" id="app">
+  <div class="nav-bar">
+    <div class="nav-back" onclick="goHome()">←</div>
+    <div class="nav-title" id="app-title">Select Report</div>
+    <div class="nav-count" id="prog-cnt">0 / 38</div>
+  </div>
+  <div class="pbar"><div class="pfill" id="pfill"></div></div>
+  <div style="padding:10px 16px 0">
+    <button id="gen-all-btn" onclick="generateAll()" style="width:100%;padding:13px;background:#fff;color:#000;border:none;border-radius:12px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:.5px;">⚡ Generate All 38 Reports</button>
+    <div id="gen-all-status" style="display:none;text-align:center;font-size:12px;color:#666;padding:8px 0;"></div>
+  </div>
+  <div class="rep-scroll" id="rep-scroll"></div>
+</div>
+
+<!-- RESULT -->
+<div class="screen off" id="result">
+  <div class="res-nav">
+    <div class="res-back" onclick="goBack()">←</div>
+    <div class="res-inf">
+      <div class="res-nm" id="r-title">Report</div>
+      <div class="res-biz" id="r-biz">Business</div>
+    </div>
+    <button class="redo-btn" id="redo-btn" onclick="redoCurrent()" style="display:none">↻ Redo</button>
+  </div>
+  <div class="res-body" id="res-body"></div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="ov off" id="modal" onclick="modalBg(event)">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Edit Project</div>
+    <label class="lbl">Business Name</label>
+    <input class="inp" type="text" id="m-name" style="margin-bottom:14px"/>
+    <label class="lbl">Business Idea</label>
+    <textarea class="inp" id="m-desc" rows="4" style="margin-bottom:8px"></textarea>
+    <div style="font-size:12px;color:#555;margin-bottom:10px;">Changing idea will clear all generated reports.</div>
+    <button class="sh-save" onclick="saveModal()">Save Changes</button>
+  </div>
+</div>
+
+
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SECTIONS=[
+  {id:'overview',label:'Business Overview',icon:'📋',cat:'IDEA & VISION'},
+  {id:'problem',label:'Problem & Solution',icon:'💡',cat:'IDEA & VISION'},
+  {id:'whynow',label:'Why Now?',icon:'⏰',cat:'IDEA & VISION'},
+  {id:'vision',label:'Vision & Mission',icon:'🎯',cat:'IDEA & VISION'},
+  {id:'market',label:'Market Potential',icon:'📊',cat:'MARKET RESEARCH'},
+  {id:'segments',label:'Customer Segmentation',icon:'👥',cat:'MARKET RESEARCH'},
+  {id:'painpoints',label:'User Pain Points',icon:'⚠️',cat:'MARKET RESEARCH'},
+  {id:'trends',label:'Market & Consumer Trends',icon:'📈',cat:'MARKET RESEARCH'},
+  {id:'competition',label:'Competition & Alternatives',icon:'⚔️',cat:'MARKET RESEARCH'},
+  {id:'stories',label:'User Stories',icon:'📖',cat:'PRODUCT & MVP'},
+  {id:'mvp',label:'Minimum Viable Product',icon:'🚀',cat:'PRODUCT & MVP'},
+  {id:'roadmap',label:'Product Roadmap',icon:'🗺️',cat:'PRODUCT & MVP'},
+  {id:'moscow',label:'Feature Prioritization (MoSCoW)',icon:'✅',cat:'PRODUCT & MVP'},
+  {id:'ai',label:'AI & Automation Opportunities',icon:'🤖',cat:'PRODUCT & MVP'},
+  {id:'techstack',label:'Tech Stack & Tools',icon:'⚙️',cat:'PRODUCT & MVP'},
+  {id:'design',label:'Design & Mockup Guide',icon:'🎨',cat:'PRODUCT & MVP'},
+  {id:'bizmodel',label:'Business Model & Monetization',icon:'💰',cat:'BUSINESS MODEL'},
+  {id:'revenue',label:'Revenue Forecast',icon:'📉',cat:'BUSINESS MODEL'},
+  {id:'gtm',label:'Go-to-Market Strategy',icon:'📣',cat:'BUSINESS MODEL'},
+  {id:'distribution',label:'Distribution Channels',icon:'🚚',cat:'BUSINESS MODEL'},
+  {id:'acquisition',label:'User Acquisition & Retention',icon:'🔄',cat:'BUSINESS MODEL'},
+  {id:'journey',label:'Customer Journey Map',icon:'🗺️',cat:'BUSINESS MODEL'},
+  {id:'marketing',label:'Marketing & Promotion',icon:'📢',cat:'BUSINESS MODEL'},
+  {id:'seo',label:'SEO & Ad Campaigns',icon:'🔍',cat:'BUSINESS MODEL'},
+  {id:'team',label:'Team Structure & Hiring',icon:'👤',cat:'TEAM & OPERATIONS'},
+  {id:'costs',label:'Operational Costs',icon:'💸',cat:'TEAM & OPERATIONS'},
+  {id:'kpis',label:'Key Performance Indicators',icon:'📊',cat:'TEAM & OPERATIONS'},
+  {id:'support',label:'Support & Customer Success',icon:'🎧',cat:'TEAM & OPERATIONS'},
+  {id:'legal',label:'Legal & Compliance',icon:'⚖️',cat:'TEAM & OPERATIONS'},
+  {id:'traction',label:'Traction & Metrics',icon:'📈',cat:'FUNDING & GROWTH'},
+  {id:'valuation',label:'Business Valuation',icon:'💎',cat:'FUNDING & GROWTH'},
+  {id:'funding',label:'Seed / Pre-seed Funding',icon:'💵',cat:'FUNDING & GROWTH'},
+  {id:'investors',label:'Finding Investors',icon:'🔎',cat:'FUNDING & GROWTH'},
+  {id:'pitch',label:'Investor Pitch Outline',icon:'🎤',cat:'FUNDING & GROWTH'},
+  {id:'exit',label:'Exit Strategy',icon:'🚪',cat:'FUNDING & GROWTH'},
+  {id:'naming',label:'Name & Tagline Ideas',icon:'✏️',cat:'BRAND & PARTNERSHIPS'},
+  {id:'partnerships',label:'Partnerships & Collaborations',icon:'🤝',cat:'BRAND & PARTNERSHIPS'},
+  {id:'brand',label:'Brand Positioning',icon:'🎯',cat:'BRAND & PARTNERSHIPS'},
+];
+const CATS=[...new Set(SECTIONS.map(s=>s.cat))];
+let BIZ={name:'',desc:''},CONTENT={},activeSection=null,isLoading=false,currentProjectId=null;
+
+// ── HISTORY (localStorage) ──
+function getProjects(){
+  try{return JSON.parse(localStorage.getItem('sai_projects')||'[]');}catch{return[];}
+}
+function saveProjects(arr){
+  try{localStorage.setItem('sai_projects',JSON.stringify(arr));}catch{}
+}
+function saveCurrentProject(){
+  if(!BIZ.name)return;
+  const projects=getProjects();
+  const now=Date.now();
+  if(currentProjectId){
+    const idx=projects.findIndex(p=>p.id===currentProjectId);
+    if(idx>-1){
+      projects[idx]={...projects[idx],name:BIZ.name,desc:BIZ.desc,content:CONTENT,updated:now};
+      saveProjects(projects);return;
+    }
+  }
+  // New project
+  currentProjectId=now.toString();
+  projects.unshift({id:currentProjectId,name:BIZ.name,desc:BIZ.desc,content:CONTENT,created:now,updated:now});
+  saveProjects(projects);
+}
+function deleteProject(id,e){
+  e.stopPropagation();
+  const projects=getProjects().filter(p=>p.id!==id);
+  saveProjects(projects);
+  if(currentProjectId===id){currentProjectId=null;}
+  buildHistoryList();
+  showToast('Project deleted','ok');
+}
+function loadProject(p){
+  BIZ={name:p.name,desc:p.desc};
+  CONTENT=p.content||{};
+  currentProjectId=p.id;
+  document.getElementById('app-title').textContent=p.name;
+  buildList();
+  showScreen('app');
+}
+function buildHistoryList(){
+  const body=document.getElementById('hist-body');
+  const projects=getProjects();
+  if(!projects.length){
+    body.innerHTML=`<div class="hist-empty"><div class="hist-empty-ico">📂</div><div class="hist-empty-t">No projects yet</div><div class="hist-empty-s">Your generated reports will<br>appear here automatically</div></div>`;
+    return;
+  }
+  body.innerHTML='<div style="padding:16px 20px 0;font-size:12px;color:#444;">'+projects.length+' project'+(projects.length>1?'s':'')+'</div>';
+  projects.forEach(p=>{
+    const done=Object.keys(p.content||{}).length;
+    const date=new Date(p.updated||p.created).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    const card=document.createElement('div');
+    card.className='hist-item fi';
+    card.onclick=()=>loadProject(p);
+    card.innerHTML=`
+      <div class="hist-item-top">
+        <div class="hist-item-name">${p.name}</div>
+        <button class="hist-item-del" onclick="deleteProject('${p.id}',event)">✕</button>
+      </div>
+      <div class="hist-item-desc">${p.desc}</div>
+      <div class="hist-item-meta">
+        <span class="hist-item-count">${done} / 38 reports</span>
+        <span class="hist-item-date">${date}</span>
+      </div>`;
+    body.appendChild(card);
+  });
+}
+
+// ── KEY ──
+
+
+// ── INIT ──
+window.onload=()=>{
+  document.getElementById('biz-name').addEventListener('input',checkForm);
+  document.getElementById('biz-desc').addEventListener('input',checkForm);
+
+};
+
+function checkForm(){
+  const n=document.getElementById('biz-name').value.trim();
+  const d=document.getElementById('biz-desc').value.trim();
+  const btn=document.getElementById('go-btn');
+  btn.disabled=!(n&&d);
+  btn.textContent=(n&&d)?'Select Report →':'Enter your name and idea to continue';
+}
+function setEx(name,desc){
+  document.getElementById('biz-name').value=name;
+  document.getElementById('biz-desc').value=desc;
+  checkForm();
+}
+function startApp(){
+  const n=document.getElementById('biz-name').value.trim();
+  const d=document.getElementById('biz-desc').value.trim();
+  if(!n||!d)return;
+  BIZ={name:n,desc:d};CONTENT={};currentProjectId=null;
+  document.getElementById('app-title').textContent=n;
+  buildList();showScreen('app');
+}
+function goHome(){
+  saveCurrentProject();
+  showScreen('home');
+}
+
+// ── REPORT LIST ──
+function buildList(){
+  const s=document.getElementById('rep-scroll');s.innerHTML='';
+  CATS.forEach(cat=>{
+    const secs=SECTIONS.filter(x=>x.cat===cat);
+    const w=document.createElement('div');w.className='cat-wrap';
+    const h=document.createElement('div');h.className='cat-hd';
+    h.textContent=`${cat} (${secs.length})`;w.appendChild(h);
+    secs.forEach(sec=>{
+      const r=document.createElement('div');
+      r.className='rep-row'+(CONTENT[sec.id]?' done':'');
+      r.onclick=()=>openSec(sec);
+      r.innerHTML=`<div class="rep-ball">${sec.icon}</div><div class="rep-inf"><div class="rep-nm">${sec.label}</div><div class="rep-st">${CONTENT[sec.id]?'Generated — tap to view':'Tap to generate'}</div></div><div class="rep-arr">${CONTENT[sec.id]?'✓':'›'}</div>`;
+      w.appendChild(r);
+    });
+    s.appendChild(w);
+  });
+  updProg();
+}
+function updProg(){
+  const d=Object.keys(CONTENT).length;
+  document.getElementById('pfill').style.width=(d/38*100)+'%';
+  document.getElementById('prog-cnt').textContent=d+' / 38';
+}
+function openSec(sec){
+  activeSection=sec;
+  document.getElementById('r-title').textContent=sec.label;
+  document.getElementById('r-biz').textContent=BIZ.name;
+  showScreen('result');
+  if(CONTENT[sec.id])renderRes();else doGen(sec);
+}
+
+// ── RESULT ──
+function renderRes(){
+  const body=document.getElementById('res-body');
+  const redo=document.getElementById('redo-btn');
+  if(isLoading){
+    redo.style.display='none';
+    body.innerHTML=`<div class="ld"><div class="sp"></div><div class="ld-t">Generating report...</div><div class="ld-s">${activeSection.label}<br>for ${BIZ.name}</div></div>`;
+  }else if(CONTENT[activeSection.id]){
+    redo.style.display='block';
+    body.innerHTML=`<div class="res-chip fi"><div class="res-chip-ico">${activeSection.icon}</div><div><div class="res-chip-nm">${activeSection.label}</div><div class="res-chip-biz">for ${BIZ.name}</div></div></div><div class="ct fi">${fmt(CONTENT[activeSection.id])}</div>`;
+  }
+}
+function fmt(raw){
+  return raw
+    .replace(/^#{1,6}\s*(.+)$/gm,'<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/`([^`\n]+)`/g,'<code>$1</code>')
+    .replace(/^[-•*]\s(.+)$/gm,'<li>$1</li>')
+    .replace(/^\d+\.\s(.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>[\s\S]*?<\/li>)/g,'<ul style="list-style:none;padding:0;margin:4px 0">$1</ul>')
+    .replace(/\n\n/g,'<br><br>')
+    .replace(/\n/g,'<br>');
+}
+
+// ── HUGGINGFACE API ──
+function getPrompt(id,name,desc){
+  const base=`You are a senior startup consultant. Write a detailed, specific report for startup "${name}": ${desc}.\nRules: English only. ### for headers. ** for bold. - for bullets. Write DIRECTLY, no preamble. Real 2025-2026 data, real company names, India focus.\n\n`;
+  const p={
+    overview:base+'Business Overview:\n### Executive Summary\n### Core Value Proposition\n### Business Model\n### Target Market\n### Capital Required for MVP (INR)\n### Key Success Factors',
+    problem:base+'Problem & Solution:\n### The Core Problem\n### Who Is Affected\n### Current Inadequate Solutions\n### Our Solution\n### Key Differentiators\n### Why Users Will Switch',
+    whynow:base+'Why Now Analysis:\n### Market Timing\n### Technology Enablers\n### Post-2020 Behavioral Shifts\n### Regulatory Tailwinds\n### Economic Factors\n### Window of Opportunity',
+    vision:base+'Vision & Mission:\n### 10-Year Vision\n### Mission Statement\n### Core Values\n### Strategic Pillars\n### North Star Metric\n### Social Impact',
+    market:base+'Market Potential:\n### Total Addressable Market (INR+USD)\n### Serviceable Addressable Market\n### Serviceable Obtainable Market\n### CAGR\n### Key Growth Drivers\n### India Tier Breakdown\n### Market Risks',
+    segments:base+'Customer Segmentation with 3 personas. Each: name, age, job, city tier, income, pain points, tools used, willingness to pay, online habits. End with primary target.',
+    painpoints:base+'5 User Pain Points. Each: severity, time lost, money wasted, current workaround, why it fails. Add Jobs-to-be-Done and emotional pain.',
+    trends:base+'Market Trends:\n### Macro Trends\n### Micro Trends\n### India-Specific Dynamics\n### Behavior Shifts 2023-2025\n### 2026 Predictions',
+    competition:base+'Competition: 3-4 real competitors each with funding, users, pricing, strengths, weaknesses. Add competitive matrix, unfair advantages, blue ocean.',
+    stories:base+'10 User Stories in 3 epics. Each: As a [persona] I want [feature] so that [benefit]. Include acceptance criteria, priority, story points.',
+    mvp:base+'MVP:\n### Core Features\n### Excluded from v1\n### Success Metrics\n### 8-Week Build Timeline\n### Cost (INR)\n### Validation Method',
+    roadmap:base+'12-Month Roadmap in 4 phases. Each: features, team, budget (INR), KPIs. Add Year 2 vision.',
+    moscow:base+'MoSCoW:\n### Must Have\n### Should Have\n### Could Have\n### Will Not Have Now\n### Effort Summary',
+    ai:base+'AI & Automation: 5 features (tech, function, value, complexity). Process automations. APIs with costs. Competitive moat.',
+    techstack:base+'Tech Stack: Frontend, Backend, DB, Auth, Payments, Cloud, Analytics, CI/CD. Each: technology, INR/month, reason. Total costs at scale.',
+    design:base+'Design Guide:\n### Philosophy\n### Color Palette (hex)\n### Typography\n### 5 Key Screens\n### UX Principles\n### Accessibility',
+    bizmodel:base+'Business Model:\n### Revenue Model\n### Pricing Tiers with INR prices\n### Unit Economics (CAC, LTV, ratio)\n### Path to 1 Crore ARR',
+    revenue:base+'Revenue Forecast: assumptions, Month 1-12 (users, paying%, MRR), Year 2-3 quarterly, break-even, best/base/worst scenarios.',
+    gtm:base+'GTM Strategy:\n### GTM Motion\n### First 100 Customers\n### Channel Strategy\n### Launch Messaging\n### PR Plan\n### 90-Day KPIs',
+    distribution:base+'Distribution: 5 channels (CAC, volume, tactics, timeline). App store, B2B, integration strategies.',
+    acquisition:base+'Acquisition & Retention:\n### 5 Channels with CAC\n### Onboarding Flow\n### D1/D7/D30 Retention Targets\n### Retention Mechanisms\n### Referral Program',
+    journey:base+'Customer Journey Map: Awareness→Interest→Consideration→Decision→Onboarding→Value→Loyalty→Advocacy. Each: action, emotion, touchpoint, opportunity, metric.',
+    marketing:base+'Marketing Plan:\n### Brand Voice\n### Content Strategy\n### Social Media (Instagram, LinkedIn, Twitter)\n### Influencer Strategy\n### Email Sequences',
+    seo:base+'SEO & Ads: 10 keywords with volume, content plan, Google Ads (INR budget, CPC, conversions), Meta Ads, traffic goals.',
+    team:base+'Team:\n### Founding Team\n### First 5 Hires (role, month, INR salary)\n### Equity Split\n### Org Chart\n### Culture Principles',
+    costs:base+'Costs: Month 1-2, 3-4, 5-6 (tech, salaries, marketing, legal, total burn). 6-month runway needed. Cost optimization tips.',
+    kpis:base+'KPIs: North Star Metric, Business KPIs, Product KPIs, Financial KPIs, Team KPIs, Red Flags.',
+    support:base+'Customer Success:\n### Support Channels & SLAs\n### Top 8 FAQs\n### Escalation Matrix\n### Health Score\n### Tools Stack',
+    legal:base+'Legal India:\n### Business Structure\n### Registration & Cost\n### Licenses\n### Data Privacy\n### IP\n### GST\n### Legal Risks\n### Year 1 Budget',
+    traction:base+'Traction: 30/60/90-day milestones, traction channels, investor metrics, early adopter strategy.',
+    valuation:base+'Valuation: 3 methods with Indian comparables. Current range, post-MVP, post-seed targets, value drivers.',
+    funding:base+'Funding Strategy:\n### Amount (INR/USD)\n### Use of Funds\n### Dilution\n### Valuation Ask\n### Pre-raise Milestones\n### 12-Week Timeline',
+    investors:base+'Finding Investors India: top 5 VCs (focus, ticket, portfolio, contact), angels, accelerators, warm intro strategy, email template.',
+    pitch:base+'Investor Pitch 10 slides: each with key message, data point, visual. Story arc, top 5 objections with rebuttals, ask slide.',
+    exit:base+'Exit Strategy: 5 real acquirers (rationale, M&A history, price estimate), IPO feasibility, 7-year path, value maximizers.',
+    naming:base+'Naming: 10 name options (rationale, domain), 5 taglines, brand voice, logo concept, trademark process India.',
+    partnerships:base+'Partnerships: 6 real companies (type, value exchange, approach, impact, terms to negotiate).',
+    brand:base+'Brand Positioning:\n### Statement\n### Archetype\n### Perceptual Map\n### Messaging Hierarchy\n### Promise\n### Tone of Voice\n### Category Ownership',
+  };
+  return p[id]||base+`Comprehensive ${id} analysis.`;
+}
+
+let genAllRunning=false;
+let genAllStop=false;
+
+async function generateAll(){
+  if(genAllRunning){
+    // Stop button
+    genAllStop=true;
+    genAllRunning=false;
+    document.getElementById('gen-all-btn').textContent='⚡ Generate All 38 Reports';
+    document.getElementById('gen-all-btn').style.background='#fff';
+    document.getElementById('gen-all-btn').style.color='#000';
+    document.getElementById('gen-all-status').style.display='none';
+    return;
+  }
+  genAllStop=false;
+  genAllRunning=true;
+  const btn=document.getElementById('gen-all-btn');
+  const status=document.getElementById('gen-all-status');
+  btn.textContent='⏹ Stop Generating';
+  btn.style.background='#1a1a1a';
+  btn.style.color='#ff4444';
+  btn.style.border='1px solid #ff4444';
+  status.style.display='block';
+
+  const allSecs=SECTIONS;
+  let done=0;
+  let failed=0;
+
+  for(let i=0;i<allSecs.length;i++){
+    if(genAllStop)break;
+    const sec=allSecs[i];
+    if(CONTENT[sec.id]){done++;continue;} // skip already generated
+    status.textContent=`Generating ${i+1}/38: ${sec.label}...`;
+    try{
+      await genSilent(sec);
+      done++;
+    }catch(e){
+      failed++;
+    }
+    buildList();
+    document.getElementById('prog-cnt').textContent=Object.keys(CONTENT).length+' / 38';
+    const pct=Object.keys(CONTENT).length/38*100;
+    document.getElementById('pfill').style.width=pct+'%';
+    // Small delay between requests to avoid rate limiting
+    await new Promise(r=>setTimeout(r,800));
+  }
+
+  genAllRunning=false;
+  btn.textContent='⚡ Generate All 38 Reports';
+  btn.style.background='#fff';
+  btn.style.color='#000';
+  btn.style.border='none';
+  if(genAllStop){
+    status.textContent='Stopped. '+done+' reports generated.';
+  } else {
+    status.textContent='✅ Done! '+done+' reports ready. '+(failed>0?failed+' failed.':'');
+  }
+  saveCurrentProject();
+  showToast('All reports generated!','ok');
+}
+
+async function genSilent(sec){
+  const resp=await fetch('https://text.pollinations.ai/',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'openai',
+      messages:[
+        {role:'system',content:'You are a senior startup consultant. Write the report DIRECTLY in English. Use ### for headers, ** for bold, - for bullets. No preamble. Use real 2026-2030 data, projections, real company names, India market focus. Include 2030 projections and forecasts wherever relevant.'},
+        {role:'user',content:getPrompt(sec.id,BIZ.name,BIZ.desc)}
+      ],
+      seed:Math.floor(Math.random()*99999),
+      private:true
+    })
+  });
+  if(!resp.ok)throw new Error('API error');
+  const raw=await resp.text();
+  let text=raw;
+  try{
+    const j=JSON.parse(raw);
+    if(j.choices)text=j.choices[0]?.message?.content||raw;
+    else if(j.content)text=j.content;
+    else if(j.text)text=j.text;
+    else if(j.role)text=j.reasoning_content||j.content||raw;
+  }catch(e){text=raw;}
+  if(!text||text.length<50)throw new Error('Empty');
+  CONTENT[sec.id]=text;
+}
+
+async function doGen(sec){
+  isLoading=true;renderRes();
+  try{
+    const resp=await fetch('https://text.pollinations.ai/',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'openai',
+        messages:[
+          {role:'system',content:'You are a senior startup consultant. Write the report DIRECTLY in English. Use ### for headers, ** for bold, - for bullets. No preamble. Use real 2026-2030 data, projections, real company names, India market focus. Include 2030 projections and forecasts wherever relevant.'},
+          {role:'user',content:getPrompt(sec.id,BIZ.name,BIZ.desc)}
+        ],
+        seed:Math.floor(Math.random()*99999),
+        private:true
+      })
+    });
+    if(!resp.ok)throw new Error('Server error '+resp.status);
+    const raw=await resp.text();
+    let text=raw;
+    try{
+      const j=JSON.parse(raw);
+      // Extract text from various response formats
+      if(j.choices)text=j.choices[0]?.message?.content||raw;
+      else if(j.content)text=j.content;
+      else if(j.text)text=j.text;
+      else if(typeof j==='string')text=j;
+      else if(j.role)text=j.reasoning_content||j.content||raw;
+    }catch(e){text=raw;}
+    if(!text||text.length<50)throw new Error('Empty response — tap Redo');
+    saveCurrentProject();
+    isLoading=false;renderRes();buildList();
+    showToast('Report ready!','ok');
+  }catch(e){
+    isLoading=false;
+    CONTENT[sec.id]='Error: '+e.message+'\n\nTap Redo to try again.';
+    renderRes();showToast('Error — tap Redo','err');
+  }
+}
+async function redoCurrent(){
+  if(!activeSection||isLoading)return;
+  delete CONTENT[activeSection.id];
+  buildList();await doGen(activeSection);
+}
+
+// ── NAV ──
+function showScreen(id){
+  if(id==='history')buildHistoryList();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('off',s.id!==id));
+}
+function goBack(){showScreen('app');buildList();}
+function openModal(){document.getElementById('m-name').value=BIZ.name;document.getElementById('m-desc').value=BIZ.desc;document.getElementById('modal').classList.remove('off');}
+function modalBg(e){if(e.target.id==='modal')document.getElementById('modal').classList.add('off');}
+function saveModal(){
+  const n=document.getElementById('m-name').value.trim();
+  const d=document.getElementById('m-desc').value.trim();
+  if(!n||!d)return;
+  if(n!==BIZ.name||d!==BIZ.desc)CONTENT={};
+  BIZ={name:n,desc:d};
+  document.getElementById('modal').classList.add('off');
+  saveCurrentProject();buildList();showToast('Saved!','ok');
+}
+function showToast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show '+type;
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
