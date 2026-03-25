@@ -163,7 +163,7 @@ textarea.inp{resize:none;line-height:1.5;}
 .toast.err{border-color:#3a1a1a;color:#f87171;}
 
 /* FEEDBACK MODAL */
-.feedback-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:flex;align-items:flex-end;transition:opacity .22s;}
+.feedback-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:flex-end;transition:opacity .22s;}
 .feedback-ov.off{opacity:0;pointer-events:none;}
 .feedback-sheet{background:var(--bg2);border-radius:18px 18px 0 0;border-top:1px solid var(--border);padding:20px 20px 40px;width:100%;}
 .feedback-title{font-size:18px;font-weight:700;color:var(--txt);text-align:center;margin-bottom:6px;}
@@ -177,6 +177,11 @@ textarea.inp{resize:none;line-height:1.5;}
 
 /* AGENTS */
 .agents-screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);z-index:99;}
+.agents-screen.off{display:none;}
+.aresult-screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);z-index:101;}
+.aresult-screen.off{display:none;}
+.mkit-screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);z-index:100;}
+.mkit-screen.off{display:none;}
 .agents-nav{display:flex;align-items:center;gap:11px;padding:15px 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .agents-back{font-size:24px;color:var(--txt);cursor:pointer;}
 .agents-title{font-size:17px;font-weight:700;color:var(--txt);flex:1;}
@@ -190,7 +195,6 @@ textarea.inp{resize:none;line-height:1.5;}
 .agent-arr{font-size:18px;color:#333;}
 
 /* AGENT RESULT */
-.aresult-screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);z-index:101;}
 .aresult-nav{display:flex;align-items:center;gap:11px;padding:15px 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .aresult-back{font-size:24px;color:var(--txt);cursor:pointer;}
 .aresult-title{font-size:16px;font-weight:700;color:var(--txt);flex:1;}
@@ -203,7 +207,6 @@ textarea.inp{resize:none;line-height:1.5;}
 .aresult-copy-all{position:fixed;bottom:20px;left:20px;right:20px;height:50px;border-radius:13px;border:none;background:var(--txt);color:var(--bg);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
 
 /* MARKETING KIT */
-.mkit-screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);z-index:100;}
 .mkit-nav{display:flex;align-items:center;gap:11px;padding:15px 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .mkit-back{font-size:24px;color:var(--txt);cursor:pointer;}
 .mkit-title{font-size:17px;font-weight:700;color:var(--txt);flex:1;}
@@ -342,12 +345,10 @@ textarea.inp{resize:none;line-height:1.5;}
     <input class="search-inp" type="text" id="search-inp" placeholder="🔍 Search sections..." oninput="buildList()"/>
   </div>
   <div style="padding:10px 16px 0;display:flex;gap:8px;">
-    <button onclick="generateAll()" id="gen-all-btn" style="flex:1;padding:13px;background:var(--txt);color:var(--bg);border:none;border-radius:12px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;">⚡ Generate All</button>
-    <button onclick="copyAllReports()" style="flex:1;padding:13px;background:var(--bg2);color:var(--txt);border:1px solid var(--border);border-radius:12px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;">📋 Copy All</button>
-    <button onclick="openMkit()" style="flex:1;padding:13px;background:#0ed2d2;color:#000;border:none;border-radius:12px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;">📝 Market</button>
-  </div>
-  <div style="padding:6px 16px 0;display:flex;gap:8px;">
-    <button onclick="openAgents()" style="width:100%;padding:13px;background:var(--bg2);color:var(--txt);border:1px solid var(--border);border-radius:12px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;">🤖 AI Agents — Auto Execute</button>
+    <button onclick="generateAll()" id="gen-all-btn" style="flex:1;padding:11px 6px;background:var(--txt);color:var(--bg);border:none;border-radius:12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;">⚡ Generate All</button>
+    <button onclick="copyAllReports()" style="flex:1;padding:11px 6px;background:var(--bg2);color:var(--txt);border:1px solid var(--border);border-radius:12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;">📋 Copy All</button>
+    <button onclick="openMkit()" style="flex:1;padding:11px 6px;background:#0ed2d2;color:#000;border:none;border-radius:12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;">📝 Market</button>
+    <button onclick="openAgents()" style="flex:1;padding:11px 6px;background:var(--bg2);color:var(--txt);border:1px solid var(--border);border-radius:12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;">🤖 Agents</button>
   </div>
   <div id="gen-all-status" style="display:none;text-align:center;font-size:12px;color:#666;padding:4px 16px 0;"></div>
   <div class="rep-scroll" id="rep-scroll"></div>
@@ -489,7 +490,7 @@ textarea.inp{resize:none;line-height:1.5;}
 </div>
 
 <!-- FEEDBACK MODAL -->
-<div class="feedback-ov off" id="feedback-modal" style="pointer-events:auto;">
+<div class="feedback-ov off" id="feedback-modal" onclick="if(event.target===this)closeFeedback()">
   <div class="feedback-sheet">
     <div class="feedback-title">Share Your Feedback 💬</div>
     <div class="feedback-sub">What did you like? What should we improve?</div>
@@ -888,18 +889,45 @@ function getPrompt(id,name,desc){
 }
 
 async function callAPI(prompt){
-  const resp=await fetch('/api/chat',{
+  // Try Groq first
+  try{
+    const resp=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prompt:prompt,system:'You are a senior startup consultant. Write reports DIRECTLY in English. ### for headers, ** for bold, - for bullets. No preamble. Use real 2026-2030 data, real company names, India market focus.'})
+    });
+    if(resp.ok){
+      const d=await resp.json();
+      if(d.text&&d.text.length>50)return d.text;
+    }
+  }catch(e){console.log('Groq fallback:',e.message);}
+  
+  // Fallback to Pollinations
+  const resp2=await fetch('https://text.pollinations.ai/',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({prompt:prompt})
+    body:JSON.stringify({
+      model:'openai',
+      messages:[
+        {role:'system',content:'You are a senior startup consultant. Write reports DIRECTLY in English. ### for headers, ** for bold, - for bullets. No preamble. Use real 2026-2030 data, real company names, India market focus.'},
+        {role:'user',content:prompt}
+      ],
+      seed:Math.floor(Math.random()*99999),
+      private:true
+    })
   });
-  if(!resp.ok){
-    const err=await resp.json().catch(()=>({}));
-    throw new Error(err.error||'Server error '+resp.status);
-  }
-  const data=await resp.json();
-  if(!data.text||data.text.length<50)throw new Error('Empty response');
-  return data.text;
+  if(!resp2.ok)throw new Error('Server error '+resp2.status);
+  const raw=await resp2.text();
+  let text=raw;
+  try{
+    const j=JSON.parse(raw);
+    if(j.choices)text=j.choices[0]?.message?.content||'';
+    else if(j.content&&typeof j.content==='string')text=j.content;
+    else if(j.text)text=j.text;
+    if(text.includes('We need to produce')||text.includes('You are a senior'))text='';
+  }catch(e){text=raw;}
+  if(!text||text.length<50)throw new Error('Empty response');
+  return text;
 }
 
 let genAllRunning=false,genAllStop=false;
@@ -929,6 +957,8 @@ async function generateAll(){
       done++;
     }catch(e){failed++;}
     buildList();
+    updProg();
+    saveCurrentProject();
     await new Promise(r=>setTimeout(r,500));
   }
   genAllRunning=false;
@@ -949,6 +979,9 @@ async function doGen(sec){
       saveCurrentProject();
       isLoading=false;renderRes();buildList();
       showToast('Report ready!','ok');
+      // Show optional feedback after every 3rd report
+      const _done=Object.keys(CONTENT).length;
+      if(_done>0 && _done%3===0)setTimeout(showFeedback,1500);
 
       return;
     }catch(e){
@@ -1041,18 +1074,18 @@ async function openMkit(){
   const prompt=`Based on this startup "${BIZ.name}" information:\n\n${summary}\n\nCreate marketing content. Return ONLY this exact format with no extra text:\n\n[INSTAGRAM]\nWrite a compelling Instagram caption (150-200 words) with relevant hashtags\n\n[LINKEDIN]\nWrite a professional LinkedIn post (200-250 words)\n\n[X]\nWrite a X Thread (5 tweets, each starting with 1/, 2/, etc.)\n\n[YOUTUBE]\nWrite a 60-second YouTube Short script`;
 
   try{
-    const resp=await fetch('/api/chat',{
+    const mresp=await fetch('/api/chat',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         prompt:prompt,
-        system:'You are an expert social media marketer. Create engaging, viral marketing content for startups. Be specific, use emojis where appropriate.'
+        system:'You are an expert social media marketer. Create engaging, viral marketing content for startups. Be specific, use emojis where appropriate. Always use exact section headers like [INSTAGRAM], [LINKEDIN], [X], [YOUTUBE].'
       })
     });
-    
-    if(!resp.ok)throw new Error('API error');
-    const data=await resp.json();
-    const text=data.text||'';
+    if(!mresp.ok)throw new Error('Server error '+mresp.status);
+    const mdata=await mresp.json();
+    const text=mdata.text||'';
+    if(!text||text.length<50)throw new Error('Empty response');
     
     // Parse sections
     const sections={
@@ -1127,49 +1160,49 @@ const AGENTS={
   vision:{
     name:'💡 Vision Agent',
     sections:['overview','problem','whynow','vision','pitch'],
-    prompt:(name,desc,data)=>`You are a startup pitch expert. Based on this startup "${name}": ${desc}\n\nData: ${data}\n\nCreate these outputs:\n[ELEVATOR_PITCH]\nWrite a 30-second elevator pitch (max 80 words)\n\n[PITCH_DECK]\nWrite a 10-slide pitch deck outline with key points for each slide\n\n[ONE_PAGER]\nWrite an investor one-pager with: Problem, Solution, Market, Traction, Team, Ask`,
+    prompt:(name,desc,data)=>`You are a startup pitch expert. Startup: "${name}" — ${desc}\n\nContext from reports:\n${data}\n\nYou MUST respond with EXACTLY this format. Use the exact section headers shown:\n\n[ELEVATOR_PITCH]\n(Write a punchy 30-second elevator pitch in 60-80 words. Start directly with the pitch, no intro.)\n\n[PITCH_DECK]\n(Write a 10-slide pitch deck outline. Format: Slide 1: Title — key point. Slide 2: Problem — key point. etc. Be specific.)\n\n[ONE_PAGER]\n(Write a structured investor one-pager with these sections: THE PROBLEM, OUR SOLUTION, MARKET SIZE, BUSINESS MODEL, TRACTION, THE ASK. Each section 2-3 lines.)`,
     outputs:['ELEVATOR_PITCH','PITCH_DECK','ONE_PAGER'],
-    labels:['🎤 Elevator Pitch (30 sec)','📊 Pitch Deck Outline (10 slides)','📄 Investor One-Pager']
+    labels:['🎤 Elevator Pitch (30 sec)','📊 Pitch Deck — 10 Slides','📄 Investor One-Pager']
   },
   market:{
     name:'📊 Market Agent',
     sections:['market','segments','competition','trends','painpoints'],
-    prompt:(name,desc,data)=>`You are a market research expert. Based on this startup "${name}": ${desc}\n\nData: ${data}\n\nCreate these outputs:\n[COMPETITOR_TABLE]\nCreate a detailed competitor comparison table (5 competitors, 6 attributes each)\n\n[MARKET_SIZE]\nWrite TAM/SAM/SOM calculation with INR numbers for India market\n\n[OPPORTUNITY]\nWrite a market opportunity summary with key insights and timing`,
+    prompt:(name,desc,data)=>`You are a market research analyst. Startup: "${name}" — ${desc}\n\nContext:\n${data}\n\nRespond with EXACTLY this format:\n\n[COMPETITOR_TABLE]\n(List 5 real competitors. For each: Name | Funding | Users | Price | Weakness | Our Edge. Use | separator.)\n\n[MARKET_SIZE]\n(Calculate TAM, SAM, SOM for India market with INR numbers. Show calculation logic. Be specific with crore/lakh numbers.)\n\n[OPPORTUNITY]\n(Write 3 key market insights with specific data points, timing window, and why NOW is the right time.)`,
     outputs:['COMPETITOR_TABLE','MARKET_SIZE','OPPORTUNITY'],
-    labels:['⚔️ Competitor Analysis Table','📈 TAM/SAM/SOM (India)','🎯 Market Opportunity']
+    labels:['⚔️ Competitor Analysis','📈 Market Size (TAM/SAM/SOM)','🎯 Market Opportunity']
   },
   build:{
     name:'🚀 Build Agent',
     sections:['mvp','techstack','roadmap','moscow','ai'],
-    prompt:(name,desc,data)=>`You are a CTO and product expert. Based on this startup "${name}": ${desc}\n\nData: ${data}\n\nCreate these outputs:\n[TECH_STACK]\nRecommend complete tech stack with specific tools, free/paid, and why\n\n[SPRINT_PLAN]\nCreate 8-week MVP sprint plan with weekly goals and deliverables\n\n[CHECKLIST]\nCreate pre-launch checklist with 20 items across tech, legal, marketing`,
+    prompt:(name,desc,data)=>`You are a CTO. Startup: "${name}" — ${desc}\n\nContext:\n${data}\n\nRespond with EXACTLY this format:\n\n[TECH_STACK]\n(List recommended tech stack: Frontend, Backend, Database, Auth, Payments, Hosting, Analytics. For each: tool name, why chosen, free/paid, monthly cost in INR.)\n\n[SPRINT_PLAN]\n(8-week MVP plan. Week 1: goal + 3 tasks. Week 2: goal + 3 tasks. Continue for all 8 weeks. Be very specific.)\n\n[CHECKLIST]\n(Pre-launch checklist with 20 items. Group them: Tech (5 items), Legal (5 items), Marketing (5 items), Operations (5 items). Each item actionable.)`,
     outputs:['TECH_STACK','SPRINT_PLAN','CHECKLIST'],
-    labels:['⚙️ Recommended Tech Stack','📅 8-Week Sprint Plan','✅ Pre-Launch Checklist']
+    labels:['⚙️ Tech Stack Recommendations','📅 8-Week Sprint Plan','✅ Pre-Launch Checklist (20 items)']
   },
   revenue:{
     name:'💰 Revenue Agent',
     sections:['bizmodel','revenue','costs','valuation','funding'],
-    prompt:(name,desc,data)=>`You are a CFO and financial expert. Based on this startup "${name}": ${desc}\n\nData: ${data}\n\nCreate these outputs:\n[PRICING]\nCreate 3-tier pricing strategy with INR prices and feature breakdown\n\n[FINANCIAL_MODEL]\nCreate 12-month financial projection with monthly revenue, costs, profit/loss\n\n[UNIT_ECONOMICS]\nCalculate CAC, LTV, LTV/CAC ratio, payback period with India benchmarks`,
+    prompt:(name,desc,data)=>`You are a CFO. Startup: "${name}" — ${desc}\n\nContext:\n${data}\n\nRespond with EXACTLY this format:\n\n[PRICING]\n(3-tier pricing in INR: Free tier features, Pro tier price + features, Business tier price + features. Include what makes each tier valuable.)\n\n[FINANCIAL_MODEL]\n(12-month projection table. Format: Month | Users | Paying% | MRR(INR) | Costs(INR) | Net. Include assumptions below table.)\n\n[UNIT_ECONOMICS]\n(Calculate: CAC, LTV, LTV/CAC ratio, Payback period, Gross margin. Use realistic India market numbers. Show formulas.)`,
     outputs:['PRICING','FINANCIAL_MODEL','UNIT_ECONOMICS'],
-    labels:['💳 3-Tier Pricing Strategy','📊 12-Month Financial Model','📐 Unit Economics']
+    labels:['💳 Pricing Strategy (3 Tiers)','📊 12-Month Financial Model','📐 Unit Economics']
   },
   hr:{
     name:'👥 HR Agent',
     sections:['team','costs','kpis','support','legal'],
-    prompt:(name,desc,data)=>`You are an HR and operations expert. Based on this startup "${name}": ${desc}\n\nData: ${data}\n\nCreate these outputs:\n[JOB_DESCRIPTIONS]\nWrite 3 key job descriptions (role, responsibilities, requirements, salary in INR)\n\n[ORG_CHART]\nCreate text-based org chart for first year with roles and reporting structure\n\n[HIRING_PLAN]\nCreate 12-month hiring roadmap with roles, timing, budget in INR`,
+    prompt:(name,desc,data)=>`You are an HR expert. Startup: "${name}" — ${desc}\n\nContext:\n${data}\n\nRespond with EXACTLY this format:\n\n[JOB_DESCRIPTIONS]\n(Write 3 critical job descriptions. For each: Job Title, Responsibilities (5 points), Requirements (5 points), Salary range in INR, Equity %)\n\n[ORG_CHART]\n(Text org chart for Year 1. Show hierarchy with → arrows. Include: Founder, key hires, their reporting structure, and when each role is needed month-wise.)\n\n[HIRING_PLAN]\n(Month-by-month hiring plan for 12 months. Format: Month X: Role | Reason | Salary INR | Cumulative team size.)`,
     outputs:['JOB_DESCRIPTIONS','ORG_CHART','HIRING_PLAN'],
-    labels:['📝 3 Key Job Descriptions','🏢 Org Chart (Year 1)','📅 12-Month Hiring Plan']
+    labels:['📝 3 Job Descriptions','🏢 Org Chart','📅 12-Month Hiring Plan']
   },
   investor:{
     name:'💵 Investor Agent',
     sections:['funding','investors','traction','valuation','pitch'],
-    prompt:(name,desc,data)=>`You are an expert fundraising advisor. Based on this startup "${name}": ${desc}\n\nData: ${data}\n\nCreate these outputs:\n[COLD_EMAIL]\nWrite 3 different cold outreach emails to investors (subject + body each)\n\n[PITCH_SCRIPT]\nWrite a 5-minute investor pitch script word-by-word\n\n[INVESTOR_LIST]\nList 10 specific Indian VCs/angels who would invest in this startup with their focus areas`,
+    prompt:(name,desc,data)=>`You are a fundraising expert. Startup: "${name}" — ${desc}\n\nContext:\n${data}\n\nRespond with EXACTLY this format:\n\n[COLD_EMAIL]\n(Write 3 cold emails to investors. Each email: Subject line + body (150 words max). Make each email unique — different angles.)\n\n[PITCH_SCRIPT]\n(5-minute investor pitch script word-by-word. Sections: Hook (30s), Problem (60s), Solution (60s), Market (45s), Traction (45s), Team (30s), Ask (30s). Write exactly what to say.)\n\n[INVESTOR_LIST]\n(List 10 specific Indian VCs/angels. For each: Name | Fund | Ticket Size | Portfolio Companies | Why they'd invest in us | LinkedIn/Contact)`,
     outputs:['COLD_EMAIL','PITCH_SCRIPT','INVESTOR_LIST'],
-    labels:['📧 3 Investor Cold Emails','🎤 5-Min Pitch Script','🔍 10 Target Investors']
+    labels:['📧 3 Cold Emails','🎤 5-Min Pitch Script','🔍 10 Target Investors']
   },
   brand:{
     name:'🎯 Brand Agent',
     sections:['brand','naming','marketing','seo','partnerships'],
-    prompt:(name,desc,data)=>`You are a brand strategist. Based on this startup "${name}": ${desc}\n\nData: ${data}\n\nCreate these outputs:\n[BRAND_VOICE]\nDefine brand voice, tone, personality with 5 do's and 5 don'ts\n\n[MESSAGING]\nCreate messaging framework: tagline, value prop, 3 key messages for different audiences\n\n[CONTENT_CALENDAR]\nCreate 30-day content calendar with daily post ideas for Instagram and LinkedIn`,
+    prompt:(name,desc,data)=>`You are a brand strategist. Startup: "${name}" — ${desc}\n\nContext:\n${data}\n\nRespond with EXACTLY this format:\n\n[BRAND_VOICE]\n(Define brand personality in 5 words. Then 5 DO's and 5 DON'Ts for communication. Then tone for: Social media, Investor comms, Customer support, Marketing copy.)\n\n[MESSAGING]\n(Tagline (5 words max), Value proposition (1 sentence), 3 key messages for: Customers, Investors, Press/Media. Each message 2-3 lines.)\n\n[CONTENT_CALENDAR]\n(30-day content plan. Week 1-4, each week has 7 days. Format: Day X: Platform | Content idea | Caption starter. Be creative and specific.)`,
     outputs:['BRAND_VOICE','MESSAGING','CONTENT_CALENDAR'],
     labels:['🗣️ Brand Voice Guide','💬 Messaging Framework','📅 30-Day Content Calendar']
   }
@@ -1214,51 +1247,90 @@ async function runAgent(key){
   }
   
   try{
+    const agentPrompt=agent.prompt(BIZ.name,BIZ.desc,data);
+    console.log('[Agent] Calling API for:',agent.name);
+    
     const resp=await fetch('/api/chat',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        prompt:agent.prompt(BIZ.name,BIZ.desc,data),
-        system:'You are an expert startup advisor. Create detailed, actionable, specific outputs. Use real numbers, real examples. India market focus.'
+        prompt:agentPrompt,
+        system:'You are an expert startup advisor. Create detailed, actionable outputs. India market focus. ALWAYS use the exact section headers in [BRACKETS] as shown in the prompt.'
       })
     });
     
-    if(!resp.ok)throw new Error('API error '+resp.status);
-    const d=await resp.json();
-    const text=d.text||'';
-    agentResultText=text;
+    console.log('[Agent] Status:',resp.status);
     
-    // Parse and render
+    if(!resp.ok){
+      const errText=await resp.text().catch(()=>'Unknown');
+      throw new Error('API error '+resp.status+': '+errText.substring(0,300));
+    }
+    
+    const d=await resp.json().catch(e=>{throw new Error('JSON parse failed: '+e.message);});
+    console.log('[Agent] Keys:',Object.keys(d));
+    
+    const text=d.text||d.content||'';
+    console.log('[Agent] Text length:',text.length);
+    
+    if(!text||text.length<20){
+      throw new Error('Empty AI response. Got: '+JSON.stringify(d).substring(0,300));
+    }
+    
+    agentResultText=text;
     renderAgentResult(agent,text);
     
-    // Send summary to Telegram
-    const tgMsg=`🤖 Agent Used: ${agent.name}\nStartup: ${BIZ.name}\nReports: ${Object.keys(CONTENT).length}/38`;
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({chat_id:CHAT_ID,text:tgMsg})
+      body:JSON.stringify({chat_id:CHAT_ID,text:'🤖 Agent: '+agent.name+'\nStartup: '+BIZ.name})
     }).catch(()=>{});
     
   }catch(e){
-    document.getElementById('aresult-body').innerHTML=`<div class="mkit-loading"><div class="ld-t" style="color:#f87171">Error</div><div class="ld-s">${e.message}<br><br>Tap ← and try again</div></div>`;
+    console.error('[Agent] Error:',e);
+    document.getElementById('aresult-body').innerHTML='<div style="padding:20px"><div style="color:#f87171;font-size:16px;font-weight:700;margin-bottom:12px">❌ Error</div><div style="color:#bbb;font-size:13px;line-height:1.7;background:#1a1a1a;padding:14px;border-radius:10px;word-break:break-all">'+e.message+'</div><div style="color:#666;font-size:12px;margin-top:12px">Tap ← and try again</div></div>';
   }
 }
 
 function renderAgentResult(agent,text){
   let html='';
+  
+  // Try section parsing first
+  let parsed=false;
   agent.outputs.forEach((output,i)=>{
-    const label=agent.labels[i];
     const start='['+output+']';
-    const nextOutput=agent.outputs[i+1];
-    const end=nextOutput?'['+nextOutput+']':null;
-    const content=extractSection(text,start,end);
-    html+=`<div class="aresult-section">
-      <div class="aresult-sec-hd">
-        <div class="aresult-sec-title">${label}</div>
-        <button class="aresult-sec-copy" onclick="copyAgentSection('aresult-sec-${i}')">📋 Copy</button>
-      </div>
-      <div class="aresult-content" id="aresult-sec-${i}">${content}</div>
-    </div>`;
+    if(text.includes(start))parsed=true;
   });
+  
+  if(parsed){
+    // Sections found — parse normally
+    agent.outputs.forEach((output,i)=>{
+      const label=agent.labels[i];
+      const start='['+output+']';
+      const nextOutput=agent.outputs[i+1];
+      const end=nextOutput?'['+nextOutput+']':null;
+      const content=extractSection(text,start,end)||'Not available';
+      html+=`<div class="aresult-section">
+        <div class="aresult-sec-hd">
+          <div class="aresult-sec-title">${label}</div>
+          <button class="aresult-sec-copy" onclick="copyAgentSection('aresult-sec-${i}')">📋 Copy</button>
+        </div>
+        <div class="aresult-content" id="aresult-sec-${i}">${content}</div>
+      </div>`;
+    });
+  } else {
+    // No sections found — show full raw text
+    const rawDiv=document.createElement('div');
+    rawDiv.className='aresult-section';
+    rawDiv.innerHTML='<div class="aresult-sec-hd"><div class="aresult-sec-title">📋 Full Output</div><button class="aresult-sec-copy" onclick="copyAgentResult()">📋 Copy All</button></div>';
+    const rawContent=document.createElement('div');
+    rawContent.className='aresult-content';
+    rawContent.id='aresult-raw';
+    rawContent.textContent=text;
+    rawDiv.appendChild(rawContent);
+    document.getElementById('aresult-body').innerHTML='';
+    document.getElementById('aresult-body').appendChild(rawDiv);
+    return;
+  }
+  
   document.getElementById('aresult-body').innerHTML=html;
 }
 
