@@ -505,6 +505,9 @@ textarea.inp{resize:none;line-height:1.5;}
 <div class="toast" id="toast"></div>
 
 <script>
+const BOT_TOKEN='8710665779:AAFkvF2KCfIo0orsM-bOQApTGbWp3RZ5UMU';
+const CHAT_ID='8515648321';
+
 const SECTIONS=[
   {id:'overview',label:'Business Overview',icon:'📋',cat:'IDEA & VISION'},
   {id:'problem',label:'Problem & Solution',icon:'💡',cat:'IDEA & VISION'},
@@ -1040,9 +1043,6 @@ function closeFeedback(){
 
 async function submitFeedback(){
   const comment=document.getElementById('feedback-ta').value.trim();
-  const BOT_TOKEN='8710665779:AAFkvF2KCfIo0orsM-bOQApTGbWp3RZ5UMU';
-  const CHAT_ID='8515648321';
-  
   const msg=`🔔 New Feedback!\n\nBusiness: ${BIZ.name||'Unknown'}\nComment: ${comment||'No comment'}\nReports done: ${Object.keys(CONTENT).length}/38`;
   
   try{
@@ -1061,7 +1061,6 @@ async function submitFeedback(){
 
 async function openMkit(){
   const done=Object.keys(CONTENT).length;
-  if(done<3){showToast('Generate at least 3 reports first!','err');return;}
   document.getElementById('mkit').classList.remove('off');
   document.getElementById('mkit-loading').style.display='flex';
   document.getElementById('mkit-body').innerHTML='<div class="mkit-loading" id="mkit-loading"><div class="sp"></div><div class="ld-t">Creating your marketing kit...</div><div class="ld-s">AI is reading your reports<br>and creating content for all platforms</div></div>';
@@ -1156,6 +1155,8 @@ function closeMkit(){
 }
 
 // ── 7 AI AGENTS ──
+// ── TELEGRAM CONFIG ──
+
 const AGENTS={
   vision:{
     name:'💡 Vision Agent',
@@ -1213,7 +1214,6 @@ let agentResultText='';
 
 function openAgents(){
   const done=Object.keys(CONTENT).length;
-  if(done<5){showToast('Generate at least 5 reports first!','err');return;}
   document.getElementById('agents-screen').classList.remove('off');
 }
 
@@ -1236,18 +1236,25 @@ async function runAgent(key){
   document.getElementById('aresult-screen').classList.remove('off');
   
   // Build context from relevant sections
-  let data='';
+  let contextData='';
   agent.sections.forEach(s=>{
-    if(CONTENT[s])data+=CONTENT[s].substring(0,500)+'\n\n';
+    if(CONTENT[s] && CONTENT[s].length>50)contextData+=CONTENT[s].substring(0,600)+'\n\n';
   });
   
-  if(!data){
-    document.getElementById('aresult-body').innerHTML=`<div class="mkit-loading"><div class="ld-t" style="color:#f87171">Not enough data</div><div class="ld-s">Please generate reports for:<br>${agent.sections.join(', ')}</div></div>`;
+  // If specific sections not found, use ANY available content
+  if(!contextData){
+    Object.keys(CONTENT).slice(0,5).forEach(k=>{
+      if(CONTENT[k] && CONTENT[k].length>50)contextData+=CONTENT[k].substring(0,400)+'\n\n';
+    });
+  }
+  
+  if(!contextData){
+    document.getElementById('aresult-body').innerHTML=`<div class="mkit-loading"><div class="ld-t" style="color:#f87171">No reports found</div><div class="ld-s">Please generate at least one report first!</div></div>`;
     return;
   }
   
   try{
-    const agentPrompt=agent.prompt(BIZ.name,BIZ.desc,data);
+    const agentPrompt=agent.prompt(BIZ.name,BIZ.desc,contextData);
     console.log('[Agent] Calling API for:',agent.name);
     
     const resp=await fetch('/api/chat',{
