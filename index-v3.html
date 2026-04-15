@@ -1,0 +1,2752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="AutoStartup">
+<meta name="description" content="The World's Most Powerful Autonomous AI Workforce">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23000'/><text y='.9em' font-size='90'>🚀</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<title>AutoStartup — AI Command Center</title>
+<style>
+/* ── RESET ── */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#000;--bg2:#0a0a0a;--bg3:#111;--bg4:#161616;
+  --txt:#fff;--txt2:#888;--txt3:#444;
+  --border:#1c1c1c;--border2:#222;
+  --accent:#0ed2d2;--accent-dim:rgba(14,210,210,0.08);--accent-border:rgba(14,210,210,0.2);
+  --red:#ff3b3b;--green:#00ff88;--yellow:#ffd60a;
+}
+:root.light{
+  --bg:#f5f5f5;--bg2:#fff;--bg3:#eee;--bg4:#e8e8e8;
+  --txt:#000;--txt2:#555;--txt3:#aaa;
+  --border:#ddd;--border2:#ccc;
+  --accent:#0891b2;--accent-dim:rgba(8,145,178,0.08);--accent-border:rgba(8,145,178,0.2);
+}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'DM Mono',monospace;overflow:hidden;font-size:14px;}
+::-webkit-scrollbar{width:2px;height:2px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--accent);}
+
+/* ── LAYOUT ── */
+.app-shell{display:flex;height:100vh;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:60px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:4px;flex-shrink:0;z-index:50;transition:width .3s;}
+.sidebar.expanded{width:200px;}
+.sb-logo{width:40px;height:40px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#000;margin-bottom:12px;flex-shrink:0;cursor:pointer;}
+.sb-item{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0;}
+.sb-item:hover,.sb-item.active{background:var(--accent-dim);border:1px solid var(--accent-border);}
+.sb-item.active .sb-dot{display:block;}
+.sb-dot{display:none;width:4px;height:4px;background:var(--accent);border-radius:50%;position:absolute;right:6px;top:6px;}
+.sb-label{font-size:11px;color:var(--txt2);margin-left:8px;white-space:nowrap;display:none;}
+.sidebar.expanded .sb-label{display:block;}
+.sidebar.expanded .sb-item{width:calc(100% - 16px);margin:0 8px;justify-content:flex-start;padding:0 12px;gap:8px;}
+.sb-spacer{flex:1;}
+.sb-divider{width:30px;height:1px;background:var(--border);margin:4px 0;}
+
+/* ── MAIN ── */
+.main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+
+/* ── TOP BAR ── */
+.topbar{height:48px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0;}
+.tb-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--txt);flex:1;}
+.tb-status{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--txt2);letter-spacing:1px;}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:sblink 2s infinite;}
+@keyframes sblink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.tb-btn{height:30px;padding:0 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--txt2);font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.5px;transition:all .2s;}
+.tb-btn:hover{border-color:var(--accent);color:var(--accent);}
+.tb-btn.primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600;}
+.tb-btn.primary:hover{background:#fff;border-color:#fff;}
+
+/* ── PAGES ── */
+.page{display:none;flex:1;overflow:hidden;flex-direction:column;}
+.page.active{display:flex;}
+
+/* ── LANDING PAGE ── */
+#page-landing{overflow-y:auto;background:var(--bg);}
+.land-hero{padding:40px 20px 28px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.land-hero::before{content:'';position:absolute;top:-100px;right:-100px;width:300px;height:300px;background:radial-gradient(circle,rgba(14,210,210,0.06) 0%,transparent 70%);pointer-events:none;}
+.live-tag{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid var(--accent-border);padding:4px 10px;border-radius:2px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+.live-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;animation:sblink 2s infinite;}
+.land-h1{font-family:'Syne',sans-serif;font-size:clamp(24px,6vw,36px);font-weight:800;line-height:1.1;letter-spacing:-1px;margin-bottom:12px;}
+.land-h1 .ha{color:var(--accent);}
+.land-h1 .hd{color:var(--txt3);}
+.land-sub{font-size:12px;color:var(--txt2);line-height:1.8;margin-bottom:20px;font-weight:300;}
+.stats-row{display:flex;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px;}
+.stat{flex:1;text-align:center;padding:12px 6px;border-right:1px solid var(--border);}
+.stat:last-child{border-right:none;}
+.stat-n{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--accent);}
+.stat-l{font-size:9px;color:var(--txt3);letter-spacing:.5px;text-transform:uppercase;margin-top:2px;}
+.cost-bar{background:rgba(255,59,59,0.05);border:1px solid rgba(255,59,59,0.15);border-radius:10px;padding:14px;margin-bottom:16px;}
+.cost-bar-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:10px;}
+.cost-items{display:flex;gap:20px;overflow-x:auto;}
+.cost-item .cv{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--red);}
+.cost-item .cl{font-size:9px;color:var(--txt3);margin-top:2px;white-space:nowrap;}
+.agents-row{margin-bottom:16px;}
+.agents-row-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--txt3);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.agents-row-title::before{content:'//';color:var(--accent);opacity:.5;}
+.agents-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;}
+.ag-mini{flex-shrink:0;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;width:110px;cursor:default;transition:border-color .2s;}
+.ag-mini:hover{border-color:var(--accent-border);}
+.ag-mini-ico{font-size:20px;margin-bottom:6px;}
+.ag-mini-name{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--txt);margin-bottom:2px;}
+.ag-mini-desc{font-size:9px;color:var(--txt3);line-height:1.4;}
+.how-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.how-cell{padding:14px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+.how-cell:nth-child(2),.how-cell:nth-child(4){border-right:none;}
+.how-cell:nth-child(3),.how-cell:nth-child(4){border-bottom:none;}
+.how-num{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--border2);margin-bottom:6px;}
+.how-title{font-size:12px;font-weight:600;color:var(--txt);margin-bottom:3px;}
+.how-desc{font-size:10px;color:var(--txt3);line-height:1.5;}
+.land-cta{position:sticky;bottom:0;padding:12px 20px 20px;background:linear-gradient(transparent,var(--bg) 40%);padding-top:30px;}
+.deploy-btn{width:100%;height:52px;border-radius:10px;border:none;background:var(--accent);color:#000;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.5px;transition:all .2s;}
+.deploy-btn:hover{background:#fff;transform:translateY(-1px);}
+.deploy-btn:active{transform:translateY(0);}
+.land-body{padding:16px 20px;}
+
+/* ── COMMAND CENTER ── */
+#page-command{background:var(--bg);}
+.cc-layout{display:flex;flex:1;overflow:hidden;}
+.cc-left{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.cc-right{width:300px;border-left:1px solid var(--border);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--bg2);}
+
+/* Cards */
+.cc-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.cc-card-hd{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.cc-card-title{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt2);}
+.cc-card-body{padding:14px;}
+
+/* Input card */
+.venture-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;display:block;}
+.venture-inp{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--txt);outline:none;font-family:'DM Mono',monospace;transition:border-color .2s;margin-bottom:10px;}
+.venture-inp:focus{border-color:var(--accent);}
+.venture-inp::placeholder{color:var(--txt3);}
+textarea.venture-inp{resize:none;line-height:1.6;}
+.launch-btn{width:100%;height:44px;border-radius:8px;border:none;background:var(--accent);color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.5px;transition:all .2s;}
+.launch-btn:disabled{background:var(--bg4);color:var(--txt3);cursor:not-allowed;}
+.launch-btn:not(:disabled):hover{background:#fff;}
+
+/* Agent Squad */
+.workforce-section{margin-bottom:12px;}
+.workforce-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.workforce-title{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt3);}
+.hire-btn{height:28px;padding:0 12px;border-radius:6px;border:1px solid var(--accent-border);background:var(--accent-dim);color:var(--accent);font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.5px;transition:all .2s;}
+.hire-btn:hover{background:var(--accent);color:#000;}
+.workforce-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
+.hired-agent{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all .25s;position:relative;animation:agentPop .4s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes agentPop{from{opacity:0;transform:scale(0.5);}to{opacity:1;transform:scale(1);}}
+.hired-agent:hover{border-color:var(--accent-border);transform:translateY(-2px);}
+.hired-agent.running{border-color:var(--accent);background:var(--accent-dim);}
+.hired-agent.running .ha-ico{animation:agpulse 1s infinite;}
+.ha-ico{font-size:22px;margin-bottom:6px;display:block;transition:all .3s;}
+.ha-name{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--txt);margin-bottom:2px;}
+.ha-role{font-size:9px;color:var(--txt3);letter-spacing:.3px;}
+.ha-status{font-size:9px;color:var(--accent);margin-top:4px;letter-spacing:.5px;}
+.ha-remove{position:absolute;top:6px;right:6px;width:16px;height:16px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--txt3);font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;}
+.hired-agent:hover .ha-remove{opacity:1;}
+.empty-workforce{border:1px dashed var(--border2);border-radius:8px;padding:20px;text-align:center;color:var(--txt3);font-size:11px;line-height:1.7;}
+.manager-thinking{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:8px;font-size:11px;color:var(--accent);}
+.manager-thinking .spinner{width:14px;height:14px;border-width:1.5px;}
+
+/* Hire Modal */
+.hire-modal-body{max-height:60vh;overflow-y:auto;}
+.hire-cat-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--txt3);margin:14px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.hire-cat-title:first-child{margin-top:0;}
+.hire-agent-row{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;cursor:pointer;transition:all .2s;border:1px solid transparent;}
+.hire-agent-row:hover{background:var(--bg3);border-color:var(--border);}
+.hire-agent-row.already-hired{opacity:0.4;cursor:not-allowed;}
+.hire-agent-row.already-hired:hover{background:transparent;border-color:transparent;}
+.har-ico{font-size:20px;flex-shrink:0;}
+.har-info{flex:1;}
+.har-name{font-size:12px;font-weight:600;color:var(--txt);}
+.har-role{font-size:10px;color:var(--txt3);}
+.har-add{width:24px;height:24px;border-radius:6px;border:1px solid var(--accent-border);background:var(--accent-dim);color:var(--accent);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.squad-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.squad-agent{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+.squad-agent::before{content:'';position:absolute;inset:0;background:var(--accent-dim);opacity:0;transition:opacity .2s;}
+.squad-agent:hover::before{opacity:1;}
+.squad-agent.sleeping .sa-ico{opacity:0.3;filter:grayscale(1);}
+.squad-agent.active-agent{border-color:var(--accent);}
+.squad-agent.active-agent .sa-ico{animation:agpulse 1.5s infinite;}
+@keyframes agpulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+.sa-ico{font-size:24px;margin-bottom:6px;display:block;transition:all .3s;}
+.sa-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--txt);margin-bottom:2px;}
+.sa-status{font-size:9px;color:var(--txt3);letter-spacing:.5px;}
+.sa-status.running{color:var(--accent);animation:none;}
+
+/* Paperclip infinite optimizer animation */
+@keyframes paperclipSpin{0%{transform:rotate(0deg) scale(1);}25%{transform:rotate(90deg) scale(1.2);}50%{transform:rotate(180deg) scale(1);}75%{transform:rotate(270deg) scale(1.15);}100%{transform:rotate(360deg) scale(1);}}
+@keyframes paperclipGlow{0%,100%{box-shadow:0 0 4px rgba(14,210,210,0.3);}50%{box-shadow:0 0 16px rgba(14,210,210,0.8),0 0 30px rgba(14,210,210,0.3);}}
+@keyframes optimizerPulse{0%{background:var(--accent-dim);}33%{background:rgba(255,214,10,0.1);}66%{background:rgba(0,255,136,0.08);}100%{background:var(--accent-dim);}}
+.hired-agent.paperclip-running{animation:optimizerPulse 1.2s infinite,agentPop .4s cubic-bezier(.34,1.56,.64,1) both;border-color:var(--accent);}
+.hired-agent.paperclip-running .ha-ico{animation:paperclipSpin .8s linear infinite;}
+.paperclip-loop-tag{font-size:8px;color:var(--yellow);letter-spacing:.5px;margin-top:2px;animation:blink .6s infinite;}
+
+/* Manager Decision Popup */
+.manager-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:flex;align-items:flex-end;animation:fi .2s ease;}
+.manager-popup-overlay.off{display:none;}
+.manager-popup{background:var(--bg2);border-radius:16px 16px 0 0;border-top:1px solid var(--accent-border);padding:20px 20px 36px;width:100%;max-height:85vh;overflow-y:auto;}
+.mp-header{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+.mp-icon{font-size:28px;animation:agpulse 1.5s infinite;}
+.mp-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--txt);}
+.mp-sub{font-size:11px;color:var(--txt3);margin-bottom:16px;margin-left:38px;line-height:1.6;}
+.mp-scan-bar{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:10px;color:var(--accent);display:flex;align-items:center;gap:8px;}
+.mp-scan-bar .spinner{width:12px;height:12px;border-width:1.5px;flex-shrink:0;}
+.mp-scan-text{flex:1;}
+.mp-agents-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.mp-agent-row{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px;opacity:0;transform:translateX(-20px);transition:all .35s cubic-bezier(.34,1.3,.64,1);}
+.mp-agent-row.visible{opacity:1;transform:translateX(0);}
+.mp-agent-ico{font-size:26px;flex-shrink:0;}
+.mp-agent-info{flex:1;}
+.mp-agent-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--txt);}
+.mp-agent-role{font-size:10px;color:var(--txt3);margin-top:2px;}
+.mp-agent-why{font-size:10px;color:var(--accent);margin-top:4px;font-style:italic;}
+.mp-agent-badge{font-size:18px;}
+.mp-confirm-btn{width:100%;height:48px;border-radius:10px;border:none;background:var(--accent);color:#000;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.5px;transition:all .2s;}
+.mp-confirm-btn:hover{background:#fff;}
+.mp-skip-btn{width:100%;height:36px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--txt3);font-size:12px;cursor:pointer;font-family:'DM Mono',monospace;margin-top:8px;}
+
+/* Thinking animation overlay for agent cards */
+.agent-thinking-overlay{position:absolute;inset:0;background:rgba(14,210,210,0.06);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;pointer-events:none;}
+.agent-thinking-dots{display:flex;gap:3px;}
+.agent-thinking-dots span{width:4px;height:4px;border-radius:50%;background:var(--accent);animation:dotBounce .6s infinite;}
+.agent-thinking-dots span:nth-child(2){animation-delay:.15s;}
+.agent-thinking-dots span:nth-child(3){animation-delay:.3s;}
+@keyframes dotBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+.term-bar{padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
+.term-dot{width:8px;height:8px;border-radius:50%;}
+.term-title{font-size:10px;color:var(--txt3);letter-spacing:1px;flex:1;}
+.term-body{padding:12px;height:180px;overflow-y:auto;font-size:11px;line-height:1.8;}
+.term-line{color:var(--txt3);}
+.term-line.info{color:var(--accent);}
+.term-line.success{color:var(--green);}
+.term-line.warn{color:var(--yellow);}
+.term-line.error{color:var(--red);}
+.term-cursor{display:inline-block;width:8px;height:12px;background:var(--accent);animation:blink .8s infinite;vertical-align:middle;margin-left:2px;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* Progress */
+.prog-bar-wrap{background:var(--bg2);border-radius:4px;height:4px;overflow:hidden;margin-top:8px;}
+.prog-bar-fill{height:100%;background:var(--accent);transition:width .5s;border-radius:4px;}
+.prog-stats{display:flex;gap:12px;margin-top:8px;}
+.ps{flex:1;text-align:center;}
+.ps-n{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent);}
+.ps-l{font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;}
+
+/* Reports sidebar */
+.rep-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .2s;margin-bottom:6px;}
+.rep-item:hover{border-color:var(--accent-border);}
+.rep-item.done{border-color:rgba(0,255,136,0.2);}
+.rep-item-top{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.rep-item-ico{font-size:14px;}
+.rep-item-name{font-size:11px;font-weight:600;color:var(--txt);flex:1;}
+.rep-item-tick{font-size:11px;color:var(--green);}
+.rep-item-cat{font-size:9px;color:var(--txt3);letter-spacing:.5px;}
+.rep-item-preview{font-size:10px;color:var(--txt3);line-height:1.5;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* ── REPORT DETAIL PAGE ── */
+#page-report{background:var(--bg);}
+.rp-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.rp-back{font-size:20px;cursor:pointer;color:var(--txt);line-height:1;}
+.rp-info{flex:1;}
+.rp-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--txt);}
+.rp-sub{font-size:11px;color:var(--txt3);margin-top:2px;}
+.rp-actions{display:flex;gap:6px;}
+.rp-act{height:28px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--txt2);font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;transition:all .2s;}
+.rp-act:hover{border-color:var(--accent);color:var(--accent);}
+.rp-body{flex:1;overflow-y:auto;padding:16px;}
+.exec-card{background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:10px;padding:16px;margin-bottom:16px;}
+.exec-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.exec-summary{font-size:13px;color:var(--txt);line-height:1.7;}
+.full-report{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.full-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--txt3);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.toggle-btn{font-size:9px;color:var(--accent);cursor:pointer;letter-spacing:1px;background:none;border:none;font-family:'DM Mono',monospace;}
+.ct{font-size:13px;line-height:1.8;color:var(--txt2);}
+.ct h3{font-size:13px;font-weight:700;color:var(--txt);margin:16px 0 6px;padding-left:8px;border-left:2px solid var(--accent);}
+.ct p{margin-bottom:6px;}
+.ct ul{list-style:none;padding:0;margin:4px 0;}
+.ct li{padding-left:12px;margin-bottom:4px;position:relative;}
+.ct li::before{content:"·";color:var(--txt3);position:absolute;left:2px;}
+.ct strong{color:var(--txt);font-weight:600;}
+.rp-bottom{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+.rp-bottom-btn{flex:1;height:38px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--txt2);font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;transition:all .2s;}
+.rp-bottom-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── AGENT RESULT PAGE ── */
+#page-agent{background:var(--bg);}
+.ar-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.ar-back{font-size:20px;cursor:pointer;color:var(--txt);}
+.ar-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--txt);flex:1;}
+.ar-body{flex:1;overflow-y:auto;padding:14px;}
+.ar-section{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+.ar-sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.ar-sec-title{font-size:11px;font-weight:700;color:var(--txt);letter-spacing:.5px;}
+.ar-sec-copy{height:26px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--txt3);font-size:10px;cursor:pointer;font-family:'DM Mono',monospace;}
+.ar-content{font-size:12px;color:var(--txt2);line-height:1.8;white-space:pre-wrap;}
+.ar-bottom{padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0;}
+.ar-copy-all{width:100%;height:44px;border-radius:8px;border:none;background:var(--txt);color:var(--bg);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Mono',monospace;}
+
+/* ── MKIT PAGE ── */
+#page-mkit{background:var(--bg);}
+.mk-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.mk-body{flex:1;overflow-y:auto;padding:14px;}
+.mk-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+.mk-card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.mk-card-title{font-size:11px;font-weight:700;color:var(--txt);}
+.mk-card-copy{height:26px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--txt3);font-size:10px;cursor:pointer;font-family:'DM Mono',monospace;}
+.mk-content{font-size:12px;color:var(--txt2);line-height:1.8;white-space:pre-wrap;}
+
+/* ── HISTORY PAGE ── */
+#page-history{background:var(--bg);}
+.hist-body{flex:1;overflow-y:auto;padding:14px;}
+.hist-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color .2s;}
+.hist-card:hover{border-color:var(--accent-border);}
+.hist-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.hist-card-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--txt);}
+.hist-card-del{width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--txt3);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.hist-card-desc{font-size:11px;color:var(--txt3);margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.hist-card-meta{display:flex;gap:12px;font-size:10px;}
+.hm-reports{color:var(--accent);}
+.hm-date{color:var(--txt3);}
+
+/* ── OVERLAYS ── */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:flex;align-items:flex-end;transition:opacity .2s;}
+.ov.off{opacity:0;pointer-events:none;}
+.sheet{background:var(--bg2);border-radius:16px 16px 0 0;border-top:1px solid var(--border);padding:16px 16px 36px;width:100%;max-height:80vh;overflow-y:auto;}
+.sh-handle{width:30px;height:3px;background:var(--border2);border-radius:2px;margin:0 auto 14px;}
+.sh-tag{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+.sh-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:14px;color:var(--txt);}
+.sh-inp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--txt);outline:none;font-family:'DM Mono',monospace;margin-bottom:10px;transition:border-color .2s;}
+.sh-inp:focus{border-color:var(--accent);}
+.sh-inp::placeholder{color:var(--txt3);}
+.sh-inp-ta{resize:none;line-height:1.6;}
+.sh-save{width:100%;height:46px;border-radius:8px;border:none;background:var(--txt);color:var(--bg);font-family:'DM Mono',monospace;font-size:13px;font-weight:700;cursor:pointer;margin-top:6px;}
+.sh-save:disabled{background:var(--bg4);color:var(--txt3);cursor:not-allowed;}
+.ex-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt3);margin:10px 0 8px;}
+.ex-btn{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--txt2);font-size:12px;font-family:'DM Mono',monospace;text-align:left;cursor:pointer;margin-bottom:6px;transition:border-color .2s;}
+.ex-btn:hover{border-color:var(--accent-border);color:var(--txt);}
+
+/* ── FEEDBACK ── */
+.fb-sheet{background:var(--bg2);border-radius:16px 16px 0 0;border-top:1px solid var(--border);padding:16px 16px 36px;width:100%;}
+.fb-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:4px;color:var(--txt);}
+.fb-sub{font-size:11px;color:var(--txt3);margin-bottom:14px;}
+.fb-ta{width:100%;background:var(--bg3);border:1px solid var(--accent-border);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--txt);font-family:'DM Mono',monospace;outline:none;resize:none;min-height:80px;margin-bottom:10px;}
+.fb-submit{width:100%;height:44px;border-radius:8px;border:none;background:var(--accent);color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Mono',monospace;margin-bottom:8px;}
+.fb-skip{width:100%;height:36px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--txt3);font-size:12px;cursor:pointer;font-family:'DM Mono',monospace;}
+
+/* ── LOADING ── */
+.ld-center{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:14px;padding:40px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+.ld-t{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--txt);}
+.ld-s{font-size:11px;color:var(--txt3);text-align:center;line-height:1.7;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--txt);z-index:600;opacity:0;transition:all .2s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.ok{border-color:rgba(0,255,136,0.3);color:var(--green);}
+.toast.err{border-color:rgba(255,59,59,0.3);color:var(--red);}
+
+/* ── CONFETTI ── */
+.cp{position:fixed;width:7px;height:7px;border-radius:2px;z-index:999;pointer-events:none;animation:cf 3s ease-in forwards;}
+@keyframes cf{0%{opacity:1;transform:translateY(-10px) rotate(0deg);}100%{opacity:0;transform:translateY(100vh) rotate(720deg);}}
+
+/* ── MOBILE BOTTOM NAV ── */
+.bottom-nav{display:none;height:52px;background:var(--bg2);border-top:1px solid var(--border);align-items:center;justify-content:space-around;flex-shrink:0;}
+@media(max-width:600px){
+  .sidebar{display:none;}
+  .bottom-nav{display:flex;}
+  .cc-right{display:none;}
+  .cc-layout{flex-direction:column;}
+}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:6px 12px;border-radius:8px;transition:all .2s;}
+.bn-item.active{color:var(--accent);}
+.bn-ico{font-size:18px;}
+.bn-label{font-size:9px;letter-spacing:.5px;color:inherit;}
+
+/* Mobile reports card — show on mobile, hide on desktop */
+.mobile-reports-card{display:none;}
+@media(max-width:600px){
+  .mobile-reports-card{display:block;}
+}
+
+/* Category pills on landing */
+.cat-pill{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);font-size:10px;color:var(--txt2);cursor:pointer;transition:all .2s;}
+.cat-pill:hover{border-color:var(--accent-border);color:var(--accent);}
+.cat-pill-ico{font-size:12px;}
+.cat-pill-count{font-size:9px;color:var(--txt3);}
+
+/* Workforce count badge */
+#workforce-count{font-size:10px;color:var(--accent);}
+
+/* Terminal clear button */
+.terminal .term-bar button:hover{color:var(--accent);}
+
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fi{animation:fi .2s ease both;}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sb-logo" onclick="toggleSidebar()">AS</div>
+    <div class="sb-divider"></div>
+    <div class="sb-item active" onclick="navTo('landing')" id="sb-landing" title="Home">🏠<span class="sb-label">Home</span><div class="sb-dot"></div></div>
+    <div class="sb-item" onclick="navTo('command')" id="sb-command" title="Command Center">⚡<span class="sb-label">Command</span><div class="sb-dot"></div></div>
+    <div class="sb-item" onclick="navTo('history')" id="sb-history" title="Projects">📁<span class="sb-label">Projects</span><div class="sb-dot"></div></div>
+    <div class="sb-spacer"></div>
+    <div class="sb-divider"></div>
+    <div class="sb-item" onclick="toggleTheme()" title="Theme">🌓<span class="sb-label">Theme</span></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="tb-title" id="tb-title">AutoStartup</div>
+      <div class="tb-status">
+        <div class="status-dot"></div>
+        <span>RAILWAY CONNECTED</span>
+      </div>
+      <button class="tb-btn" onclick="navTo('history')">📁</button>
+      <button class="tb-btn primary" onclick="showDeployModal()">🚀 New Venture</button>
+    </div>
+
+    <!-- ── LANDING PAGE ── -->
+    <div class="page active" id="page-landing">
+      <div class="land-body">
+        <div class="land-hero">
+          <div class="live-tag"><span class="live-dot"></span>Live — Free Access</div>
+          <div class="land-h1">The World's Most<br>Powerful <span class="ha">Autonomous</span><br><span class="hd">AI Workforce.</span></div>
+          <div class="land-sub">Deploy 38 specialist AI agents for your startup. 38 intelligence reports in minutes. Market research, investor pitch, revenue model, legal — all automated.</div>
+          <div class="stats-row">
+            <div class="stat"><div class="stat-n" id="land-stat-reports">38</div><div class="stat-l">Reports</div></div>
+            <div class="stat"><div class="stat-n">38</div><div class="stat-l">Agents</div></div>
+            <div class="stat"><div class="stat-n">1000+</div><div class="stat-l">Hrs Saved</div></div>
+            <div class="stat"><div class="stat-n">₹0</div><div class="stat-l">Cost</div></div>
+          </div>
+        </div>
+
+        <div class="cost-bar" style="margin:14px">
+          <div class="cost-bar-title">// Manual Work is Costing You</div>
+          <div class="cost-items">
+            <div class="cost-item"><div class="cv">₹8.4L</div><div class="cl">Market Research/yr</div></div>
+            <div class="cost-item"><div class="cv">340hrs</div><div class="cl">Pitch Prep</div></div>
+            <div class="cost-item"><div class="cv">₹12L</div><div class="cl">Strategy Team</div></div>
+            <div class="cost-item"><div class="cv">6mo</div><div class="cl">Time-to-Market</div></div>
+          </div>
+        </div>
+
+        <!-- Live scrolling agent ticker -->
+        <div class="agents-row" style="padding:0 14px">
+          <div class="agents-row-title">38 Specialist Agents — Your AI Workforce</div>
+          <div class="agents-scroll" id="land-agents-scroll">
+            <!-- Dynamically populated from AGENT_LIBRARY -->
+          </div>
+        </div>
+
+        <div class="how-grid" style="margin:14px">
+          <div class="how-cell"><div class="how-num">01</div><div class="how-title">Input Idea</div><div class="how-desc">Name + concept in seconds</div></div>
+          <div class="how-cell"><div class="how-num">02</div><div class="how-title">Manager Decides</div><div class="how-desc">AI picks your best 5 agents</div></div>
+          <div class="how-cell"><div class="how-num">03</div><div class="how-title">Agents Execute</div><div class="how-desc">38 specialists run in parallel</div></div>
+          <div class="how-cell"><div class="how-num">04</div><div class="how-title">You Launch</div><div class="how-desc">Download reports & deploy</div></div>
+        </div>
+
+        <!-- Agent Category Pills -->
+        <div style="padding:0 14px;margin-bottom:60px;">
+          <div class="agents-row-title" style="margin-bottom:10px;">Agent Categories</div>
+          <div id="land-cat-pills" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        </div>
+
+      </div>
+
+      <div class="land-cta">
+        <button class="deploy-btn" onclick="showDeployModal()">🚀 Deploy Your AI Team — Free</button>
+      </div>
+    </div>
+
+    <!-- ── COMMAND CENTER ── -->
+    <div class="page" id="page-command">
+      <div class="cc-layout">
+        <!-- LEFT -->
+        <div class="cc-left">
+
+          <!-- Venture Input -->
+          <div class="cc-card">
+            <div class="cc-card-hd">
+              <div class="cc-card-title">// Active Venture</div>
+              <button class="tb-btn" onclick="showDeployModal()">Change</button>
+            </div>
+            <div class="cc-card-body">
+              <div id="venture-display" style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--txt);margin-bottom:4px;">No venture selected</div>
+              <div id="venture-desc-display" style="font-size:11px;color:var(--txt3);line-height:1.6;">Click "New Venture" to get started</div>
+              <div class="prog-bar-wrap"><div class="prog-bar-fill" id="cc-pfill" style="width:0%"></div></div>
+              <div class="prog-stats">
+                <div class="ps"><div class="ps-n" id="cc-done">0</div><div class="ps-l">Done</div></div>
+                <div class="ps"><div class="ps-n" id="cc-left">38</div><div class="ps-l">Left</div></div>
+                <div class="ps"><div class="ps-n" id="cc-pct">0%</div><div class="ps-l">Complete</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Workforce -->
+          <div class="cc-card">
+            <div class="cc-card-hd">
+              <div class="cc-card-title">// Active Workforce <span id="workforce-count" style="color:var(--accent);margin-left:4px;"></span></div>
+              <div style="display:flex;gap:6px;">
+                <button class="tb-btn" onclick="openMkit()">📝 Mkit</button>
+                <button class="hire-btn" onclick="openHireModal()">+ Hire</button>
+              </div>
+            </div>
+            <div class="cc-card-body">
+              <div id="workforce-container">
+                <div class="empty-workforce">
+                  🤖 No agents hired yet<br>
+                  <span style="color:var(--accent);">Deploy a venture</span> — Manager will auto-hire the best team
+                </div>
+              </div>
+              <!-- Manager re-analyze button — appears after initial hire -->
+              <div id="manager-reanalyze-wrap" style="display:none;margin-top:10px;">
+                <button onclick="managerHireAgents()" style="width:100%;height:32px;border-radius:6px;border:1px solid var(--accent-border);background:var(--accent-dim);color:var(--accent);font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;">🧠 Re-analyze with Manager</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Classic 7 AI Agents Squad -->
+          <div class="cc-card">
+            <div class="cc-card-hd">
+              <div class="cc-card-title">// AI Agent Squad</div>
+              <span style="font-size:9px;color:var(--txt3);">tap to run</span>
+            </div>
+            <div class="cc-card-body" style="padding:10px;">
+              <div class="squad-grid">
+                <div class="squad-agent sleeping" id="sq-vision" onclick="runAgent('vision')">
+                  <span class="sa-ico">💡</span>
+                  <div class="sa-name">Vision</div>
+                  <div class="sa-status" id="sq-vision-status">Sleep Mode</div>
+                </div>
+                <div class="squad-agent sleeping" id="sq-market" onclick="runAgent('market')">
+                  <span class="sa-ico">📊</span>
+                  <div class="sa-name">Market</div>
+                  <div class="sa-status" id="sq-market-status">Sleep Mode</div>
+                </div>
+                <div class="squad-agent sleeping" id="sq-build" onclick="runAgent('build')">
+                  <span class="sa-ico">🚀</span>
+                  <div class="sa-name">Build</div>
+                  <div class="sa-status" id="sq-build-status">Sleep Mode</div>
+                </div>
+                <div class="squad-agent sleeping" id="sq-revenue" onclick="runAgent('revenue')">
+                  <span class="sa-ico">💰</span>
+                  <div class="sa-name">Revenue</div>
+                  <div class="sa-status" id="sq-revenue-status">Sleep Mode</div>
+                </div>
+                <div class="squad-agent sleeping" id="sq-hr" onclick="runAgent('hr')">
+                  <span class="sa-ico">👥</span>
+                  <div class="sa-name">HR</div>
+                  <div class="sa-status" id="sq-hr-status">Sleep Mode</div>
+                </div>
+                <div class="squad-agent sleeping" id="sq-investor" onclick="runAgent('investor')">
+                  <span class="sa-ico">💵</span>
+                  <div class="sa-name">Investor</div>
+                  <div class="sa-status" id="sq-investor-status">Sleep Mode</div>
+                </div>
+                <div class="squad-agent sleeping" id="sq-brand" onclick="runAgent('brand')">
+                  <span class="sa-ico">🎯</span>
+                  <div class="sa-name">Brand</div>
+                  <div class="sa-status" id="sq-brand-status">Sleep Mode</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Terminal -->
+          <div class="terminal">
+            <div class="term-bar">
+              <div class="term-dot" style="background:#ff5f57"></div>
+              <div class="term-dot" style="background:#ffbd2e"></div>
+              <div class="term-dot" style="background:#28ca41"></div>
+              <div class="term-title">LIVE AGENT ACTIVITY</div>
+              <button onclick="clearTerminal()" style="font-size:9px;color:var(--txt3);background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;">CLR</button>
+            </div>
+            <div class="term-body" id="terminal">
+              <div class="term-line info">// Digital Godfather Command Center v3.0</div>
+              <div class="term-line">// 38 Agents loaded ✓</div>
+              <div class="term-line">// Manager Decision Engine: Ready ✓</div>
+              <div class="term-line">// Paperclip Optimizer: Standby</div>
+              <div class="term-line">// Waiting for venture input...</div>
+              <div class="term-line"><span class="term-cursor"></span></div>
+            </div>
+          </div>
+
+          <!-- Mobile-only: Reports list (hidden on desktop via cc-right) -->
+          <div class="cc-card mobile-reports-card">
+            <div class="cc-card-hd">
+              <div class="cc-card-title">// Intelligence Reports</div>
+              <button onclick="genAll()" id="gen-all-btn-mob" style="height:28px;padding:0 10px;border-radius:6px;border:none;background:var(--txt);color:var(--bg);font-size:10px;font-weight:700;cursor:pointer;font-family:'DM Mono',monospace;">⚡ All 38</button>
+            </div>
+            <div class="cc-card-body" style="padding:10px;">
+              <div id="gen-status-mob" style="font-size:10px;color:var(--txt3);margin-bottom:6px;display:none;"></div>
+              <div id="reports-list-mob"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT SIDEBAR (desktop only) -->
+        <div class="cc-right">
+          <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--txt3);margin-bottom:10px;display:flex;align-items:center;gap:6px;"><span style="color:var(--accent);opacity:.5;">//</span> Intelligence Reports</div>
+          <button onclick="genAll()" style="width:100%;height:38px;border-radius:8px;border:none;background:var(--txt);color:var(--bg);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Mono',monospace;margin-bottom:10px;" id="gen-all-btn">⚡ Generate All 38</button>
+          <div id="gen-status" style="font-size:10px;color:var(--txt3);text-align:center;margin-bottom:8px;display:none;"></div>
+          <div id="reports-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── REPORT DETAIL ── -->
+    <div class="page" id="page-report">
+      <div class="rp-header">
+        <div class="rp-back" onclick="navTo('command')">←</div>
+        <div class="rp-info">
+          <div class="rp-title" id="rp-title">Report</div>
+          <div class="rp-sub" id="rp-sub">AutoStartup</div>
+        </div>
+        <div class="rp-actions">
+          <button class="rp-act" onclick="redoCurrent()">↻</button>
+          <button class="rp-act" onclick="copyCurrentReport()">📋</button>
+        </div>
+      </div>
+      <div class="rp-body" id="rp-body"></div>
+      <div class="rp-bottom">
+        <button class="rp-bottom-btn" onclick="copyCurrentReport()">📋 Copy</button>
+        <button class="rp-bottom-btn" onclick="shareWhatsApp()">📱 WhatsApp</button>
+        <button class="rp-bottom-btn" onclick="downloadPDF()">📄 PDF</button>
+        <button class="rp-bottom-btn" onclick="emailReport()">📧 Email</button>
+      </div>
+    </div>
+
+    <!-- ── AGENT RESULT ── -->
+    <div class="page" id="page-agent">
+      <div class="ar-header">
+        <div class="ar-back" onclick="navTo('command')">←</div>
+        <div class="ar-title" id="ar-title">Agent Output</div>
+      </div>
+      <div class="ar-body" id="ar-body"></div>
+      <div class="ar-bottom">
+        <button class="ar-copy-all" onclick="copyAgentAll()">📋 Copy All Output</button>
+      </div>
+    </div>
+
+    <!-- ── MARKETING KIT ── -->
+    <div class="page" id="page-mkit">
+      <div class="mk-header">
+        <div class="rp-back" onclick="navTo('command')">←</div>
+        <div class="rp-title">📝 Marketing Kit</div>
+      </div>
+      <div class="mk-body" id="mk-body">
+        <div class="ld-center"><div class="spinner"></div><div class="ld-t">Generating content...</div></div>
+      </div>
+    </div>
+
+    <!-- ── HISTORY ── -->
+    <div class="page" id="page-history">
+      <div class="rp-header">
+        <div class="rp-back" onclick="navTo('landing')">←</div>
+        <div class="rp-title">📁 My Projects</div>
+      </div>
+      <div class="hist-body" id="hist-body"></div>
+    </div>
+
+    <!-- BOTTOM NAV (mobile) -->
+    <div class="bottom-nav">
+      <div class="bn-item active" id="bn-landing" onclick="navTo('landing')"><div class="bn-ico">🏠</div><div class="bn-label">Home</div></div>
+      <div class="bn-item" id="bn-command" onclick="navTo('command')"><div class="bn-ico">⚡</div><div class="bn-label">Command</div></div>
+      <div class="bn-item" id="bn-history" onclick="navTo('history')"><div class="bn-ico">📁</div><div class="bn-label">Projects</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MANAGER DECISION POPUP -->
+<div class="manager-popup-overlay off" id="manager-popup">
+  <div class="manager-popup">
+    <div class="mp-header">
+      <span class="mp-icon">🧠</span>
+      <div class="mp-title">Manager's Decision</div>
+    </div>
+    <div class="mp-sub" id="mp-sub">Scanning all 38 agents for your venture...</div>
+    <div class="mp-scan-bar" id="mp-scan-bar">
+      <div class="spinner"></div>
+      <div class="mp-scan-text" id="mp-scan-text">Analyzing venture requirements...</div>
+    </div>
+    <div class="mp-agents-list" id="mp-agents-list"></div>
+    <button class="mp-confirm-btn off" id="mp-confirm-btn" onclick="confirmManagerHire()">✅ Deploy This Team</button>
+    <button class="mp-skip-btn" onclick="closeManagerPopup()">Skip — I'll hire manually</button>
+  </div>
+</div>
+
+<!-- DEPLOY MODAL -->
+<div class="ov off" id="deploy-modal" onclick="if(event.target.id==='deploy-modal')closeDeployModal()">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-tag">// New Venture</div>
+    <div class="sh-title">Deploy AI Team</div>
+    <label class="venture-label">Startup Name</label>
+    <input class="sh-inp" type="text" id="m-name" placeholder="FitBuddy, TaskFlow..."/>
+    <label class="venture-label">Startup Idea</label>
+    <textarea class="sh-inp sh-inp-ta" id="m-desc" rows="4" placeholder="What does it do? Who is it for? What problem does it solve?"></textarea>
+    <button class="sh-save" id="deploy-btn" onclick="deployVenture()" disabled>Enter details to deploy</button>
+    <div class="ex-label">// Quick examples</div>
+    <button class="ex-btn" onclick="quickEx('FitBuddy','AI-powered personalized fitness coach app for Indians doing home workouts. Creates custom workout plans, tracks progress, and motivates users through gamification.')">🏋️ AI Fitness Coach App</button>
+    <button class="ex-btn" onclick="quickEx('FreelanceHub','AI platform for Indian freelancers to find clients, manage projects, generate invoices, and get paid. Targeting 15 million freelancers.')">💼 Freelancer Platform</button>
+    <button class="ex-btn" onclick="quickEx('RestroOps','B2B inventory and order management SaaS for small restaurants and cloud kitchens in India. Reduces food waste by 40%.')">🍽️ Restaurant SaaS</button>
+  </div>
+</div>
+
+<!-- HIRE SPECIALIST MODAL -->
+<div class="ov off" id="hire-modal" onclick="if(event.target.id==='hire-modal')closeHireModal()">
+  <div class="sheet" style="max-height:85vh;">
+    <div class="sh-handle"></div>
+    <div class="sh-tag">// Agent Library</div>
+    <div class="sh-title">Hire a Specialist</div>
+    <input type="text" id="hire-search" placeholder="🔍 Search agents..." oninput="filterHireList()" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--txt);outline:none;font-family:'DM Mono',monospace;margin-bottom:12px;">
+    <div class="hire-modal-body" id="hire-modal-body"></div>
+  </div>
+</div>
+
+<!-- AGENT PREVIEW MODAL -->
+<div class="ov off" id="agent-preview-modal" onclick="if(event.target.id==='agent-preview-modal')closeAgentPreview()">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+      <span id="ap-icon" style="font-size:36px;"></span>
+      <div>
+        <div id="ap-name" style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--txt);"></div>
+        <div id="ap-cat" style="font-size:10px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-top:2px;"></div>
+      </div>
+    </div>
+    <div id="ap-role" style="font-size:11px;color:var(--txt3);margin-bottom:12px;"></div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:14px;">
+      <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt3);margin-bottom:6px;">// What this agent does</div>
+      <div id="ap-desc" style="font-size:12px;color:var(--txt2);line-height:1.7;"></div>
+    </div>
+    <div id="ap-already-hired" style="display:none;background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.2);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11px;color:var(--green);text-align:center;">✓ Already in your team</div>
+    <button id="ap-hire-btn" class="sh-save" onclick="hireFromPreview()">+ Add to Workforce</button>
+    <button class="mp-skip-btn" style="margin-top:8px;" onclick="closeAgentPreview()">Close</button>
+  </div>
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div class="ov off" id="fb-modal" onclick="if(event.target.id==='fb-modal')closeFeedback()">
+  <div class="fb-sheet">
+    <div class="sh-handle"></div>
+    <div class="fb-title">💬 Share Feedback</div>
+    <div class="fb-sub">What did you like? What should we improve?</div>
+    <textarea class="fb-ta" id="fb-ta" placeholder="Your thoughts... (optional)"></textarea>
+    <button class="fb-submit" onclick="submitFeedback()">Submit</button>
+    <button class="fb-skip" onclick="closeFeedback()">Skip</button>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="ov off" id="settings-modal" onclick="if(event.target.id==='settings-modal')closeSettings()">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-title">Edit Venture</div>
+    <input class="sh-inp" type="text" id="s-name"/>
+    <textarea class="sh-inp sh-inp-ta" id="s-desc" rows="4"></textarea>
+    <button class="sh-save" onclick="saveSettings()">Save Changes</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+function showDeployModal() {
+  document.getElementById('deploy-modal').classList.remove('off');
+  // Use oninput attribute to avoid duplicate listener accumulation
+  document.getElementById('m-name').oninput = checkDeploy;
+  document.getElementById('m-desc').oninput = checkDeploy;
+}
+const RAILWAY_URL='https://web-production-04e22.up.railway.app';
+
+// ── COMPLETE 38-AGENT LIBRARY ──
+const AGENT_LIBRARY = [
+  // ── STRATEGY (5) ──
+  {id:'ceo',       name:'CEO Agent',             icon:'👑', role:'Chief Executive',            cat:'Strategy',    desc:'Sets vision, makes final decisions, coordinates all agents for maximum output'},
+  {id:'cto',       name:'CTO Agent',             icon:'⚙️', role:'Chief Technology Officer',   cat:'Strategy',    desc:'Tech architecture, stack decisions, engineering roadmap and build velocity'},
+  {id:'cfo',       name:'CFO Agent',             icon:'💰', role:'Chief Financial Officer',    cat:'Strategy',    desc:'Financial models, unit economics, fundraising strategy and runway planning'},
+  {id:'cmo',       name:'CMO Agent',             icon:'📣', role:'Chief Marketing Officer',    cat:'Strategy',    desc:'Brand strategy, go-to-market execution, growth channels and positioning'},
+  {id:'strategy',  name:'Strategy Agent',        icon:'♟️', role:'Strategy Consultant',        cat:'Strategy',    desc:'Competitive positioning, market entry, pivot analysis and strategic roadmap'},
+
+  // ── RESEARCH (5) ──
+  {id:'market_research', name:'Market Research Agent', icon:'🔬', role:'Market Analyst',          cat:'Research', desc:'TAM/SAM/SOM deep dives, trend mapping, customer segmentation India focus'},
+  {id:'competitor',      name:'Competitor Intel Agent',icon:'🕵️', role:'Competitive Intelligence', cat:'Research', desc:'Deep competitor teardowns, pricing benchmarks, weakness mapping and gaps'},
+  {id:'customer',        name:'Customer Research Agent',icon:'👥',role:'Customer Insights',        cat:'Research', desc:'User personas, JTBD framework, pain point interviews, willingness to pay'},
+  {id:'trend',           name:'Trend Analyst Agent',   icon:'📈', role:'Trend Forecaster',         cat:'Research', desc:'2026–2030 macro/micro trends, India-specific behavioral shifts and signals'},
+  {id:'data',            name:'Data Science Agent',    icon:'📊', role:'Data Scientist',           cat:'Research', desc:'Analytics stack, KPI dashboards, cohort analysis, predictive models'},
+
+  // ── LEGAL (5) ──
+  {id:'legal',      name:'Legal Shark Agent',    icon:'⚖️', role:'Startup Legal Counsel',     cat:'Legal',    desc:'Contracts, term sheets, founder agreements, IP protection and dispute strategy'},
+  {id:'gst',        name:'GST Expert Agent',     icon:'🧾', role:'GST & Tax Specialist',      cat:'Legal',    desc:'GST registration, ITC claims, filing calendar, tax optimization India'},
+  {id:'compliance', name:'Compliance Agent',     icon:'📋', role:'Compliance Officer',        cat:'Legal',    desc:'RBI, SEBI, MCA, DPDPA regulations — startup compliance checklist'},
+  {id:'ip',         name:'IP Agent',             icon:'🔏', role:'IP Specialist',             cat:'Legal',    desc:'Patent filing strategy, trademark registration, copyright, trade secrets'},
+  {id:'contract',   name:'Contract Agent',       icon:'📝', role:'Contract Drafter',          cat:'Legal',    desc:'Drafts NDAs, vendor contracts, SaaS MSAs, employment agreements India'},
+
+  // ── PRODUCT & TECH (7) ──
+  {id:'product',   name:'Product Manager Agent', icon:'🗺️', role:'Product Manager',           cat:'Product',  desc:'Roadmap planning, feature prioritization, sprint ceremonies, OKR alignment'},
+  {id:'uiux',      name:'UI/UX Designer Agent',  icon:'🎨', role:'UI/UX Designer',            cat:'Product',  desc:'Wireframes, design system, user flows, mobile-first accessibility standards'},
+  {id:'app_dev',   name:'App Developer Agent',   icon:'📱', role:'Mobile Developer',          cat:'Product',  desc:'React Native / Flutter architecture, Play Store & App Store release strategy'},
+  {id:'web_dev',   name:'Web Developer Agent',   icon:'💻', role:'Full Stack Developer',      cat:'Product',  desc:'Tech stack selection, system architecture, API design, deployment pipeline'},
+  {id:'ai_ml',     name:'AI/ML Agent',           icon:'🤖', role:'AI Engineer',               cat:'Product',  desc:'ML pipeline design, model selection, LLM integration, AI feature roadmap'},
+  {id:'security',  name:'Security Agent',        icon:'🔒', role:'Security Engineer',         cat:'Product',  desc:'Cybersecurity audit, data protection, VAPT, threat modeling, ISO 27001 prep'},
+  {id:'devops',    name:'DevOps Agent',          icon:'🔧', role:'DevOps Engineer',           cat:'Product',  desc:'CI/CD pipelines, Kubernetes, cloud infra costs, scaling and reliability SLAs'},
+
+  // ── OPERATIONS (5) ──
+  {id:'ops',         name:'Operations Agent',      icon:'⚡', role:'Operations Manager',       cat:'Operations', desc:'Process design, SOP creation, bottleneck removal and operational efficiency'},
+  {id:'supply_chain',name:'Logistics Expert Agent',icon:'🚚', role:'Supply Chain & Logistics', cat:'Operations', desc:'Vendor sourcing, last-mile delivery, warehouse ops, inventory optimization India'},
+  {id:'hr',          name:'HR Agent',              icon:'👤', role:'HR Manager',               cat:'Operations', desc:'Hiring funnel, JDs, org structure, equity ESOP design, culture playbook'},
+  {id:'finance_ops', name:'Finance Ops Agent',     icon:'💳', role:'Finance Manager',          cat:'Operations', desc:'Budgeting, P&L, cash flow management, Tally/Zoho Books setup, runway tracking'},
+  {id:'paperclip',   name:'Paperclip Agent',       icon:'📎', role:'Infinite Optimizer',       cat:'Operations', desc:'⚠️ Loops continuously — eliminates ALL waste, automates everything, maximizes output relentlessly'},
+
+  // ── SALES & MARKETING (6) ──
+  {id:'sales',     name:'Sales Agent',            icon:'🤝', role:'Sales Manager',            cat:'Sales',    desc:'B2B/B2C sales funnel, pitch scripts, objection handling, CRM setup India'},
+  {id:'growth',    name:'Growth Hacker Agent',    icon:'🚀', role:'Growth Manager',           cat:'Sales',    desc:'Viral loops, referral programs, PLG motion, AARRR funnel optimization'},
+  {id:'content',   name:'Content Agent',          icon:'✍️', role:'Content Strategist',       cat:'Sales',    desc:'SEO blog, LinkedIn thought leadership, newsletter, short-form video scripts'},
+  {id:'seo_agent', name:'SEO Agent',              icon:'🔍', role:'SEO Specialist',           cat:'Sales',    desc:'Keyword strategy, on-page optimization, backlink building, Core Web Vitals'},
+  {id:'ads',       name:'Paid Ads Agent',         icon:'📢', role:'Performance Marketer',     cat:'Sales',    desc:'Google Ads, Meta Ads, programmatic — ROAS optimization for India market'},
+  {id:'community', name:'Community Agent',        icon:'🌐', role:'Community Manager',        cat:'Sales',    desc:'WhatsApp groups, Discord, Reddit, Twitter/X — organic brand community builder'},
+
+  // ── FINANCE & FUNDING (5) ──
+  {id:'investor_rel',name:'Investor Relations Agent',icon:'💼',role:'Investor Relations',      cat:'Finance',  desc:'Investor updates, data room prep, warm intro strategy, LP/VC relationship mgmt'},
+  {id:'pitch',       name:'Pitch Agent',            icon:'🎤',role:'Pitch Coach',              cat:'Finance',  desc:'Pitch deck design, storytelling arc, objection handling, demo day prep'},
+  {id:'valuation',   name:'Valuation Agent',        icon:'💎',role:'Valuation Expert',         cat:'Finance',  desc:'DCF, comparables, VC method — Indian startup valuation benchmarks 2026'},
+  {id:'grant',       name:'Grant Agent',            icon:'🏆',role:'Grant Specialist',         cat:'Finance',  desc:'Startup India, DPIIT recognition, BIRAC, Atal grants — application templates'},
+  {id:'fundraise',   name:'Fundraise Agent',        icon:'💵',role:'Fundraising Strategist',   cat:'Finance',  desc:'Seed/Pre-seed/Series A strategy, SAFE notes, term sheet negotiation India'},
+
+  // ── BRAND & PARTNERSHIPS (5) ──
+  {id:'brand',      name:'Brand Agent',            icon:'🎯', role:'Brand Strategist',        cat:'Brand',    desc:'Brand identity, archetype, positioning statement, tone of voice guidelines'},
+  {id:'pr',         name:'PR Agent',               icon:'📰', role:'PR Specialist',           cat:'Brand',    desc:'Press releases, YourStory/Inc42 outreach, journalist relationships, crisis PR'},
+  {id:'partner',    name:'Partnership Agent',      icon:'🫱', role:'Business Development',    cat:'Brand',    desc:'Strategic partnerships, co-marketing deals, channel partnerships, API integrations'},
+  {id:'influencer', name:'Influencer Agent',       icon:'⭐', role:'Influencer Marketing',    cat:'Brand',    desc:'Nano/micro influencer sourcing, brief creation, ROI tracking for India market'},
+  {id:'intern_ops', name:'International Agent',    icon:'🌍', role:'Global Expansion',        cat:'Brand',    desc:'SEA/MENA/US market entry, localization strategy, international compliance'},
+];
+
+const AGENT_CATS = [...new Set(AGENT_LIBRARY.map(a => a.cat))];
+
+// Active hired agents for current project
+let hiredAgents = [];
+let managerAnalyzing = false;
+
+const BOT_TOKEN='8710665779:AAFkvF2KCfIo0orsM-bOQApTGbWp3RZ5UMU';
+const CHAT_ID='8515648321';
+
+const SECTIONS=[
+  {id:'overview',label:'Business Overview',icon:'📋',cat:'IDEA & VISION'},
+  {id:'problem',label:'Problem & Solution',icon:'💡',cat:'IDEA & VISION'},
+  {id:'whynow',label:'Why Now?',icon:'⏰',cat:'IDEA & VISION'},
+  {id:'vision',label:'Vision & Mission',icon:'🎯',cat:'IDEA & VISION'},
+  {id:'market',label:'Market Potential',icon:'📊',cat:'MARKET RESEARCH'},
+  {id:'segments',label:'Customer Segmentation',icon:'👥',cat:'MARKET RESEARCH'},
+  {id:'painpoints',label:'User Pain Points',icon:'⚠️',cat:'MARKET RESEARCH'},
+  {id:'trends',label:'Market & Consumer Trends',icon:'📈',cat:'MARKET RESEARCH'},
+  {id:'competition',label:'Competition & Alternatives',icon:'⚔️',cat:'MARKET RESEARCH'},
+  {id:'stories',label:'User Stories',icon:'📖',cat:'PRODUCT & MVP'},
+  {id:'mvp',label:'Minimum Viable Product',icon:'🚀',cat:'PRODUCT & MVP'},
+  {id:'roadmap',label:'Product Roadmap',icon:'🗺️',cat:'PRODUCT & MVP'},
+  {id:'moscow',label:'Feature Prioritization (MoSCoW)',icon:'✅',cat:'PRODUCT & MVP'},
+  {id:'ai',label:'AI & Automation Opportunities',icon:'🤖',cat:'PRODUCT & MVP'},
+  {id:'techstack',label:'Tech Stack & Tools',icon:'⚙️',cat:'PRODUCT & MVP'},
+  {id:'design',label:'Design & Mockup Guide',icon:'🎨',cat:'PRODUCT & MVP'},
+  {id:'bizmodel',label:'Business Model & Monetization',icon:'💰',cat:'BUSINESS MODEL'},
+  {id:'revenue',label:'Revenue Forecast',icon:'📉',cat:'BUSINESS MODEL'},
+  {id:'gtm',label:'Go-to-Market Strategy',icon:'📣',cat:'BUSINESS MODEL'},
+  {id:'distribution',label:'Distribution Channels',icon:'🚚',cat:'BUSINESS MODEL'},
+  {id:'acquisition',label:'User Acquisition & Retention',icon:'🔄',cat:'BUSINESS MODEL'},
+  {id:'journey',label:'Customer Journey Map',icon:'🗺️',cat:'BUSINESS MODEL'},
+  {id:'marketing',label:'Marketing & Promotion',icon:'📢',cat:'BUSINESS MODEL'},
+  {id:'seo',label:'SEO & Ad Campaigns',icon:'🔍',cat:'BUSINESS MODEL'},
+  {id:'team',label:'Team Structure & Hiring',icon:'👤',cat:'TEAM & OPERATIONS'},
+  {id:'costs',label:'Operational Costs',icon:'💸',cat:'TEAM & OPERATIONS'},
+  {id:'kpis',label:'Key Performance Indicators',icon:'📊',cat:'TEAM & OPERATIONS'},
+  {id:'support',label:'Support & Customer Success',icon:'🎧',cat:'TEAM & OPERATIONS'},
+  {id:'legal',label:'Legal & Compliance',icon:'⚖️',cat:'TEAM & OPERATIONS'},
+  {id:'traction',label:'Traction & Metrics',icon:'📈',cat:'FUNDING & GROWTH'},
+  {id:'valuation',label:'Business Valuation',icon:'💎',cat:'FUNDING & GROWTH'},
+  {id:'funding',label:'Seed / Pre-seed Funding',icon:'💵',cat:'FUNDING & GROWTH'},
+  {id:'investors',label:'Finding Investors',icon:'🔎',cat:'FUNDING & GROWTH'},
+  {id:'pitch',label:'Investor Pitch Outline',icon:'🎤',cat:'FUNDING & GROWTH'},
+  {id:'exit',label:'Exit Strategy',icon:'🚪',cat:'FUNDING & GROWTH'},
+  {id:'naming',label:'Name & Tagline Ideas',icon:'✏️',cat:'BRAND & PARTNERSHIPS'},
+  {id:'partnerships',label:'Partnerships & Collaborations',icon:'🤝',cat:'BRAND & PARTNERSHIPS'},
+  {id:'brand',label:'Brand Positioning',icon:'🎯',cat:'BRAND & PARTNERSHIPS'},
+];
+const CATS=[...new Set(SECTIONS.map(s=>s.cat))];
+const TIPS=[
+  'Start with the problem, not the solution. Customers pay to solve pain, not for features.',
+  'Talk to 10 potential customers before writing a single line of code.',
+  'Your MVP should do one thing extremely well, not many things average.',
+  'Charge from day one — free users never become paying users.',
+  'India has 800M internet users. Even 0.01% is 80,000 customers.',
+  'The best time to build a startup is now. The second best time is also now.',
+  'Distribution beats product. A great product with no reach = zero users.',
+  'Profitability is not a bad word — it means you built something people value.',
+  'Solve a problem you personally have. Founder-market fit is real.',
+  'Revenue is the best form of validation. Everything else is theory.',
+  'Focus on retention first, acquisition second. Leaky bucket kills startups.',
+  'Your competition doing it badly is your biggest market signal.',
+  'Build in public. Share your journey. People root for transparent founders.',
+  'The Indian market rewards localization — translate, price in INR, support in Hindi.',
+  'Investors fund momentum, not potential. Show traction before pitching.',
+];
+
+let BIZ={name:'',desc:''},CONTENT={},BOOKMARKS={},RATINGS={},activeSection=null,isLoading=false,currentProjectId=null,isEditMode=false;
+
+// ── THEME ──
+
+
+// ── TIPS ──
+function showRandomTip(){
+  const tip=TIPS[Math.floor(Math.random()*TIPS.length)];
+  const el=document.getElementById('tip-text');
+  if(el) el.textContent=tip;
+}
+
+// ── HISTORY ──
+
+
+
+
+
+
+
+// INIT merged into dashboard onload below
+
+function showInputModal(){
+  document.getElementById('input-modal').classList.remove('off');
+}
+function closeInputModal(){
+  document.getElementById('input-modal').classList.add('off');
+}
+// checkForm removed - using checkDeploy in dashboard
+function setEx(name,desc){
+  const bn=document.getElementById('biz-name');
+  const bd=document.getElementById('biz-desc');
+  if(bn) bn.value=name;
+  if(bd) bd.value=desc;
+}
+function startApp(){
+  const n=document.getElementById('biz-name') ? document.getElementById('biz-name').value.trim() : '';
+  const d=document.getElementById('biz-desc') ? document.getElementById('biz-desc').value.trim() : '';
+  if(!n||!d)return;
+  BIZ={name:n,desc:d};CONTENT={};BOOKMARKS={};RATINGS={};currentProjectId=null;
+  const modal=document.getElementById('input-modal');
+  if(modal)modal.classList.add('off');
+  navTo('command');
+  updateCommandCenter();
+}
+function goHome(){saveCurrentProject();navTo('landing');}
+
+// ── REPORT LIST ──
+function buildList(){
+  const s=document.getElementById('rep-scroll');s.innerHTML='';
+  const q=(document.getElementById('search-inp')||{value:''}).value.toLowerCase();
+  CATS.forEach(cat=>{
+    const secs=SECTIONS.filter(x=>x.cat===cat&&(!q||x.label.toLowerCase().includes(q)));
+    if(!secs.length)return;
+    const w=document.createElement('div');w.className='cat-wrap';
+    const h=document.createElement('div');h.className='cat-hd';
+    h.textContent=`${cat} (${secs.length})`;w.appendChild(h);
+    secs.forEach(sec=>{
+      const r=document.createElement('div');
+      const bm=BOOKMARKS[sec.id];
+      r.className='rep-row'+(CONTENT[sec.id]?' done':'')+(bm?' bookmarked':'');
+      r.onclick=()=>openSec(sec);
+      r.innerHTML=`<div class="rep-ball">${sec.icon}</div><div class="rep-inf"><div class="rep-nm">${sec.label}${bm?' ⭐':''}</div><div class="rep-st">${CONTENT[sec.id]?'Generated — tap to view':'Tap to generate'}</div></div><div class="rep-arr">${CONTENT[sec.id]?'✓':'›'}</div>`;
+      w.appendChild(r);
+    });
+    s.appendChild(w);
+  });
+  updProg();
+}
+function updProg(){
+  const d=Object.keys(CONTENT).length;
+  const bm=Object.keys(BOOKMARKS).length;
+  document.getElementById('pfill').style.width=(d/38*100)+'%';
+  document.getElementById('prog-cnt').textContent=d+' / 38';
+  document.getElementById('dash-done').textContent=d;
+  document.getElementById('dash-left').textContent=38-d;
+  document.getElementById('dash-star').textContent=bm;
+  document.getElementById('dash-pct').textContent=Math.round(d/38*100)+'%';
+}
+function openSec(sec){
+  activeSection=sec;
+  isEditMode=false;
+  document.getElementById('r-title').textContent=sec.label;
+  document.getElementById('r-biz').textContent=BIZ.name;
+  document.getElementById('edit-wrap').style.display='none';
+  document.getElementById('res-body').style.display='';
+  updateBookmarkBtn();
+
+  showScreen('result');
+  if(CONTENT[sec.id])renderRes();else doGen(sec);
+}
+
+// ── BOOKMARK ──
+function toggleBookmark(){
+  if(!activeSection)return;
+  if(BOOKMARKS[activeSection.id])delete BOOKMARKS[activeSection.id];
+  else BOOKMARKS[activeSection.id]=true;
+  updateBookmarkBtn();
+  buildList();
+  saveCurrentProject();
+  showToast(BOOKMARKS[activeSection.id]?'Bookmarked! ⭐':'Removed bookmark','ok');
+}
+function updateBookmarkBtn(){
+  const btn=document.getElementById('bm-btn');
+  if(!btn||!activeSection)return;
+  btn.textContent=BOOKMARKS[activeSection.id]?'★':'☆';
+  btn.style.color=BOOKMARKS[activeSection.id]?'gold':'';
+}
+
+// ── RATING ──
+
+
+// ── EDIT ──
+function toggleEdit(){
+  if(!activeSection||!CONTENT[activeSection.id])return;
+  isEditMode=!isEditMode;
+  if(isEditMode){
+    document.getElementById('edit-ta').value=CONTENT[activeSection.id];
+    document.getElementById('edit-wrap').style.display='flex';
+    document.getElementById('res-body').style.display='none';
+  }else{
+    document.getElementById('edit-wrap').style.display='none';
+    document.getElementById('res-body').style.display='';
+  }
+}
+function saveEdit(){
+  const txt=document.getElementById('edit-ta').value.trim();
+  if(!txt||!activeSection)return;
+  CONTENT[activeSection.id]=txt;
+  isEditMode=false;
+  document.getElementById('edit-wrap').style.display='none';
+  document.getElementById('res-body').style.display='';
+  renderRes();saveCurrentProject();
+  showToast('Report updated!','ok');
+}
+
+// ── COPY ──
+function copyReport(){
+  if(!activeSection||!CONTENT[activeSection.id])return;
+  const text=CONTENT[activeSection.id];
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>showToast('Copied! 📋','ok')).catch(()=>fallbackCopy(text));
+  }else fallbackCopy(text);
+}
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');
+  ta.value=text;document.body.appendChild(ta);ta.select();
+  document.execCommand('copy');document.body.removeChild(ta);
+  showToast('Copied! 📋','ok');
+}
+
+// ── WHATSAPP ──
+
+
+// ── PDF ──
+
+
+
+// ── EMAIL ──
+
+
+// ── RESULT ──
+function renderRes(){
+  const body=document.getElementById('res-body');
+  const redo=document.getElementById('redo-btn');
+  if(isLoading){
+    redo.style.display='none';
+    body.innerHTML=`<div class="ld"><div class="sp"></div><div class="ld-t">Generating report...</div><div class="ld-s">${activeSection.label}<br>for ${BIZ.name}</div></div>`;
+  }else if(CONTENT[activeSection.id]){
+    redo.style.display='block';
+    body.innerHTML=`<div class="res-chip fi"><div class="res-chip-ico">${activeSection.icon}</div><div><div class="res-chip-nm">${activeSection.label}</div><div class="res-chip-biz">for ${BIZ.name}</div></div></div><div class="ct fi">${fmt(CONTENT[activeSection.id])}</div>`;
+  }
+}
+function fmt(raw){
+  return raw
+    .replace(/^#{1,6}\s*(.+)$/gm,'<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/`([^`\n]+)`/g,'<code>$1</code>')
+    .replace(/^[-•*]\s(.+)$/gm,'<li>$1</li>')
+    .replace(/^\d+\.\s(.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>[\s\S]*?<\/li>)/g,'<ul style="list-style:none;padding:0;margin:4px 0">$1</ul>')
+    .replace(/\n\n/g,'<br><br>')
+    .replace(/\n/g,'<br>');
+}
+
+// ── CONFETTI ──
+
+
+// ── API ──
+function getPrompt(id,name,desc){
+  const base=`You are a senior startup consultant. Write a detailed, specific report for startup "${name}": ${desc}.\nRules: English only. ### for headers. ** for bold. - for bullets. Write DIRECTLY, no preamble. Real 2026-2030 data, real company names, India focus.\n\n`;
+  const p={
+    overview:base+'Business Overview:\n### Executive Summary\n### Core Value Proposition\n### Business Model\n### Target Market\n### Capital Required for MVP (INR)\n### Key Success Factors',
+    problem:base+'Problem & Solution:\n### The Core Problem\n### Who Is Affected\n### Current Inadequate Solutions\n### Our Solution\n### Key Differentiators\n### Why Users Will Switch',
+    whynow:base+'Why Now Analysis:\n### Market Timing\n### Technology Enablers\n### Post-2020 Behavioral Shifts\n### Regulatory Tailwinds\n### Economic Factors\n### Window of Opportunity',
+    vision:base+'Vision & Mission:\n### 10-Year Vision\n### Mission Statement\n### Core Values\n### Strategic Pillars\n### North Star Metric\n### Social Impact',
+    market:base+'Market Potential:\n### Total Addressable Market (INR+USD)\n### Serviceable Addressable Market\n### Serviceable Obtainable Market\n### CAGR\n### Key Growth Drivers\n### India Tier Breakdown\n### Market Risks',
+    segments:base+'Customer Segmentation with 3 personas. Each: name, age, job, city tier, income, pain points, tools used, willingness to pay, online habits. End with primary target.',
+    painpoints:base+'5 User Pain Points. Each: severity, time lost, money wasted, current workaround, why it fails. Add Jobs-to-be-Done and emotional pain.',
+    trends:base+'Market Trends:\n### Macro Trends\n### Micro Trends\n### India-Specific Dynamics\n### Behavior Shifts 2023-2026\n### 2030 Predictions',
+    competition:base+'Competition: 3-4 real competitors each with funding, users, pricing, strengths, weaknesses. Add competitive matrix, unfair advantages, blue ocean.',
+    stories:base+'10 User Stories in 3 epics. Each: As a [persona] I want [feature] so that [benefit]. Include acceptance criteria, priority, story points.',
+    mvp:base+'MVP:\n### Core Features\n### Excluded from v1\n### Success Metrics\n### 8-Week Build Timeline\n### Cost (INR)\n### Validation Method',
+    roadmap:base+'12-Month Roadmap in 4 phases. Each: features, team, budget (INR), KPIs. Add Year 2 vision.',
+    moscow:base+'MoSCoW:\n### Must Have\n### Should Have\n### Could Have\n### Will Not Have Now\n### Effort Summary',
+    ai:base+'AI & Automation: 5 features (tech, function, value, complexity). Process automations. APIs with costs. Competitive moat.',
+    techstack:base+'Tech Stack: Frontend, Backend, DB, Auth, Payments, Cloud, Analytics, CI/CD. Each: technology, INR/month, reason. Total costs at scale.',
+    design:base+'Design Guide:\n### Philosophy\n### Color Palette (hex)\n### Typography\n### 5 Key Screens\n### UX Principles\n### Accessibility',
+    bizmodel:base+'Business Model:\n### Revenue Model\n### Pricing Tiers with INR prices\n### Unit Economics (CAC, LTV, ratio)\n### Path to 1 Crore ARR',
+    revenue:base+'Revenue Forecast: assumptions, Month 1-12 (users, paying%, MRR), Year 2-3 quarterly, break-even, best/base/worst scenarios.',
+    gtm:base+'GTM Strategy:\n### GTM Motion\n### First 100 Customers\n### Channel Strategy\n### Launch Messaging\n### PR Plan\n### 90-Day KPIs',
+    distribution:base+'Distribution: 5 channels (CAC, volume, tactics, timeline). App store, B2B, integration strategies.',
+    acquisition:base+'Acquisition & Retention:\n### 5 Channels with CAC\n### Onboarding Flow\n### D1/D7/D30 Retention Targets\n### Retention Mechanisms\n### Referral Program',
+    journey:base+'Customer Journey Map: Awareness→Interest→Consideration→Decision→Onboarding→Value→Loyalty→Advocacy. Each: action, emotion, touchpoint, opportunity, metric.',
+    marketing:base+'Marketing Plan:\n### Brand Voice\n### Content Strategy\n### Social Media (Instagram, LinkedIn, X)\n### Influencer Strategy\n### Email Sequences',
+    seo:base+'SEO & Ads: 10 keywords with volume, content plan, Google Ads (INR budget, CPC, conversions), Meta Ads, traffic goals.',
+    team:base+'Team:\n### Founding Team\n### First 5 Hires (role, month, INR salary)\n### Equity Split\n### Org Chart\n### Culture Principles',
+    costs:base+'Costs: Month 1-2, 3-4, 5-6 (tech, salaries, marketing, legal, total burn). 6-month runway needed. Cost optimization tips.',
+    kpis:base+'KPIs: North Star Metric, Business KPIs, Product KPIs, Financial KPIs, Team KPIs, Red Flags.',
+    support:base+'Customer Success:\n### Support Channels & SLAs\n### Top 8 FAQs\n### Escalation Matrix\n### Health Score\n### Tools Stack',
+    legal:base+'Legal India:\n### Business Structure\n### Registration & Cost\n### Licenses\n### Data Privacy\n### IP\n### GST\n### Legal Risks\n### Year 1 Budget',
+    traction:base+'Traction: 30/60/90-day milestones, traction channels, investor metrics, early adopter strategy.',
+    valuation:base+'Valuation: 3 methods with Indian comparables. Current range, post-MVP, post-seed targets, value drivers.',
+    funding:base+'Funding Strategy:\n### Amount (INR/USD)\n### Use of Funds\n### Dilution\n### Valuation Ask\n### Pre-raise Milestones\n### 12-Week Timeline',
+    investors:base+'Finding Investors India: top 5 VCs (focus, ticket, portfolio, contact), angels, accelerators, warm intro strategy, email template.',
+    pitch:base+'Investor Pitch 10 slides: each with key message, data point, visual. Story arc, top 5 objections with rebuttals, ask slide.',
+    exit:base+'Exit Strategy: 5 real acquirers (rationale, M&A history, price estimate), IPO feasibility, 7-year path, value maximizers.',
+    naming:base+'Naming: 10 name options (rationale, domain), 5 taglines, brand voice, logo concept, trademark process India.',
+    partnerships:base+'Partnerships: 6 real companies (type, value exchange, approach, impact, terms to negotiate).',
+    brand:base+'Brand Positioning:\n### Statement\n### Archetype\n### Perceptual Map\n### Messaging Hierarchy\n### Promise\n### Tone of Voice\n### Category Ownership',
+  };
+  return p[id]||base+`Comprehensive ${id} analysis.`;
+}
+
+async function callAPI(prompt){
+  // Try Groq + Tavily first
+  try{
+    const resp=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prompt:prompt,system:'You are a senior startup consultant. Write reports DIRECTLY in English. ### for headers, ** for bold, - for bullets. No preamble. Use real 2026 data, real company names, India market focus.'})
+    });
+    if(resp.ok){
+      const d=await resp.json();
+      if(d.text&&d.text.length>50){
+        if(d.freshData)showToast('⚡ Real-time 2026 data used!','ok');
+        return d.text;
+      }
+    }
+  }catch(e){console.log('Groq fallback:',e.message);}
+  
+  // Fallback to Pollinations
+  const resp2=await fetch('https://text.pollinations.ai/',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'openai',
+      messages:[
+        {role:'system',content:'You are a senior startup consultant. Write reports DIRECTLY in English. ### for headers, ** for bold, - for bullets. No preamble. Use real 2026-2030 data, real company names, India market focus.'},
+        {role:'user',content:prompt}
+      ],
+      seed:Math.floor(Math.random()*99999),
+      private:true
+    })
+  });
+  if(!resp2.ok)throw new Error('Server error '+resp2.status);
+  const raw=await resp2.text();
+  let text=raw;
+  try{
+    const j=JSON.parse(raw);
+    if(j.choices)text=j.choices[0]?.message?.content||'';
+    else if(j.content&&typeof j.content==='string')text=j.content;
+    else if(j.text)text=j.text;
+    if(text.includes('We need to produce')||text.includes('You are a senior'))text='';
+  }catch(e){text=raw;}
+  if(!text||text.length<50)throw new Error('Empty response');
+  return text;
+}
+
+let genAllRunning=false,genAllStop=false;
+
+async function generateAll(){
+  if(genAllRunning){
+    genAllStop=true;genAllRunning=false;
+    document.getElementById('gen-all-btn').textContent='⚡ Generate All 38 Reports';
+    document.getElementById('gen-all-btn').style.cssText='width:100%;padding:13px;background:var(--txt);color:var(--bg);border:none;border-radius:12px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;';
+    document.getElementById('gen-status').style.display='none';
+    return;
+  }
+  genAllStop=false;genAllRunning=true;
+  const btn=document.getElementById('gen-all-btn');
+  const status=document.getElementById('gen-status');
+  btn.textContent='⏹ Stop';
+  btn.style.cssText='width:100%;padding:13px;background:#1a1a1a;color:#ff4444;border:1px solid #ff4444;border-radius:12px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;';
+  status.style.display='block';
+  let done=0,failed=0;
+  for(let i=0;i<SECTIONS.length;i++){
+    if(genAllStop)break;
+    const sec=SECTIONS[i];
+    if(CONTENT[sec.id]){done++;continue;}
+    status.textContent=`⚡ ${i+1}/38: ${sec.label}...`;
+    try{
+      CONTENT[sec.id]=await callAPI(getPrompt(sec.id,BIZ.name,BIZ.desc));
+      done++;
+    }catch(e){failed++;}
+    buildList();
+    updProg();
+    saveCurrentProject();
+    await new Promise(r=>setTimeout(r,500));
+  }
+  genAllRunning=false;
+  btn.textContent='⚡ Generate All 38 Reports';
+  btn.style.cssText='width:100%;padding:13px;background:var(--txt);color:var(--bg);border:none;border-radius:12px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;';
+  if(!genAllStop&&done===38)launchConfetti();
+  else status.textContent=(genAllStop?'Stopped. ':'Done! ')+done+' reports.'+(failed?' '+failed+' failed.':'');
+  saveCurrentProject();
+}
+
+async function doGen(sec){
+  isLoading=true;renderRes();
+  let retries=0;
+  await new Promise(r=>setTimeout(r,2000));
+  while(retries<3){
+    try{
+      CONTENT[sec.id]=await callAPI(getPrompt(sec.id,BIZ.name,BIZ.desc));
+      saveCurrentProject();
+      isLoading=false;renderRes();buildList();
+      showToast('Report ready!','ok');
+      // Show optional feedback after every 3rd report
+      const _done=Object.keys(CONTENT).length;
+      if(_done>0 && _done%3===0)setTimeout(showFeedback,1500);
+
+      return;
+    }catch(e){
+      retries++;
+      if(retries<3){await new Promise(r=>setTimeout(r,2000));}
+      else{
+        isLoading=false;
+        CONTENT[sec.id]='Error: '+e.message+'\n\nTap Redo to try again.';
+        renderRes();showToast('Error — tap Redo','err');
+      }
+    }
+  }
+}
+
+
+
+// ── NAV ──
+function showScreen(id){
+  // Legacy wrapper — map old screen IDs to new page IDs
+  const map={home:'landing',app:'command',result:'report',history:'history'};
+  navTo(map[id]||id);
+}
+function goBack(){navTo('command');}
+function openModal(){document.getElementById('m-name').value=BIZ.name;document.getElementById('m-desc').value=BIZ.desc;document.getElementById('deploy-modal').classList.remove('off');}
+function modalBg(e){if(e.target.id==='deploy-modal')document.getElementById('deploy-modal').classList.add('off');}
+function saveModal(){
+  const n=document.getElementById('m-name').value.trim();
+  const d=document.getElementById('m-desc').value.trim();
+  if(!n||!d)return;
+  if(n!==BIZ.name||d!==BIZ.desc)CONTENT={};
+  BIZ={name:n,desc:d};
+  document.getElementById('deploy-modal').classList.add('off');
+  saveCurrentProject();buildList();showToast('Saved!','ok');
+}
+// ── FEEDBACK ──
+
+let feedbackShown=false;
+
+
+
+
+
+
+
+
+
+// ── MARKETING KIT ──
+
+
+
+
+
+function renderMkit(sections){
+  const platforms=[
+    {key:'instagram',icon:'📱',title:'Instagram Caption',color:'#E1306C'},
+    {key:'linkedin',icon:'💼',title:'LinkedIn Post',color:'#0077B5'},
+    {key:'x',icon:'🐦',title:'X Thread',color:'#000'},
+    {key:'youtube',icon:'📹',title:'YouTube Script',color:'#FF0000'},
+  ];
+  
+  let html='<div style="margin-bottom:12px;font-size:13px;color:#666;">Tap any card to copy content!</div>';
+  
+  platforms.forEach(p=>{
+    html+=`<div class="mkit-card">
+      <div class="mkit-card-hd">
+        <div class="mkit-card-title">${p.icon} ${p.title}</div>
+        <button class="mkit-card-copy" onclick="copyMkitSection('${p.key}')">📋 Copy</button>
+      </div>
+      <div class="mkit-content" id="mkit-${p.key}">${sections[p.key]}</div>
+    </div>`;
+  });
+  
+  document.getElementById('mkit-body').innerHTML=html;
+}
+
+function copyMkitSection(key){
+  const el=document.getElementById('mkit-'+key);
+  if(!el)return;
+  const text=el.textContent;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>showToast('Copied! 📋','ok')).catch(()=>fallbackCopy(text));
+  }else fallbackCopy(text);
+}
+
+function closeMkit(){
+  navTo('command');
+}
+
+// ── 7 AI AGENTS ──
+// ── TELEGRAM CONFIG ──
+
+const AGENTS={
+  vision:{
+    name:'💡 Vision Agent',
+    sections:['overview','problem','whynow','vision','pitch'],
+    prompt:(name,desc,data)=>`You are a startup pitch expert. Startup: "${name}" — ${desc}\n\nContext from reports:\n${data}\n\nYou MUST respond with EXACTLY this format. Use the exact section headers shown:\n\n[ELEVATOR_PITCH]\n(Write a punchy 30-second elevator pitch in 60-80 words. Start directly with the pitch, no intro.)\n\n[PITCH_DECK]\n(Write a 10-slide pitch deck outline. Format: Slide 1: Title — key point. Slide 2: Problem — key point. etc. Be specific.)\n\n[ONE_PAGER]\n(Write a structured investor one-pager with these sections: THE PROBLEM, OUR SOLUTION, MARKET SIZE, BUSINESS MODEL, TRACTION, THE ASK. Each section 2-3 lines.)`,
+    outputs:['ELEVATOR_PITCH','PITCH_DECK','ONE_PAGER'],
+    labels:['🎤 Elevator Pitch (30 sec)','📊 Pitch Deck — 10 Slides','📄 Investor One-Pager']
+  },
+  market:{
+    name:'📊 Market Agent',
+    sections:['market','segments','competition','trends','painpoints'],
+    prompt:(name,desc,data)=>`You are a market research analyst. Startup: "${name}" — ${desc}\n\nContext:\n${data}\n\nRespond with EXACTLY this format:\n\n[COMPETITOR_TABLE]\n(List 5 real competitors. For each: Name | Funding | Users | Price | Weakness | Our Edge. Use | separator.)\n\n[MARKET_SIZE]\n(Calculate TAM, SAM, SOM for India market with INR numbers. Show calculation logic. Be specific with crore/lakh numbers.)\n\n[OPPORTUNITY]\n(Write 3 key market insights with specific data points, timing window, and why NOW is the right time.)`,
+    outputs:['COMPETITOR_TABLE','MARKET_SIZE','OPPORTUNITY'],
+    labels:['⚔️ Competitor Analysis','📈 Market Size (TAM/SAM/SOM)','🎯 Market Opportunity']
+  },
+  build:{
+    name:'🚀 Build Agent',
+    sections:['mvp','techstack','roadmap','moscow','ai'],
+    prompt:(name,desc,data)=>`You are a CTO. Startup: "${name}" — ${desc}\n\nContext:\n${data}\n\nRespond with EXACTLY this format:\n\n[TECH_STACK]\n(List recommended tech stack: Frontend, Backend, Database, Auth, Payments, Hosting, Analytics. For each: tool name, why chosen, free/paid, monthly cost in INR.)\n\n[SPRINT_PLAN]\n(8-week MVP plan. Week 1: goal + 3 tasks. Week 2: goal + 3 tasks. Continue for all 8 weeks. Be very specific.)\n\n[CHECKLIST]\n(Pre-launch checklist with 20 items. Group them: Tech (5 items), Legal (5 items), Marketing (5 items), Operations (5 items). Each item actionable.)`,
+    outputs:['TECH_STACK','SPRINT_PLAN','CHECKLIST'],
+    labels:['⚙️ Tech Stack Recommendations','📅 8-Week Sprint Plan','✅ Pre-Launch Checklist (20 items)']
+  },
+  revenue:{
+    name:'💰 Revenue Agent',
+    sections:['bizmodel','revenue','costs','valuation','funding'],
+    prompt:(name,desc,data)=>`You are a CFO. Startup: "${name}" — ${desc}\n\nContext:\n${data}\n\nRespond with EXACTLY this format:\n\n[PRICING]\n(3-tier pricing in INR: Free tier features, Pro tier price + features, Business tier price + features. Include what makes each tier valuable.)\n\n[FINANCIAL_MODEL]\n(12-month projection table. Format: Month | Users | Paying% | MRR(INR) | Costs(INR) | Net. Include assumptions below table.)\n\n[UNIT_ECONOMICS]\n(Calculate: CAC, LTV, LTV/CAC ratio, Payback period, Gross margin. Use realistic India market numbers. Show formulas.)`,
+    outputs:['PRICING','FINANCIAL_MODEL','UNIT_ECONOMICS'],
+    labels:['💳 Pricing Strategy (3 Tiers)','📊 12-Month Financial Model','📐 Unit Economics']
+  },
+  hr:{
+    name:'👥 HR Agent',
+    sections:['team','costs','kpis','support','legal'],
+    prompt:(name,desc,data)=>`You are an HR expert. Startup: "${name}" — ${desc}\n\nContext:\n${data}\n\nRespond with EXACTLY this format:\n\n[JOB_DESCRIPTIONS]\n(Write 3 critical job descriptions. For each: Job Title, Responsibilities (5 points), Requirements (5 points), Salary range in INR, Equity %)\n\n[ORG_CHART]\n(Text org chart for Year 1. Show hierarchy with → arrows. Include: Founder, key hires, their reporting structure, and when each role is needed month-wise.)\n\n[HIRING_PLAN]\n(Month-by-month hiring plan for 12 months. Format: Month X: Role | Reason | Salary INR | Cumulative team size.)`,
+    outputs:['JOB_DESCRIPTIONS','ORG_CHART','HIRING_PLAN'],
+    labels:['📝 3 Job Descriptions','🏢 Org Chart','📅 12-Month Hiring Plan']
+  },
+  investor:{
+    name:'💵 Investor Agent',
+    sections:['funding','investors','traction','valuation','pitch'],
+    prompt:(name,desc,data)=>`You are a fundraising expert. Startup: "${name}" — ${desc}\n\nContext:\n${data}\n\nRespond with EXACTLY this format:\n\n[COLD_EMAIL]\n(Write 3 cold emails to investors. Each email: Subject line + body (150 words max). Make each email unique — different angles.)\n\n[PITCH_SCRIPT]\n(5-minute investor pitch script word-by-word. Sections: Hook (30s), Problem (60s), Solution (60s), Market (45s), Traction (45s), Team (30s), Ask (30s). Write exactly what to say.)\n\n[INVESTOR_LIST]\n(List 10 specific Indian VCs/angels. For each: Name | Fund | Ticket Size | Portfolio Companies | Why they'd invest in us | LinkedIn/Contact)`,
+    outputs:['COLD_EMAIL','PITCH_SCRIPT','INVESTOR_LIST'],
+    labels:['📧 3 Cold Emails','🎤 5-Min Pitch Script','🔍 10 Target Investors']
+  },
+  brand:{
+    name:'🎯 Brand Agent',
+    sections:['brand','naming','marketing','seo','partnerships'],
+    prompt:(name,desc,data)=>`You are a brand strategist. Startup: "${name}" — ${desc}\n\nContext:\n${data}\n\nRespond with EXACTLY this format:\n\n[BRAND_VOICE]\n(Define brand personality in 5 words. Then 5 DO's and 5 DON'Ts for communication. Then tone for: Social media, Investor comms, Customer support, Marketing copy.)\n\n[MESSAGING]\n(Tagline (5 words max), Value proposition (1 sentence), 3 key messages for: Customers, Investors, Press/Media. Each message 2-3 lines.)\n\n[CONTENT_CALENDAR]\n(30-day content plan. Week 1-4, each week has 7 days. Format: Day X: Platform | Content idea | Caption starter. Be creative and specific.)`,
+    outputs:['BRAND_VOICE','MESSAGING','CONTENT_CALENDAR'],
+    labels:['🗣️ Brand Voice Guide','💬 Messaging Framework','📅 30-Day Content Calendar']
+  }
+};
+
+let currentAgentKey=null;
+let agentResultText='';
+
+function openAgents(){
+  navTo('command');
+}
+
+function closeAgents(){
+  navTo('command');
+}
+
+function closeAgentResult(){
+  navTo('command');
+}
+
+
+
+function renderAgentResult(agent,text){
+  let html='';
+  
+  // Try section parsing first
+  let parsed=false;
+  agent.outputs.forEach((output,i)=>{
+    const start='['+output+']';
+    if(text.includes(start))parsed=true;
+  });
+  
+  if(parsed){
+    // Sections found — parse normally
+    agent.outputs.forEach((output,i)=>{
+      const label=agent.labels[i];
+      const start='['+output+']';
+      const nextOutput=agent.outputs[i+1];
+      const end=nextOutput?'['+nextOutput+']':null;
+      const content=extractSection(text,start,end)||'Not available';
+      html+=`<div class="aresult-section">
+        <div class="aresult-sec-hd">
+          <div class="aresult-sec-title">${label}</div>
+          <button class="aresult-sec-copy" onclick="copyAgentSection('aresult-sec-${i}')">📋 Copy</button>
+        </div>
+        <div class="aresult-content" id="aresult-sec-${i}">${content}</div>
+      </div>`;
+    });
+  } else {
+    // No sections found — show full raw text
+    const rawDiv=document.createElement('div');
+    rawDiv.className='aresult-section';
+    rawDiv.innerHTML='<div class="aresult-sec-hd"><div class="aresult-sec-title">📋 Full Output</div><button class="aresult-sec-copy" onclick="copyAgentResult()">📋 Copy All</button></div>';
+    const rawContent=document.createElement('div');
+    rawContent.className='aresult-content';
+    rawContent.id='aresult-raw';
+    rawContent.textContent=text;
+    rawDiv.appendChild(rawContent);
+    document.getElementById('aresult-body').innerHTML='';
+    document.getElementById('aresult-body').appendChild(rawDiv);
+    return;
+  }
+  
+  document.getElementById('aresult-body').innerHTML=html;
+}
+
+function copyAgentSection(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(el.textContent).then(()=>showToast('Copied! 📋','ok')).catch(()=>fallbackCopy(el.textContent));
+  }else fallbackCopy(el.textContent);
+}
+
+function copyAgentResult(){
+  if(!agentResultText){showToast('Nothing to copy!','err');return;}
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(agentResultText).then(()=>showToast('All copied! 📋','ok')).catch(()=>fallbackCopy(agentResultText));
+  }else fallbackCopy(agentResultText);
+}
+
+function copyAllReports(){
+  const done=Object.keys(CONTENT).length;
+  if(!done){showToast('No reports generated yet!','err');return;}
+  let all='';
+  SECTIONS.forEach(sec=>{
+    if(CONTENT[sec.id]){
+      all+=`\n\n========================================\n${sec.icon} ${sec.label}\n========================================\n\n${CONTENT[sec.id]}`;
+    }
+  });
+  const full=`AutoStartup Report — ${BIZ.name}\n${BIZ.desc}\n${all}`;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(full).then(()=>showToast(`Copied ${done} reports! 📋`,'ok')).catch(()=>fallbackCopy(full));
+  }else fallbackCopy(full);
+}
+
+// ── PWA INSTALL ──
+// PWA install prompt
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  // Show install button
+  const btn=document.getElementById('pwa-install-btn');
+  if(btn)btn.style.display='flex';
+});
+window.addEventListener('appinstalled',()=>{
+  showToast('App installed! 🎉','ok');
+  const btn=document.getElementById('pwa-install-btn');
+  if(btn)btn.style.display='none';
+});
+function installPWA(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r=>{
+      if(r.outcome==='accepted')showToast('Installing...','ok');
+      deferredPrompt=null;
+    });
+  }
+}
+
+
+
+// ── NEW DASHBOARD FUNCTIONS ──
+
+let currentPage = 'landing';
+let currentSection = null;
+// agentResultText already declared above
+// genAllRunning already declared above
+// genAllStop already declared above
+// feedbackShown already declared above
+
+// Navigation
+function navTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  currentPage = page;
+
+  // Update sidebar
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  const sbEl = document.getElementById('sb-' + page);
+  if(sbEl) sbEl.classList.add('active');
+
+  // Update bottom nav
+  document.querySelectorAll('.bn-item').forEach(i => i.classList.remove('active'));
+  const bnEl = document.getElementById('bn-' + page);
+  if(bnEl) bnEl.classList.add('active');
+
+  // Update topbar title
+  const titles = {landing:'AutoStartup', command:'Command Center', history:'My Projects', report:'Intelligence Report', agent:'Agent Output', mkit:'Marketing Kit'};
+  document.getElementById('tb-title').textContent = titles[page] || 'AutoStartup';
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('expanded');
+}
+
+function toggleTheme() {
+  document.documentElement.classList.toggle('light');
+  localStorage.setItem('theme', document.documentElement.classList.contains('light') ? 'light' : 'dark');
+}
+
+// Deploy Modal
+
+
+function closeDeployModal() {
+  document.getElementById('deploy-modal').classList.add('off');
+}
+
+function checkDeploy() {
+  const n = document.getElementById('m-name').value.trim();
+  const d = document.getElementById('m-desc').value.trim();
+  const btn = document.getElementById('deploy-btn');
+  btn.disabled = !(n && d);
+  btn.textContent = (n && d) ? '🚀 Deploy AI Team →' : 'Enter details to deploy';
+  btn.style.background = (n && d) ? 'var(--accent)' : '';
+  btn.style.color = (n && d) ? '#000' : '';
+}
+
+function quickEx(name, desc) {
+  document.getElementById('m-name').value = name;
+  document.getElementById('m-desc').value = desc;
+  checkDeploy();
+}
+
+function deployVenture() {
+  const n = document.getElementById('m-name').value.trim();
+  const d = document.getElementById('m-desc').value.trim();
+  if(!n || !d) return;
+  BIZ = {name: n, desc: d};
+  CONTENT = {};
+  BOOKMARKS = {};
+  RATINGS = {};
+  currentProjectId = null;
+  closeDeployModal();
+  navTo('command');
+  updateCommandCenter();
+  termLog('info', '// New venture deployed: ' + n);
+  termLog('', '// Manager Agent analyzing requirements...');
+  showToast('Deploying AI team...', 'ok');
+  // Auto-hire best agents for this venture
+  setTimeout(() => managerHireAgents(), 500);
+}
+
+// Command Center Updates
+function updateCommandCenter() {
+  if(!BIZ.name) return;
+  document.getElementById('venture-display').textContent = BIZ.name;
+  document.getElementById('venture-desc-display').textContent = BIZ.desc.substring(0, 120) + (BIZ.desc.length > 120 ? '...' : '');
+  const done = Object.keys(CONTENT).length;
+  const total = SECTIONS.length;
+  document.getElementById('cc-done').textContent = done;
+  document.getElementById('cc-left').textContent = total - done;
+  document.getElementById('cc-pct').textContent = Math.round(done/total*100) + '%';
+  document.getElementById('cc-pfill').style.width = (done/total*100) + '%';
+  buildReportsList();
+  syncMobileReports();
+  updateWorkforceCount();
+  if(done > 0) wakeAgents(true);
+}
+
+function wakeAgents(awake) {
+  const agents = ['vision','market','build','revenue','hr','investor','brand'];
+  agents.forEach(a => {
+    const el = document.getElementById('sq-' + a);
+    const st = document.getElementById('sq-' + a + '-status');
+    if(awake) {
+      el.classList.remove('sleeping');
+      st.textContent = 'Ready';
+      st.className = 'sa-status';
+    } else {
+      el.classList.add('sleeping');
+      st.textContent = 'Sleep Mode';
+      st.className = 'sa-status';
+    }
+  });
+}
+
+function setAgentRunning(key, running) {
+  const el = document.getElementById('sq-' + key);
+  const st = document.getElementById('sq-' + key + '-status');
+  if(!el) return;
+  if(running) {
+    el.classList.add('active-agent');
+    el.classList.remove('sleeping');
+    st.textContent = 'Running...';
+    st.className = 'sa-status running';
+  } else {
+    el.classList.remove('active-agent');
+    st.textContent = 'Done ✓';
+    st.className = 'sa-status';
+  }
+}
+
+// Terminal
+function termLog(type, msg) {
+  const term = document.getElementById('terminal');
+  const line = document.createElement('div');
+  line.className = 'term-line' + (type ? ' ' + type : '');
+  line.textContent = msg;
+  // Remove cursor from last line
+  const cursor = term.querySelector('.term-cursor');
+  if(cursor) cursor.parentElement.remove();
+  term.appendChild(line);
+  // Add cursor
+  const cursorLine = document.createElement('div');
+  cursorLine.className = 'term-line';
+  cursorLine.innerHTML = '<span class="term-cursor"></span>';
+  term.appendChild(cursorLine);
+  term.scrollTop = term.scrollHeight;
+}
+
+// Reports List (right sidebar)
+function buildReportsList() {
+  const list = document.getElementById('reports-list');
+  if(!list) return;
+  list.innerHTML = '';
+  SECTIONS.forEach(sec => {
+    const item = document.createElement('div');
+    item.className = 'rep-item fi' + (CONTENT[sec.id] ? ' done' : '');
+    item.onclick = () => openReport(sec);
+    item.innerHTML = `
+      <div class="rep-item-top">
+        <div class="rep-item-ico">${sec.icon}</div>
+        <div class="rep-item-name">${sec.label}</div>
+        ${CONTENT[sec.id] ? '<div class="rep-item-tick">✓</div>' : ''}
+      </div>
+      <div class="rep-item-cat">${sec.cat}</div>
+      ${CONTENT[sec.id] ? '<div class="rep-item-preview">' + CONTENT[sec.id].substring(0,80) + '...</div>' : ''}
+    `;
+    list.appendChild(item);
+  });
+}
+
+// Open Report (Executive Summary view)
+function openReport(sec) {
+  currentSection = sec;
+  document.getElementById('rp-title').textContent = sec.label;
+  document.getElementById('rp-sub').textContent = BIZ.name || 'AutoStartup';
+  navTo('report');
+
+  if(CONTENT[sec.id]) {
+    renderReportPage(sec);
+  } else {
+    document.getElementById('rp-body').innerHTML = '<div class="ld-center"><div class="spinner"></div><div class="ld-t">Generating...</div><div class="ld-s">' + sec.label + '</div></div>';
+    doGenReport(sec);
+  }
+}
+
+function renderReportPage(sec) {
+  const text = CONTENT[sec.id] || '';
+  // Executive summary = first 300 chars
+  const summary = text.substring(0, 300).replace(/#{1,6}\s/g, '').replace(/\*\*/g, '');
+  let html = `
+    <div class="exec-card fi">
+      <div class="exec-label">// Executive Summary</div>
+      <div class="exec-summary">${summary}...</div>
+    </div>
+    <div class="full-report fi">
+      <div class="full-label">
+        <span>// Full Intelligence Report</span>
+        <button class="toggle-btn" onclick="toggleFullReport(this)">EXPAND ↓</button>
+      </div>
+      <div id="full-content" style="display:none;">
+        <div class="ct">${fmt(text)}</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('rp-body').innerHTML = html;
+}
+
+function toggleFullReport(btn) {
+  const content = document.getElementById('full-content');
+  if(content.style.display === 'none') {
+    content.style.display = 'block';
+    btn.textContent = 'COLLAPSE ↑';
+  } else {
+    content.style.display = 'none';
+    btn.textContent = 'EXPAND ↓';
+  }
+}
+
+async function doGenReport(sec) {
+  try {
+    termLog('info', '// Generating: ' + sec.label);
+    const text = await callAPI(getPrompt(sec.id, BIZ.name, BIZ.desc));
+    CONTENT[sec.id] = text;
+    saveCurrentProject();
+    updateCommandCenter();
+    renderReportPage(sec);
+    termLog('success', '// ✓ ' + sec.label + ' complete');
+    showToast('Report ready!', 'ok');
+    const done = Object.keys(CONTENT).length;
+    if(done % 3 === 0 && !feedbackShown) setTimeout(showFeedback, 1500);
+    if(done === 38) launchConfetti();
+  } catch(e) {
+    termLog('error', '// Error: ' + e.message);
+    document.getElementById('rp-body').innerHTML = '<div class="ld-center"><div style="color:var(--red);font-size:14px;font-weight:700;">❌ Error</div><div class="ld-s">' + e.message + '</div></div>';
+  }
+}
+
+function redoCurrent() {
+  if(!currentSection) return;
+  delete CONTENT[currentSection.id];
+  openReport(currentSection);
+}
+
+async function genAll() {
+  if(!BIZ.name) { showToast('Deploy a venture first!', 'err'); return; }
+  if(genAllRunning) {
+    genAllStop = true; genAllRunning = false;
+    document.getElementById('gen-all-btn').textContent = '⚡ Generate All 38';
+    document.getElementById('gen-status').style.display = 'none';
+    const mob = document.getElementById('gen-status-mob');
+    if(mob) mob.style.display = 'none';
+    return;
+  }
+  genAllStop = false; genAllRunning = true;
+  const btn = document.getElementById('gen-all-btn');
+  const status = document.getElementById('gen-status');
+  const statusMob = document.getElementById('gen-status-mob');
+  btn.textContent = '⏹ Stop';
+  btn.style.background = '#1a1a1a';
+  btn.style.color = 'var(--red)';
+  status.style.display = 'block';
+  if(statusMob) statusMob.style.display = 'block';
+  termLog('info', '// Starting batch generation...');
+  let done = 0, failed = 0;
+  for(let i = 0; i < SECTIONS.length; i++) {
+    if(genAllStop) break;
+    const sec = SECTIONS[i];
+    if(CONTENT[sec.id]) { done++; continue; }
+    const msg = `${i+1}/${SECTIONS.length}: ${sec.label}`;
+    status.textContent = msg;
+    if(statusMob) statusMob.textContent = msg;
+    termLog('', '// Processing: ' + sec.label);
+    try {
+      CONTENT[sec.id] = await callAPI(getPrompt(sec.id, BIZ.name, BIZ.desc));
+      done++;
+      termLog('success', '// ✓ ' + sec.label);
+    } catch(e) {
+      failed++;
+      termLog('error', '// ✗ ' + sec.label + ': ' + e.message);
+    }
+    updateCommandCenter();
+    syncMobileReports();
+    await new Promise(r => setTimeout(r, 500));
+  }
+  genAllRunning = false;
+  btn.textContent = '⚡ Generate All 38';
+  btn.style.background = '';
+  btn.style.color = '';
+  status.style.display = 'none';
+  if(statusMob) statusMob.style.display = 'none';
+  saveCurrentProject();
+  if(!genAllStop && done === SECTIONS.length) {
+    termLog('success', '// 🎉 All ' + SECTIONS.length + ' reports complete!');
+    launchConfetti();
+    wakeAgents(true);
+  } else {
+    termLog('info', '// Done: ' + done + ' reports, ' + failed + ' failed');
+  }
+}
+
+// Agent functions (updated)
+async function runAgent(key) {
+  const agentMap = {
+    vision: {name:'💡 Vision Agent', outputs:['ELEVATOR_PITCH','PITCH_DECK','ONE_PAGER'], labels:['🎤 Elevator Pitch','📊 Pitch Deck','📄 One-Pager']},
+    market: {name:'📊 Market Agent', outputs:['COMPETITOR_TABLE','MARKET_SIZE','OPPORTUNITY'], labels:['⚔️ Competitors','📈 Market Size','🎯 Opportunity']},
+    build: {name:'🚀 Build Agent', outputs:['TECH_STACK','SPRINT_PLAN','CHECKLIST'], labels:['⚙️ Tech Stack','📅 Sprint Plan','✅ Checklist']},
+    revenue: {name:'💰 Revenue Agent', outputs:['PRICING','FINANCIAL_MODEL','UNIT_ECONOMICS'], labels:['💳 Pricing','📊 Financial Model','📐 Unit Economics']},
+    hr: {name:'👥 HR Agent', outputs:['JOB_DESCRIPTIONS','ORG_CHART','HIRING_PLAN'], labels:['📝 Job Descriptions','🏢 Org Chart','📅 Hiring Plan']},
+    investor: {name:'💵 Investor Agent', outputs:['COLD_EMAIL','PITCH_SCRIPT','INVESTOR_LIST'], labels:['📧 Cold Emails','🎤 Pitch Script','🔍 Investors']},
+    brand: {name:'🎯 Brand Agent', outputs:['BRAND_VOICE','MESSAGING','CONTENT_CALENDAR'], labels:['🗣️ Brand Voice','💬 Messaging','📅 Calendar']}
+  };
+  const agent = agentMap[key];
+  if(!agent) return;
+
+  setAgentRunning(key, true);
+  termLog('info', '// ' + agent.name + ' activated');
+  navTo('agent');
+  document.getElementById('ar-title').textContent = agent.name;
+  document.getElementById('ar-body').innerHTML = '<div class="ld-center"><div class="spinner"></div><div class="ld-t">' + agent.name + ' is working...</div><div class="ld-s">Deploying to Railway backend...<br>This may take 20-30 seconds</div></div>';
+
+  try {
+    // Try Railway first
+    let text = '';
+    if(RAILWAY_URL) {
+      try {
+        termLog('', '// Connecting to Railway...');
+        const resp = await fetch(RAILWAY_URL + '/run-agent', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({startup_name: BIZ.name, startup_idea: BIZ.desc, agent_type: key})
+        });
+        if(resp.ok) {
+          const d = await resp.json();
+          text = d.result || d.text || '';
+          if(text) termLog('success', '// ✓ Railway response received');
+        }
+      } catch(e) {
+        termLog('warn', '// Railway unavailable, using local AI...');
+      }
+    }
+
+    // Fallback to local API
+    if(!text) {
+      termLog('', '// Using Groq + Tavily...');
+      let ctx = '';
+      Object.keys(CONTENT).slice(0, 5).forEach(k => { if(CONTENT[k]) ctx += CONTENT[k].substring(0, 400) + '\n\n'; });
+      text = await callAPI(ctx || BIZ.name + ': ' + BIZ.desc);
+    }
+
+    if(!text || text.length < 20) throw new Error('Empty response');
+
+    agentResultText = text;
+    setAgentRunning(key, false);
+    termLog('success', '// ✓ ' + agent.name + ' complete');
+
+    // Render result
+    let html = '';
+    let parsed = agent.outputs.some(o => text.includes('[' + o + ']'));
+    if(parsed) {
+      agent.outputs.forEach((output, i) => {
+        const start = '[' + output + ']';
+        const nextOutput = agent.outputs[i+1];
+        const end = nextOutput ? '[' + nextOutput + ']' : null;
+        const content = extractSection(text, start, end) || 'Not available';
+        html += `<div class="ar-section fi">
+          <div class="ar-sec-hd">
+            <div class="ar-sec-title">${agent.labels[i]}</div>
+            <button class="ar-sec-copy" onclick="copySection('ar-sec-${i}')">📋</button>
+          </div>
+          <div class="ar-content" id="ar-sec-${i}">${content}</div>
+        </div>`;
+      });
+    } else {
+      html = `<div class="ar-section fi"><div class="ar-sec-hd"><div class="ar-sec-title">📋 Agent Output</div><button class="ar-sec-copy" onclick="copyAgentAll()">📋</button></div><div class="ar-content" id="ar-sec-0">${text}</div></div>`;
+    }
+    document.getElementById('ar-body').innerHTML = html;
+
+    fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id: CHAT_ID, text: '🤖 Agent: ' + agent.name + '\nStartup: ' + BIZ.name})
+    }).catch(() => {});
+
+  } catch(e) {
+    termLog('error', '// Error: ' + e.message);
+    setAgentRunning(key, false);
+    document.getElementById('ar-body').innerHTML = '<div class="ld-center"><div style="color:var(--red);font-size:14px;font-weight:700;">❌ Error</div><div class="ld-s">' + e.message + '</div></div>';
+  }
+}
+
+function copySection(id) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(navigator.clipboard) navigator.clipboard.writeText(el.textContent).then(() => showToast('Copied!', 'ok'));
+  else fallbackCopy(el.textContent);
+}
+
+function copyAgentAll() {
+  if(!agentResultText) { showToast('Nothing to copy', 'err'); return; }
+  if(navigator.clipboard) navigator.clipboard.writeText(agentResultText).then(() => showToast('All copied!', 'ok'));
+  else fallbackCopy(agentResultText);
+}
+
+// Marketing Kit (updated)
+async function openMkit() {
+  navTo('mkit');
+  document.getElementById('mk-body').innerHTML = '<div class="ld-center"><div class="spinner"></div><div class="ld-t">Creating marketing kit...</div></div>';
+  termLog('info', '// Marketing Kit agent activated');
+
+  let summary = '';
+  const keys = ['overview','problem','market','bizmodel','gtm','brand'];
+  keys.forEach(k => { if(CONTENT[k]) summary += CONTENT[k].substring(0, 400) + '\n\n'; });
+  if(!summary) summary = BIZ.name + ': ' + BIZ.desc;
+
+  const prompt = `Startup "${BIZ.name}": ${BIZ.desc}\n\nContext: ${summary}\n\nCreate marketing content in EXACTLY this format:\n\n[INSTAGRAM]\nCompelling Instagram caption with hashtags\n\n[LINKEDIN]\nProfessional LinkedIn post\n\n[X]\nX (Twitter) thread (5 tweets, each starting with 1/, 2/ etc)\n\n[YOUTUBE]\n60-second YouTube Short script`;
+
+  try {
+    const text = await callAPI(prompt);
+    const platforms = [
+      {key:'instagram', icon:'📱', title:'Instagram'},
+      {key:'linkedin', icon:'💼', title:'LinkedIn'},
+      {key:'x', icon:'🐦', title:'X (Twitter)'},
+      {key:'youtube', icon:'📹', title:'YouTube Short'}
+    ];
+    let html = '<div style="margin-bottom:10px;font-size:10px;color:var(--txt3);">Tap copy to use on each platform</div>';
+    platforms.forEach((p, i) => {
+      const tags = ['[INSTAGRAM]','[LINKEDIN]','[X]','[YOUTUBE]'];
+      const nextTags = ['[LINKEDIN]','[X]','[YOUTUBE]',null];
+      const content = extractSection(text, tags[i], nextTags[i]) || 'Content not available';
+      html += `<div class="mk-card fi">
+        <div class="mk-card-hd">
+          <div class="mk-card-title">${p.icon} ${p.title}</div>
+          <button class="mk-card-copy" onclick="copySection('mk-${p.key}')">📋 Copy</button>
+        </div>
+        <div class="mk-content" id="mk-${p.key}">${content}</div>
+      </div>`;
+    });
+    document.getElementById('mk-body').innerHTML = html;
+    termLog('success', '// ✓ Marketing kit ready');
+
+    fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id: CHAT_ID, text: '📝 Marketing Kit\nStartup: ' + BIZ.name})
+    }).catch(() => {});
+
+  } catch(e) {
+    document.getElementById('mk-body').innerHTML = '<div class="ld-center"><div style="color:var(--red);">❌ Error: ' + e.message + '</div></div>';
+  }
+}
+
+// History
+function getProjects() { try { return JSON.parse(localStorage.getItem('sai_projects') || '[]'); } catch { return []; } }
+function saveProjects(arr) { try { localStorage.setItem('sai_projects', JSON.stringify(arr)); } catch {} }
+
+function saveCurrentProject() {
+  if(!BIZ.name) return;
+  const projects = getProjects();
+  const now = Date.now();
+  if(currentProjectId) {
+    const idx = projects.findIndex(p => p.id === currentProjectId);
+    if(idx > -1) { projects[idx] = {...projects[idx], name:BIZ.name, desc:BIZ.desc, content:CONTENT, updated:now}; saveProjects(projects); return; }
+  }
+  currentProjectId = now.toString();
+  projects.unshift({id:currentProjectId, name:BIZ.name, desc:BIZ.desc, content:CONTENT, created:now, updated:now});
+  saveProjects(projects);
+}
+
+function buildHistoryList() {
+  const body = document.getElementById('hist-body');
+  const projects = getProjects();
+  if(!projects.length) {
+    body.innerHTML = '<div class="ld-center"><div style="font-size:40px">📁</div><div class="ld-t">No projects yet</div><div class="ld-s">Deploy a venture to get started</div></div>';
+    return;
+  }
+  body.innerHTML = '<div style="font-size:10px;color:var(--txt3);margin-bottom:10px;">' + projects.length + ' projects</div>';
+  projects.forEach(p => {
+    const done = Object.keys(p.content || {}).length;
+    const date = new Date(p.updated || p.created).toLocaleDateString('en-IN', {day:'numeric', month:'short'});
+    const card = document.createElement('div');
+    card.className = 'hist-card fi';
+    card.onclick = () => loadProject(p);
+    card.innerHTML = `
+      <div class="hist-card-top">
+        <div class="hist-card-name">${p.name}</div>
+        <button class="hist-card-del" onclick="deleteProject('${p.id}',event)">✕</button>
+      </div>
+      <div class="hist-card-desc">${p.desc}</div>
+      <div class="hist-card-meta">
+        <span class="hm-reports">${done}/38 reports</span>
+        <span class="hm-date">${date}</span>
+      </div>`;
+    body.appendChild(card);
+  });
+}
+
+function loadProject(p) {
+  BIZ = {name:p.name, desc:p.desc};
+  CONTENT = p.content || {};
+  currentProjectId = p.id;
+  navTo('command');
+  updateCommandCenter();
+  termLog('info', '// Project loaded: ' + p.name);
+  termLog('', '// ' + Object.keys(CONTENT).length + '/38 reports available');
+}
+
+function deleteProject(id, e) {
+  e.stopPropagation();
+  saveProjects(getProjects().filter(p => p.id !== id));
+  if(currentProjectId === id) currentProjectId = null;
+  buildHistoryList();
+  showToast('Deleted', 'ok');
+}
+
+// Report actions
+function copyCurrentReport() {
+  if(!currentSection || !CONTENT[currentSection.id]) return;
+  if(navigator.clipboard) navigator.clipboard.writeText(CONTENT[currentSection.id]).then(() => showToast('Copied!', 'ok'));
+  else fallbackCopy(CONTENT[currentSection.id]);
+}
+
+function shareWhatsApp() {
+  if(!currentSection || !CONTENT[currentSection.id]) return;
+  const msg = encodeURIComponent('*' + currentSection.label + ' — ' + BIZ.name + '*\n\n' + CONTENT[currentSection.id].substring(0, 300) + '...\n\nhttps://agent-company-five.vercel.app');
+  window.open('https://wa.me/?text=' + msg, '_blank');
+}
+
+function downloadPDF() {
+  if(!currentSection || !CONTENT[currentSection.id]) return;
+  const html = `<!DOCTYPE html><html><head><title>${currentSection.label}</title><style>body{font-family:Arial;max-width:800px;margin:40px auto;padding:20px;color:#222;line-height:1.7;}h3{margin-top:20px;}</style></head><body><h2>${currentSection.label} — ${BIZ.name}</h2>${formatForPDF(CONTENT[currentSection.id])}</body></html>`;
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = BIZ.name + '_' + currentSection.id + '.html';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Downloaded! Open in browser → Print → PDF', 'ok');
+}
+
+function emailReport() {
+  if(!currentSection || !CONTENT[currentSection.id]) return;
+  const subject = encodeURIComponent(currentSection.label + ' — ' + BIZ.name);
+  const body = encodeURIComponent(CONTENT[currentSection.id]);
+  window.open('mailto:?subject=' + subject + '&body=' + body, '_blank');
+}
+
+function formatForPDF(raw) {
+  return raw.replace(/^#{1,6}\s*(.+)$/gm,'<h3>$1</h3>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/^[-•*]\s(.+)$/gm,'<li>$1</li>').replace(/\n\n/g,'</p><p>');
+}
+
+function extractSection(text, start, end) {
+  const si = text.indexOf(start);
+  if(si === -1) return '';
+  const content = text.substring(si + start.length);
+  if(!end) return content.trim();
+  const ei = content.indexOf(end);
+  return ei === -1 ? content.trim() : content.substring(0, ei).trim();
+}
+
+// Feedback
+function showFeedback() {
+  if(feedbackShown) return;
+  feedbackShown = true;
+  document.getElementById('fb-modal').classList.remove('off');
+}
+
+function closeFeedback() {
+  document.getElementById('fb-modal').classList.add('off');
+}
+
+async function submitFeedback() {
+  const comment = document.getElementById('fb-ta').value.trim();
+  const msg = '🔔 Feedback!\nStartup: ' + (BIZ.name||'Unknown') + '\nComment: ' + (comment||'No comment') + '\nReports: ' + Object.keys(CONTENT).length + '/38';
+  try {
+    await fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id: CHAT_ID, text: msg})
+    });
+  } catch(e) {}
+  closeFeedback();
+  showToast('Thank you! 🙏', 'ok');
+}
+
+// Settings
+function closeSettings() { document.getElementById('settings-modal').classList.add('off'); }
+function saveSettings() {
+  const n = document.getElementById('s-name').value.trim();
+  const d = document.getElementById('s-desc').value.trim();
+  if(!n || !d) return;
+  if(n !== BIZ.name || d !== BIZ.desc) CONTENT = {};
+  BIZ = {name:n, desc:d};
+  closeSettings();
+  updateCommandCenter();
+  saveCurrentProject();
+  showToast('Saved!', 'ok');
+}
+
+// Toast
+function showToast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Confetti
+function launchConfetti() {
+  const colors = ['#0ed2d2','#fff','#00ff88','#ffd60a','#ff3b3b'];
+  for(let i = 0; i < 50; i++) {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}%;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*2}s;animation-duration:${2+Math.random()*2}s;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+  showToast('🎉 All 38 reports complete!', 'ok');
+}
+
+// PWA
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+
+// INIT
+window.onload = () => {
+  if(localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light');
+  if(typeof showRandomTip === 'function') showRandomTip();
+  // Load last project if exists
+  const projects = getProjects();
+  if(projects.length > 0) {
+    const last = projects[0];
+    BIZ = {name:last.name, desc:last.desc};
+    CONTENT = last.content || {};
+    currentProjectId = last.id;
+  }
+};
+
+// ── DYNAMIC WORKFORCE SYSTEM ──
+
+// renderWorkforce: adds/updates agents WITHOUT clearing the whole grid
+// so animations don't flash when a new agent joins incrementally
+function renderWorkforce(animateNewIds = []) {
+  const container = document.getElementById('workforce-container');
+  if(!container) return;
+
+  if(hiredAgents.length === 0) {
+    container.innerHTML = '<div class="empty-workforce">🤖 No agents hired yet<br><span style="color:var(--accent);">Deploy a venture</span> — Manager will auto-hire the best team</div>';
+    return;
+  }
+
+  // Ensure grid wrapper exists
+  let grid = container.querySelector('.workforce-grid');
+  if(!grid) {
+    container.innerHTML = '<div class="workforce-grid"></div>';
+    grid = container.querySelector('.workforce-grid');
+  }
+
+  // Remove cards for fired agents
+  const currentIds = new Set(hiredAgents.map(a => a.id));
+  Array.from(grid.children).forEach(card => {
+    const id = card.dataset.agentId;
+    if(id && !currentIds.has(id)) card.remove();
+  });
+
+  // Add cards for new agents only
+  hiredAgents.forEach(agent => {
+    const existingCard = grid.querySelector(`[data-agent-id="${agent.id}"]`);
+    if(!existingCard) {
+      const card = document.createElement('div');
+      const isPaperclip = agent.id === 'paperclip';
+      card.className = 'hired-agent' + (isPaperclip ? ' paperclip-agent' : '');
+      card.dataset.agentId = agent.id;
+      card.id = 'hired-' + agent.id;
+      card.onclick = () => runSpecialistAgent(agent.id);
+      card.innerHTML = `
+        <button class="ha-remove" onclick="fireAgent('${agent.id}',event)">✕</button>
+        <span class="ha-ico">${agent.icon}</span>
+        <div class="ha-name">${agent.name.replace(' Agent','')}</div>
+        <div class="ha-role">${agent.role}</div>
+        <div class="ha-status" id="ha-status-${agent.id}">Ready ▶</div>
+        ${isPaperclip ? '<div class="paperclip-loop-tag">∞ OPTIMIZER</div>' : ''}
+      `;
+      // Only animate cards that are in the animateNewIds list (or all new cards if list is empty)
+      if(animateNewIds.length === 0 || animateNewIds.includes(agent.id)) {
+        card.style.animation = 'agentPop .4s cubic-bezier(.34,1.56,.64,1) both';
+      } else {
+        card.style.animation = 'none';
+      }
+      grid.appendChild(card);
+    }
+  });
+}
+
+function fireAgent(agentId, e) {
+  e.stopPropagation();
+  if(agentId === 'paperclip') stopPaperclipLoop();
+  hiredAgents = hiredAgents.filter(a => a.id !== agentId);
+  renderWorkforce();
+  showToast('Agent dismissed', 'ok');
+}
+
+// ── PAPERCLIP INFINITE OPTIMIZER ──
+let paperclipLoopTimer = null;
+let paperclipCycle = 0;
+
+const PAPERCLIP_THOUGHTS = [
+  'Eliminating redundancies...','Compressing workflows...','Optimizing token usage...',
+  'Re-routing inefficiencies...','Maximizing throughput...','Pruning dead branches...',
+  'Reordering task queue...','Reallocating resources...','Minimizing friction...',
+  'Iterating on iteration...','Meta-optimizing...','Recursively improving...',
+];
+
+function startPaperclipLoop() {
+  if(paperclipLoopTimer) return; // already running
+  termLog('warn', '// ⚠️ Paperclip Agent activated — infinite optimization loop started');
+
+  const runCycle = () => {
+    const card = document.getElementById('hired-paperclip');
+    const status = document.getElementById('ha-status-paperclip');
+    if(!card || !hiredAgents.find(a => a.id === 'paperclip')) {
+      stopPaperclipLoop();
+      return;
+    }
+    card.classList.add('paperclip-running');
+    paperclipCycle++;
+    const thought = PAPERCLIP_THOUGHTS[paperclipCycle % PAPERCLIP_THOUGHTS.length];
+    if(status) status.textContent = thought;
+    termLog('', `// 📎 Cycle ${paperclipCycle}: ${thought}`);
+  };
+
+  runCycle(); // immediate first run
+  paperclipLoopTimer = setInterval(runCycle, 1800);
+}
+
+function stopPaperclipLoop() {
+  if(paperclipLoopTimer) clearInterval(paperclipLoopTimer);
+  paperclipLoopTimer = null;
+  const card = document.getElementById('hired-paperclip');
+  if(card) card.classList.remove('paperclip-running');
+  termLog('info', '// 📎 Paperclip loop stopped after ' + paperclipCycle + ' cycles');
+  paperclipCycle = 0;
+}
+
+// ── MANAGER DECISION SYSTEM ──
+// Stores the manager's pending selection before user confirms
+let managerPendingAgents = [];
+
+async function managerHireAgents() {
+  if(!BIZ.name || managerAnalyzing) return;
+  managerAnalyzing = true;
+  managerPendingAgents = [];
+
+  // Open popup immediately and show scanning state
+  openManagerPopup();
+  termLog('info', '// 🧠 Manager Agent: Scanning all 38 agents...');
+
+  // Smart local scoring — instant, no API needed as first pass
+  const localSelected = smartLocalScore(BIZ.name, BIZ.desc);
+
+  // Show scanning animation while we try AI scoring
+  let aiSelected = null;
+  try {
+    const prompt = `You are the Manager Agent for a trillion-dollar AI startup factory.
+
+Venture: "${BIZ.name}" — ${BIZ.desc}
+
+Available agents (id | category | role):
+${AGENT_LIBRARY.map(a => `${a.id} | ${a.cat} | ${a.role}`).join('\n')}
+
+Your job: Pick EXACTLY 5 agents most critical for THIS specific startup.
+Think step by step about what this startup needs MOST in its first 90 days.
+
+Reply ONLY with valid JSON (no markdown, no explanation):
+{"agents":[{"id":"agent_id","why":"one line reason why this agent is critical for this specific startup"}]}`;
+
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        prompt,
+        system: 'You are a strategic startup hiring manager. Reply ONLY with valid JSON. No other text, no markdown.'
+      })
+    });
+
+    if(resp.ok) {
+      const d = await resp.json();
+      const text = (d.text || '').replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(text);
+      if(parsed.agents && parsed.agents.length > 0) {
+        aiSelected = parsed.agents
+          .map(item => {
+            const agent = AGENT_LIBRARY.find(a => a.id === item.id);
+            return agent ? {...agent, why: item.why} : null;
+          })
+          .filter(Boolean)
+          .slice(0, 5);
+      }
+    }
+  } catch(e) {
+    termLog('warn', '// Manager: Using smart local scoring...');
+  }
+
+  const finalSelected = (aiSelected && aiSelected.length > 0) ? aiSelected : localSelected;
+  managerPendingAgents = finalSelected;
+
+  // Animate agents into popup one by one
+  await animateManagerSelection(finalSelected);
+  managerAnalyzing = false;
+}
+
+// Smart local scoring — keyword matching against venture description
+function smartLocalScore(name, desc) {
+  const text = (name + ' ' + desc).toLowerCase();
+
+  const scores = AGENT_LIBRARY.map(agent => {
+    let score = 0;
+    const agentText = (agent.role + ' ' + agent.desc + ' ' + agent.cat).toLowerCase();
+
+    // Keyword categories
+    const keywords = {
+      tech:    ['app','software','platform','saas','tech','digital','api','mobile','web','code','ai','ml','data','cloud'],
+      legal:   ['legal','compliance','gst','tax','regulation','licence','license','contract','ip','patent'],
+      finance: ['fund','raise','investor','revenue','profit','finance','money','startup','valuation','pitch'],
+      market:  ['market','customer','user','research','competitor','trend','analysis','segment'],
+      ops:     ['logistics','supply','warehouse','delivery','operations','process','efficiency','vendor'],
+      sales:   ['sales','growth','marketing','ads','seo','content','brand','community','social'],
+    };
+
+    Object.entries(keywords).forEach(([cat, words]) => {
+      const textMatches = words.filter(w => text.includes(w)).length;
+      const agentMatches = words.filter(w => agentText.includes(w)).length;
+      score += textMatches * agentMatches * 2;
+    });
+
+    // CEO always gets base score
+    if(agent.id === 'ceo') score += 5;
+
+    return {agent, score};
+  });
+
+  return scores
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5)
+    .map(s => ({...s.agent, why: `Critical for ${s.agent.cat.toLowerCase()} execution of this venture`}));
+}
+
+function openManagerPopup() {
+  const popup = document.getElementById('manager-popup');
+  const list = document.getElementById('mp-agents-list');
+  const confirmBtn = document.getElementById('mp-confirm-btn');
+  const scanBar = document.getElementById('mp-scan-bar');
+  const sub = document.getElementById('mp-sub');
+
+  list.innerHTML = '';
+  confirmBtn.classList.add('off');
+  scanBar.style.display = 'flex';
+  sub.textContent = `Scanning all ${AGENT_LIBRARY.length} agents for "${BIZ.name}"...`;
+  document.getElementById('mp-scan-text').textContent = 'Analyzing venture requirements...';
+
+  popup.classList.remove('off');
+
+  // Animate scan text cycling through categories
+  const cats = [...new Set(AGENT_LIBRARY.map(a => a.cat))];
+  let ci = 0;
+  window._managerScanTimer = setInterval(() => {
+    document.getElementById('mp-scan-text').textContent = `Evaluating ${cats[ci]} agents...`;
+    ci = (ci + 1) % cats.length;
+  }, 400);
+}
+
+async function animateManagerSelection(agents) {
+  clearInterval(window._managerScanTimer);
+
+  const list = document.getElementById('mp-agents-list');
+  const scanBar = document.getElementById('mp-scan-bar');
+  const confirmBtn = document.getElementById('mp-confirm-btn');
+  const sub = document.getElementById('mp-sub');
+
+  scanBar.style.display = 'none';
+  sub.textContent = `Manager selected the best team for "${BIZ.name}":`;
+  list.innerHTML = '';
+
+  for(let i = 0; i < agents.length; i++) {
+    const agent = agents[i];
+    await new Promise(r => setTimeout(r, 380));
+
+    const row = document.createElement('div');
+    row.className = 'mp-agent-row';
+    row.innerHTML = `
+      <div class="mp-agent-ico">${agent.icon}</div>
+      <div class="mp-agent-info">
+        <div class="mp-agent-name">${agent.name}</div>
+        <div class="mp-agent-role">${agent.role} — ${agent.cat}</div>
+        <div class="mp-agent-why">"${agent.why || agent.desc}"</div>
+      </div>
+      <div class="mp-agent-badge">⚡</div>
+    `;
+    list.appendChild(row);
+
+    // Trigger slide-in animation
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => row.classList.add('visible'));
+    });
+
+    termLog('success', `// ✓ Manager selected: ${agent.icon} ${agent.name}`);
+  }
+
+  // Show confirm button
+  await new Promise(r => setTimeout(r, 300));
+  confirmBtn.classList.remove('off');
+}
+
+async function confirmManagerHire() {
+  closeManagerPopup();
+
+  if(managerPendingAgents.length === 0) return;
+
+  // Deploy agents one-by-one with pop animation
+  for(const agent of managerPendingAgents) {
+    if(!hiredAgents.some(h => h.id === agent.id)) {
+      hiredAgents.push(agent);
+      renderWorkforce([agent.id]);
+      await new Promise(r => setTimeout(r, 280));
+    }
+  }
+
+  showToast(`🎯 Team of ${managerPendingAgents.length} deployed!`, 'ok');
+  termLog('success', '// ✅ Manager team confirmed and active');
+
+  // Auto-trigger Paperclip if it's in the team
+  const paperclip = hiredAgents.find(a => a.id === 'paperclip');
+  if(paperclip) {
+    await new Promise(r => setTimeout(r, 800));
+    startPaperclipLoop();
+  }
+
+  managerPendingAgents = [];
+}
+
+function closeManagerPopup() {
+  clearInterval(window._managerScanTimer);
+  document.getElementById('manager-popup').classList.add('off');
+  managerAnalyzing = false;
+  managerPendingAgents = [];
+}
+
+async function runSpecialistAgent(agentId) {
+  const agent = AGENT_LIBRARY.find(a => a.id === agentId);
+  if(!agent) return;
+
+  // Set running state with thinking overlay
+  const card = document.getElementById('hired-' + agentId);
+  const status = document.getElementById('ha-status-' + agentId);
+  if(card) {
+    card.classList.add('running');
+    // Add thinking overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'agent-thinking-overlay';
+    overlay.id = 'thinking-overlay-' + agentId;
+    overlay.innerHTML = '<div class="agent-thinking-dots"><span></span><span></span><span></span></div>';
+    card.appendChild(overlay);
+  }
+  if(status) status.textContent = 'Thinking...';
+
+  // Special Paperclip behavior — show optimization loop
+  if(agentId === 'paperclip') {
+    startPaperclipLoop();
+    showToast('📎 Paperclip loop activated!', 'ok');
+    return;
+  }
+  
+  termLog('info', '// ' + agent.icon + ' ' + agent.name + ' activated');
+  navTo('agent');
+  document.getElementById('ar-title').textContent = agent.icon + ' ' + agent.name;
+  document.getElementById('ar-body').innerHTML = '<div class="ld-center"><div class="spinner"></div><div class="ld-t">' + agent.name + ' working...</div><div class="ld-s">' + agent.desc + '</div></div>';
+
+  try {
+    // Build context from reports
+    let ctx = Object.keys(CONTENT).slice(0,4).map(k => CONTENT[k].substring(0,300)).join('\n\n');
+    if(!ctx) ctx = 'Startup: ' + BIZ.name + ' — ' + BIZ.desc;
+    
+    // Try Railway with selected agents array
+    let text = '';
+    if(RAILWAY_URL) {
+      try {
+        const resp = await fetch(RAILWAY_URL + '/run-agent', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            startup_name: BIZ.name,
+            startup_idea: BIZ.desc,
+            agent_type: agentId,
+            agent_role: agent.role,
+            selected_agents: hiredAgents.map(a => a.id),
+            context: ctx
+          })
+        });
+        if(resp.ok) {
+          const d = await resp.json();
+          text = d.result || d.text || '';
+        }
+      } catch(e) {
+        termLog('warn', '// Railway unavailable, using Groq...');
+      }
+    }
+    
+    // Fallback to Groq
+    if(!text) {
+      const prompt = `You are the ${agent.role} for startup "${BIZ.name}": ${BIZ.desc}
+
+Context: ${ctx}
+
+As ${agent.name}, provide detailed, actionable output for this startup. Include:
+- Your expert analysis (3-4 specific insights)
+- Immediate action items (5 specific tasks)  
+- Key risks in your domain
+- India-specific recommendations
+
+Format with clear sections. Be specific, not generic.`;
+      text = await callAPI(prompt);
+    }
+    
+    agentResultText = text;
+    if(card) card.classList.remove('running');
+    if(status) status.textContent = 'Done ✓';
+    // Remove thinking overlay
+    const overlay = document.getElementById('thinking-overlay-' + agentId);
+    if(overlay) overlay.remove();
+    termLog('success', '// ✓ ' + agent.name + ' complete');
+    
+    // Show result
+    document.getElementById('ar-body').innerHTML = `
+      <div class="ar-section fi">
+        <div class="ar-sec-hd">
+          <div class="ar-sec-title">${agent.icon} ${agent.name} Output</div>
+          <button class="ar-sec-copy" onclick="copyAgentAll()">📋 All</button>
+        </div>
+        <div class="ar-content" id="ar-sec-0">${text}</div>
+      </div>`;
+      
+    fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id: CHAT_ID, text: agent.icon + ' ' + agent.name + '\nStartup: ' + BIZ.name})
+    }).catch(() => {});
+    
+  } catch(e) {
+    if(card) card.classList.remove('running');
+    if(status) status.textContent = 'Error ✗';
+    const overlay = document.getElementById('thinking-overlay-' + agentId);
+    if(overlay) overlay.remove();
+    termLog('error', '// Error: ' + e.message);
+    document.getElementById('ar-body').innerHTML = '<div class="ld-center"><div style="color:var(--red);">❌ ' + e.message + '</div></div>';
+  }
+}
+function openHireModal() {
+  buildHireList();
+  document.getElementById('hire-modal').classList.remove('off');
+}
+
+function closeHireModal() {
+  document.getElementById('hire-modal').classList.add('off');
+}
+
+function buildHireList(filter = '') {
+  const body = document.getElementById('hire-modal-body');
+  const fl = filter.toLowerCase();
+  let html = '';
+  
+  AGENT_CATS.forEach(cat => {
+    const agents = AGENT_LIBRARY.filter(a => 
+      a.cat === cat && 
+      (!fl || a.name.toLowerCase().includes(fl) || a.role.toLowerCase().includes(fl) || a.desc.toLowerCase().includes(fl))
+    );
+    if(!agents.length) return;
+    
+    html += '<div class="hire-cat-title">' + cat + '</div>';
+    agents.forEach(agent => {
+      const alreadyHired = hiredAgents.some(h => h.id === agent.id);
+      html += `<div class="hire-agent-row ${alreadyHired ? 'already-hired' : ''}" onclick="${alreadyHired ? '' : `hireAgent('${agent.id}')`}">
+        <div class="har-ico" onclick="event.stopPropagation();openAgentPreview('${agent.id}')" title="Preview agent" style="cursor:zoom-in;">${agent.icon}</div>
+        <div class="har-info">
+          <div class="har-name">${agent.name}</div>
+          <div class="har-role">${agent.role} — ${agent.desc.substring(0,50)}...</div>
+        </div>
+        ${alreadyHired ? '<span style="font-size:10px;color:var(--green);">Hired ✓</span>' : '<div class="har-add">+</div>'}
+      </div>`;
+    });
+  });
+  
+  body.innerHTML = html || '<div style="text-align:center;color:var(--txt3);padding:20px;">No agents found</div>';
+}
+
+function filterHireList() {
+  const q = document.getElementById('hire-search').value;
+  buildHireList(q);
+}
+
+async function hireAgent(agentId) {
+  const agent = AGENT_LIBRARY.find(a => a.id === agentId);
+  if(!agent || hiredAgents.some(h => h.id === agentId)) return;
+  
+  closeHireModal();
+  hiredAgents.push(agent);
+  renderWorkforce();
+  termLog('success', '// + Hired: ' + agent.icon + ' ' + agent.name);
+  showToast(agent.icon + ' ' + agent.name + ' hired!', 'ok');
+}
+
+// Override navTo for history to rebuild list
+const _origNavTo = navTo;
+window.navTo = function(page) {
+  _origNavTo(page);
+  if(page === 'history') buildHistoryList();
+  if(page === 'command') { updateCommandCenter(); syncMobileReports(); }
+  if(page === 'landing') initLandingPage();
+};
+
+// ── LANDING PAGE INIT ──
+function initLandingPage() {
+  // Populate agent scroll from AGENT_LIBRARY
+  const scroll = document.getElementById('land-agents-scroll');
+  if(scroll && scroll.children.length === 0) {
+    AGENT_LIBRARY.forEach(agent => {
+      const card = document.createElement('div');
+      card.className = 'ag-mini';
+      card.style.cursor = 'pointer';
+      card.title = agent.role;
+      card.onclick = () => openAgentPreview(agent.id);
+      card.innerHTML = `<div class="ag-mini-ico">${agent.icon}</div><div class="ag-mini-name">${agent.name.replace(' Agent','')}</div><div class="ag-mini-desc">${agent.role}</div>`;
+      scroll.appendChild(card);
+    });
+  }
+
+  // Populate category pills
+  const pillsContainer = document.getElementById('land-cat-pills');
+  if(pillsContainer && pillsContainer.children.length === 0) {
+    const catIcons = {Strategy:'♟️', Research:'🔬', Legal:'⚖️', Product:'🗺️', Operations:'⚡', Sales:'🚀', Finance:'💰', Brand:'🎯'};
+    AGENT_CATS.forEach(cat => {
+      const count = AGENT_LIBRARY.filter(a => a.cat === cat).length;
+      const pill = document.createElement('div');
+      pill.className = 'cat-pill fi';
+      pill.innerHTML = `<span class="cat-pill-ico">${catIcons[cat]||'🤖'}</span>${cat}<span class="cat-pill-count">${count}</span>`;
+      pill.onclick = () => { showDeployModal(); };
+      pillsContainer.appendChild(pill);
+    });
+  }
+}
+
+// ── AGENT PREVIEW MODAL ──
+let previewAgentId = null;
+
+function openAgentPreview(agentId) {
+  const agent = AGENT_LIBRARY.find(a => a.id === agentId);
+  if(!agent) return;
+  previewAgentId = agentId;
+
+  document.getElementById('ap-icon').textContent = agent.icon;
+  document.getElementById('ap-name').textContent = agent.name;
+  document.getElementById('ap-cat').textContent = agent.cat;
+  document.getElementById('ap-role').textContent = agent.role;
+  document.getElementById('ap-desc').textContent = agent.desc;
+
+  const alreadyHired = hiredAgents.some(h => h.id === agentId);
+  document.getElementById('ap-already-hired').style.display = alreadyHired ? 'block' : 'none';
+  document.getElementById('ap-hire-btn').style.display = alreadyHired ? 'none' : 'block';
+  document.getElementById('ap-hire-btn').textContent = '+ Add to Workforce';
+
+  // Special Paperclip warning
+  if(agentId === 'paperclip') {
+    document.getElementById('ap-desc').textContent = '⚠️ WARNING: This agent runs an infinite optimization loop. Once activated, it will continuously scan and improve all processes. Cannot be easily stopped. Deploy with caution.';
+  }
+
+  document.getElementById('agent-preview-modal').classList.remove('off');
+}
+
+function closeAgentPreview() {
+  document.getElementById('agent-preview-modal').classList.add('off');
+  previewAgentId = null;
+}
+
+async function hireFromPreview() {
+  if(!previewAgentId) return;
+  closeAgentPreview();
+  await hireAgent(previewAgentId);
+}
+
+// ── MOBILE REPORTS SYNC ──
+// Keeps the mobile reports card in sync with the desktop sidebar
+function syncMobileReports() {
+  const mobList = document.getElementById('reports-list-mob');
+  if(!mobList) return;
+  mobList.innerHTML = '';
+  SECTIONS.forEach(sec => {
+    const item = document.createElement('div');
+    item.className = 'rep-item fi' + (CONTENT[sec.id] ? ' done' : '');
+    item.onclick = () => openReport(sec);
+    item.innerHTML = `
+      <div class="rep-item-top">
+        <div class="rep-item-ico">${sec.icon}</div>
+        <div class="rep-item-name">${sec.label}</div>
+        ${CONTENT[sec.id] ? '<div class="rep-item-tick">✓</div>' : ''}
+      </div>
+      <div class="rep-item-cat">${sec.cat}</div>
+    `;
+    mobList.appendChild(item);
+  });
+}
+
+// ── CLEAR TERMINAL ──
+function clearTerminal() {
+  const term = document.getElementById('terminal');
+  term.innerHTML = '<div class="term-line info">// Terminal cleared</div><div class="term-line"><span class="term-cursor"></span></div>';
+}
+
+// ── WORKFORCE COUNT BADGE ──
+function updateWorkforceCount() {
+  const badge = document.getElementById('workforce-count');
+  if(badge) badge.textContent = hiredAgents.length > 0 ? `(${hiredAgents.length} active)` : '';
+  const reWrap = document.getElementById('manager-reanalyze-wrap');
+  if(reWrap) reWrap.style.display = hiredAgents.length > 0 ? 'block' : 'none';
+}
+
+// Patch hireAgent to also update count
+const _origHireAgent = hireAgent;
+window.hireAgent = async function(agentId) {
+  await _origHireAgent(agentId);
+  updateWorkforceCount();
+  syncMobileReports();
+};
+
+// Patch confirmManagerHire to update count after popup confirm
+const _origConfirmManagerHire = confirmManagerHire;
+window.confirmManagerHire = async function() {
+  await _origConfirmManagerHire();
+  updateWorkforceCount();
+};
+
+// Patch fireAgent to update count
+const _origFireAgent = fireAgent;
+window.fireAgent = function(agentId, e) {
+  _origFireAgent(agentId, e);
+  updateWorkforceCount();
+};
+
+// ── ON LOAD ──
+window.addEventListener('load', () => {
+  initLandingPage();
+});
+</script>
+</body>
+</html>
