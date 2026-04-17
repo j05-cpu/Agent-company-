@@ -842,6 +842,7 @@ function App() {
     addLog("info",   `Startup: ${desc.substring(0,80)}...`);
 
     const sseUrl = `${HF_URL}/stream?startup_name=${encodeURIComponent(name)}&startup_idea=${encodeURIComponent(desc)}`;
+    
 
     try {
       // Try GET SSE first
@@ -859,7 +860,7 @@ function App() {
           // Fallback: POST /deploy with ReadableStream
           addLog("info", "SSE unavailable — using /deploy POST stream...");
           try {
-            const res = await fetch(`${HF_URL}/deploy`, {
+            const res = await fetch(`${HF_URL}/build`, {
               method: "POST",
               headers: { "Content-Type":"application/json" },
               body: JSON.stringify({ startup_name: name, startup_idea: desc }),
