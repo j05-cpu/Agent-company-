@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#03040c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Digital Godfather — AI-powered startup builder">
+<title>Digital Godfather</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+
+/* ════════════════════════════════════════════════════
+   RESET & ROOT
+════════════════════════════════════════════════════ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --cyan:          #22d3ee;
+  --cyan-dim:      rgba(34,211,238,0.1);
+  --cyan-border:   rgba(34,211,238,0.22);
+  --cyan-glow:     rgba(34,211,238,0.15);
+  --gold:          #f59e0b;
+  --gold-dim:      rgba(245,158,11,0.1);
+  --gold-border:   rgba(245,158,11,0.22);
+  --violet:        #a78bfa;
+  --violet-dim:    rgba(167,139,250,0.1);
+  --violet-border: rgba(167,139,250,0.22);
+  --green:         #22c55e;
+  --red:           #f43f5e;
+
+  --bg:      #03040c;
+  --bg2:     #05070f;
+  --bg3:     #080a14;
+  --bg4:     rgba(8,10,20,0.85);
+  --glass:   rgba(255,255,255,0.025);
+  --border:  rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.04);
+
+  --txt:    #f1f5f9;
+  --txt2:   #64748b;
+  --txt3:   #334155;
+  --txt4:   #1e293b;
+
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --disp: 'Syne', sans-serif;
+
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-h:       56px;
+  --bar-h:       20px;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--txt);
+  font-family: var(--mono);
+  -webkit-font-smoothing: antialiased;
+}
+
+input, textarea, button, select { font-family: var(--mono); }
+input::placeholder, textarea::placeholder { color: var(--txt4); }
+textarea { resize: none; }
+a { text-decoration: none; color: inherit; }
+
+::-webkit-scrollbar { width: 2px; height: 2px; }
+::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.25); border-radius: 2px; }
+
+/* ════════════════════════════════════════════════════
+   APP SHELL
+════════════════════════════════════════════════════ */
+#app {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg);
+}
+
+/* ════════════════════════════════════════════════════
+   BACKGROUND EFFECTS
+════════════════════════════════════════════════════ */
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-radial {
+  background:
+    radial-gradient(ellipse 75% 45% at 18% 0%,  rgba(34,211,238,0.055) 0%, transparent 58%),
+    radial-gradient(ellipse 55% 35% at 82% 100%, rgba(245,158,11,0.04)  0%, transparent 52%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, var(--bg2) 0%, var(--bg) 100%);
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(34,211,238,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,211,238,0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+  animation: grid-breathe 8s ease-in-out infinite;
+}
+
+.bg-scanline {
+  height: 100px;
+  background: linear-gradient(to bottom, transparent, rgba(34,211,238,0.018), transparent);
+  animation: scanline 9s linear infinite;
+}
+
+@keyframes grid-breathe {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}
+@keyframes scanline {
+  0%   { transform: translateY(-100px); }
+  100% { transform: translateY(100vh); }
+}
+
+/* ════════════════════════════════════════════════════
+   TOP HEADER
+════════════════════════════════════════════════════ */
+.topbar {
+  position: relative;
+  z-index: 20;
+  flex-shrink: 0;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 10px;
+  background: rgba(3,4,12,0.94);
+  border-bottom: 1px solid var(--border2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Logo mark */
+.logo-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(34,211,238,0.22), rgba(34,211,238,0.04));
+  border: 1px solid rgba(34,211,238,0.32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 16px rgba(34,211,238,0.18), inset 0 1px 0 rgba(34,211,238,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.logo-mark::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(34,211,238,0.06) 100%);
+}
+
+.logo-name {
+  font-family: var(--disp);
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--txt);
+  letter-spacing: -0.03em;
+  flex: 1;
+}
+
+.logo-name span {
+  color: var(--cyan);
+}
+
+.logo-version {
+  font-size: 8px;
+  color: var(--txt4);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.06em;
+}
+
+.hf-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 8.5px;
+  color: var(--txt3);
+  letter-spacing: 0.07em;
+  background: var(--glass);
+}
+
+/* ════════════════════════════════════════════════════
+   AGENT STRIP
+════════════════════════════════════════════════════ */
+.agents-strip {
+  position: relative;
+  z-index: 15;
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  padding: 9px 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: rgba(3,4,12,0.82);
+  border-bottom: 1px solid var(--border2);
+  -webkit-overflow-scrolling: touch;
+}
+.agents-strip::-webkit-scrollbar { display: none; }
+
+.agent-card {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 13px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--glass);
+  transition: all 0.35s ease;
+  position: relative;
+  overflow: hidden;
+  min-width: 140px;
+}
+
+.agent-card.active {
+  border-color: var(--ac-border, rgba(34,211,238,0.25));
+  background: var(--ac-bg, rgba(34,211,238,0.08));
+  box-shadow: 0 0 20px var(--ac-glow, rgba(34,211,238,0.1));
+}
+
+.agent-card.done {
+  border-color: rgba(34,197,94,0.22);
+  background: rgba(34,197,94,0.06);
+}
+
+/* Shimmer on active */
+.agent-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
+  transform: translateX(-110%);
+  pointer-events: none;
+}
+.agent-card.active .agent-shimmer { animation: card-shimmer 2.2s ease-in-out infinite; }
+@keyframes card-shimmer {
+  0%   { transform: translateX(-110%); }
+  100% { transform: translateX(210%); }
+}
+
+.agent-icon-box {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: filter 0.35s;
+}
+.agent-card:not(.active):not(.done) .agent-icon-box { filter: grayscale(0.85) opacity(0.4); }
+
+.agent-info { flex: 1; min-width: 0; }
+.agent-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--txt);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.3s;
+}
+.agent-card:not(.active):not(.done) .agent-name { color: var(--txt3); }
+
+.agent-status {
+  font-size: 8.5px;
+  letter-spacing: 0.07em;
+  margin-top: 2px;
+  transition: color 0.3s;
+}
+
+/* Pulse dot */
+.pdot {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.pdot-ring {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  opacity: 0;
+}
+.pdot-ring.active {
+  opacity: 0.5;
+  animation: pdot-ping 1.6s cubic-bezier(0,0,.2,1) infinite;
+}
+@keyframes pdot-ping {
+  0%   { transform: scale(1);   opacity: 0.5; }
+  100% { transform: scale(2.3); opacity: 0; }
+}
+.pdot-core {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.35s;
+}
+
+/* ════════════════════════════════════════════════════
+   PAGES
+════════════════════════════════════════════════════ */
+.pages {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  z-index: 5;
+}
+
+.page {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+.page.active { display: flex; }
+
+/* ════════════════════════════════════════════════════
+   PAGE 1 — BUILD
+════════════════════════════════════════════════════ */
+.build-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 16px 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Section header */
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.sec-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--txt3);
+}
+.sec-label::before {
+  content: '//';
+  color: var(--cyan);
+  opacity: 0.45;
+  margin-right: 5px;
+}
+
+/* Inputs */
+.inp-wrap {
+  position: relative;
+}
+
+.inp-field {
+  width: 100%;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: var(--txt);
+  font-size: 14px;
+  line-height: 1.5;
+  outline: none;
+  transition: border-color 0.22s, box-shadow 0.22s;
+  -webkit-appearance: none;
+}
+
+.inp-field:focus {
+  border-color: rgba(34,211,238,0.42);
+  box-shadow: 0 0 0 3px rgba(34,211,238,0.07), 0 0 20px rgba(34,211,238,0.04);
+}
+
+textarea.inp-field {
+  min-height: 110px;
+  line-height: 1.65;
+}
+
+.inp-count {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  font-size: 8.5px;
+  color: var(--txt4);
+  pointer-events: none;
+}
+
+/* Examples */
+.examples-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ex-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  width: 100%;
+}
+.ex-card:active {
+  transform: scale(0.985);
+  background: rgba(34,211,238,0.05);
+  border-color: rgba(34,211,238,0.18);
+}
+
+.ex-emoji {
+  font-size: 22px;
+  flex-shrink: 0;
+  width: 36px;
+  text-align: center;
+}
+.ex-info { flex: 1; min-width: 0; }
+.ex-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--txt2);
+  margin-bottom: 2px;
+}
+.ex-desc {
+  font-size: 9.5px;
+  color: var(--txt4);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+.ex-arrow {
+  color: var(--txt4);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Output section */
+.output-section {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+}
+.output-section.show { display: flex; }
+
+.files-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.file-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--glass);
+  cursor: pointer;
+  font-size: 10px;
+  color: var(--txt2);
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.file-pill:active { transform: scale(0.95); }
+.file-pill.active {
+  border-color: rgba(34,211,238,0.3);
+  background: rgba(34,211,238,0.07);
+  color: var(--cyan);
+}
+
+/* Code view */
+.code-box {
+  background: rgba(0,0,0,0.45);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border2);
+  background: rgba(0,0,0,0.3);
+}
+.code-dots { display: flex; gap: 5px; }
+.code-dot  { width: 9px; height: 9px; border-radius: 50%; }
+.code-fname { font-size: 11px; color: var(--txt2); flex: 1; }
+
+.code-actions { display: flex; gap: 6px; }
+.code-btn {
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--txt3);
+  font-size: 9px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.04em;
+}
+.code-btn:active { background: var(--glass); color: var(--cyan); border-color: var(--cyan-border); }
+
+.code-body {
+  overflow-y: auto;
+  max-height: 280px;
+  padding: 14px 16px;
+  -webkit-overflow-scrolling: touch;
+}
+.code-pre {
+  font-size: 10.5px;
+  line-height: 1.95;
+  color: var(--txt3);
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+/* Syntax colors */
+.sh-tag  { color: #22d3ee; }
+.sh-attr { color: #a78bfa; }
+.sh-kw   { color: #f59e0b; }
+.sh-str  { color: #22c55e; }
+.sh-cmt  { color: #334155; }
+
+/* ════════════════════════════════════════════════════
+   PAGE 2 — TERMINAL
+════════════════════════════════════════════════════ */
+.term-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: rgba(2,3,10,0.96);
+}
+
+.term-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border2);
+  background: rgba(0,0,0,0.5);
+  flex-shrink: 0;
+}
+
+.mac-dots { display: flex; gap: 5px; }
+.mac-dot  { width: 10px; height: 10px; border-radius: 50%; opacity: 0.85; }
+
+.term-title {
+  font-size: 9.5px;
+  color: var(--txt3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  flex: 1;
+}
+
+.live-badge {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  font-size: 8px;
+  color: var(--cyan);
+  letter-spacing: 0.1em;
+}
+.live-badge.show { display: flex; }
+
+.term-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 14px;
+  font-size: 10.5px;
+  line-height: 1.9;
+}
+
+.term-line {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1px;
+  animation: term-fadein 0.12s ease both;
+}
+@keyframes term-fadein {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.t-num {
+  color: var(--txt4);
+  min-width: 28px;
+  text-align: right;
+  font-size: 9px;
+  user-select: none;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+.t-pfx {
+  min-width: 32px;
+  font-size: 9px;
+  opacity: 0.5;
+  user-select: none;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+.t-msg { flex: 1; word-break: break-all; }
+
+.term-cursor-block {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: var(--cyan);
+  vertical-align: middle;
+  margin-left: 3px;
+  animation: cursor-blink 0.85s step-end infinite;
+}
+@keyframes cursor-blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ════════════════════════════════════════════════════
+   PAGE 3 — PREVIEW
+════════════════════════════════════════════════════ */
+.preview-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.preview-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border2);
+  background: rgba(0,0,0,0.45);
+  flex-shrink: 0;
+}
+
+.url-chip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+}
+.url-secure { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.url-text   { font-size: 9.5px; color: var(--txt3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.preview-action {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--txt3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.preview-action:active { background: var(--glass); color: var(--cyan); border-color: var(--cyan-border); }
+
+.preview-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.preview-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 32px;
+}
+
+.pe-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: rgba(34,211,238,0.06);
+  border: 1px solid rgba(34,211,238,0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pe-pulse 3s ease-in-out infinite;
+}
+@keyframes pe-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(34,211,238,0); }
+  50%      { box-shadow: 0 0 0 8px rgba(34,211,238,0); }
+}
+
+.pe-title { font-size: 14px; font-weight: 600; color: var(--txt3); }
+.pe-sub   { font-size: 11px; color: var(--txt4); text-align: center; line-height: 1.7; }
+
+#preview-iframe {
+  flex: 1;
+  border: none;
+  display: block;
+  background: #fff;
+  width: 100%;
+}
+
+/* ════════════════════════════════════════════════════
+   BOTTOM NAVIGATION
+════════════════════════════════════════════════════ */
+.bottom-nav {
+  position: relative;
+  z-index: 20;
+  flex-shrink: 0;
+  height: calc(var(--nav-h) + var(--safe-bottom));
+  display: flex;
+  align-items: stretch;
+  padding-bottom: var(--safe-bottom);
+  border-top: 1px solid var(--border2);
+  background: rgba(3,4,12,0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.bn-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  color: var(--txt3);
+  cursor: pointer;
+  transition: color 0.2s;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 44px;
+}
+
+.bn-tab.active { color: var(--cyan); }
+
+/* Active indicator bar */
+.bn-tab.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 2px;
+  background: var(--cyan);
+  border-radius: 0 0 3px 3px;
+  box-shadow: 0 0 10px var(--cyan), 0 0 20px rgba(34,211,238,0.3);
+}
+
+.bn-icon  { font-size: 20px; line-height: 1; }
+.bn-label { font-size: 9px; font-weight: 500; letter-spacing: 0.04em; }
+
+/* Notification badges */
+.bn-badge {
+  position: absolute;
+  top: 7px;
+  right: calc(50% - 22px);
+  background: var(--cyan);
+  color: #000;
+  font-size: 7.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 10px;
+  display: none;
+  line-height: 1.5;
+  min-width: 16px;
+  text-align: center;
+}
+
+.bn-dot {
+  position: absolute;
+  top: 9px;
+  right: calc(50% - 20px);
+  width: 7px;
+  height: 7px;
+  background: var(--green);
+  border-radius: 50%;
+  display: none;
+  box-shadow: 0 0 6px var(--green);
+}
+
+/* ════════════════════════════════════════════════════
+   FAB — FLOATING ACTION BUTTON
+════════════════════════════════════════════════════ */
+#fab {
+  position: absolute;
+  bottom: calc(var(--nav-h) + var(--safe-bottom) + 14px);
+  right: 18px;
+  z-index: 30;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, box-shadow 0.25s, background 0.3s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#fab:active { transform: scale(0.90) !important; }
+
+#fab.state-ready {
+  background: linear-gradient(135deg, #22d3ee, #0891b2);
+  box-shadow: 0 6px 24px rgba(34,211,238,0.35), 0 0 50px rgba(34,211,238,0.15);
+}
+#fab.state-ready:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(34,211,238,0.45), 0 0 60px rgba(34,211,238,0.2); }
+
+#fab.state-running {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  box-shadow: 0 6px 24px rgba(245,158,11,0.35), 0 0 50px rgba(245,158,11,0.15);
+  animation: fab-running 1.6s ease-in-out infinite;
+}
+@keyframes fab-running {
+  0%,100% { box-shadow: 0 6px 24px rgba(245,158,11,0.35), 0 0 0 0 rgba(245,158,11,0.4); }
+  50%      { box-shadow: 0 6px 24px rgba(245,158,11,0.35), 0 0 0 14px rgba(245,158,11,0); }
+}
+
+#fab.state-done {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  box-shadow: 0 6px 24px rgba(34,197,94,0.35), 0 0 50px rgba(34,197,94,0.15);
+}
+
+#fab svg { display: block; pointer-events: none; }
+
+/* FAB tooltip */
+.fab-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  background: rgba(9,11,22,0.95);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 10px;
+  color: var(--txt2);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: all 0.2s;
+  backdrop-filter: blur(12px);
+}
+#fab:hover .fab-tooltip,
+#fab:active .fab-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ════════════════════════════════════════════════════
+   STATUS BAR
+════════════════════════════════════════════════════ */
+.statusbar {
+  position: relative;
+  z-index: 20;
+  flex-shrink: 0;
+  height: var(--bar-h);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 12px;
+  background: rgba(2,3,9,0.98);
+  border-top: 1px solid var(--border2);
+  overflow: hidden;
+}
+
+.sb-item {
+  font-size: 7.5px;
+  color: var(--txt4);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.sb-item.s-run  { color: var(--gold); }
+.sb-item.s-done { color: var(--green); }
+.sb-spacer { flex: 1; }
+
+/* ════════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════════ */
+#toast {
+  position: fixed;
+  top: 62px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  z-index: 500;
+  background: rgba(8,10,20,0.96);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 12px;
+  color: var(--txt);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.22s;
+  white-space: nowrap;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+#toast.show     { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.t-ok     { border-color: rgba(34,197,94,0.3);   color: var(--green); }
+#toast.t-err    { border-color: rgba(244,63,94,0.3);   color: var(--red); }
+#toast.t-info   { border-color: rgba(34,211,238,0.25); color: var(--cyan); }
+
+/* ════════════════════════════════════════════════════
+   GLOBAL ANIMATIONS
+════════════════════════════════════════════════════ */
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+.anim-in { animation: fadeUp 0.28s ease both; }
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     APP SHELL
+════════════════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- BG -->
+  <div class="bg-layer bg-radial"></div>
+  <div class="bg-layer bg-grid"></div>
+  <div class="bg-layer bg-scanline"></div>
+
+  <!-- ── TOP BAR ── -->
+  <header class="topbar">
+    <div class="logo-mark">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m2 4 3 12h14l3-12-6 5-4-5-4 5-6-5z"/>
+        <path d="M5 16h14"/>
+      </svg>
+    </div>
+    <span class="logo-name">Digital <span>Godfather</span></span>
+    <span class="logo-version">v3.1</span>
+    <div style="flex:1"></div>
+    <div class="hf-badge">
+      <div class="pdot">
+        <div class="pdot-ring active" style="background:#22c55e;position:absolute;inset:-2px;border-radius:50%;animation:pdot-ping 2s cubic-bezier(0,0,.2,1) infinite;opacity:.4;"></div>
+        <div class="pdot-core" style="background:#22c55e;box-shadow:0 0 5px #22c55e;width:7px;height:7px;border-radius:50%;position:relative;"></div>
+      </div>
+      HF SPACE
+    </div>
+  </header>
+
+  <!-- ── AGENT STRIP ── -->
+  <div class="agents-strip" id="agents-strip">
+    <!-- injected by JS -->
+  </div>
+
+  <!-- ── PAGES ── -->
+  <div class="pages">
+
+    <!-- ══ PAGE: BUILD ══ -->
+    <div class="page active" id="page-build">
+      <div class="build-scroll" id="build-scroll">
+
+        <!-- Startup Name -->
+        <div>
+          <div class="sec-head"><span class="sec-label">Startup Name</span></div>
+          <div class="inp-wrap">
+            <input
+              class="inp-field"
+              type="text"
+              id="inp-name"
+              placeholder="e.g. FitBuddy"
+              maxlength="80"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+            />
+          </div>
+        </div>
+
+        <!-- Startup Idea -->
+        <div>
+          <div class="sec-head"><span class="sec-label">What to Build?</span></div>
+          <div class="inp-wrap">
+            <textarea
+              class="inp-field"
+              id="inp-idea"
+              placeholder="Describe your startup — who are the users, what problem does it solve, key features you need..."
+              rows="5"
+              maxlength="600"
+              id="inp-idea"
+            ></textarea>
+            <span class="inp-count" id="idea-count">0 / 600</span>
+          </div>
+        </div>
+
+        <!-- Examples -->
+        <div>
+          <div class="sec-head"><span class="sec-label">Quick Examples</span></div>
+          <div class="examples-grid">
+            <button class="ex-card" onclick="loadExample('FitBuddy','AI-powered personalized fitness coach for Indian home workout enthusiasts. Creates custom workout plans, tracks daily progress, and motivates users through gamification and streaks. Target: working professionals aged 25-40 in Tier 1 and Tier 2 cities.')">
+              <span class="ex-emoji">🏋️</span>
+              <div class="ex-info">
+                <div class="ex-name">FitBuddy</div>
+                <div class="ex-desc">AI fitness coach for Indian home workouts</div>
+              </div>
+              <span class="ex-arrow">›</span>
+            </button>
+            <button class="ex-card" onclick="loadExample('FreelanceHub','Platform connecting 15M Indian freelancers with global clients. Features: smart job matching, automated invoicing, milestone payments, contract templates. Focus: designers, developers, content writers looking to earn in USD.')">
+              <span class="ex-emoji">💼</span>
+              <div class="ex-info">
+                <div class="ex-name">FreelanceHub</div>
+                <div class="ex-desc">Indian freelancer platform with automation</div>
+              </div>
+              <span class="ex-arrow">›</span>
+            </button>
+            <button class="ex-card" onclick="loadExample('RestroOps','B2B SaaS for small restaurants and cloud kitchens in India. Manages inventory, reduces food waste by 40%, automates reordering with Zomato and Swiggy integration. Pricing: Rs. 999/month. Target: 500K+ small restaurants across India.')">
+              <span class="ex-emoji">🍽️</span>
+              <div class="ex-info">
+                <div class="ex-name">RestroOps</div>
+                <div class="ex-desc">Restaurant SaaS — inventory automation</div>
+              </div>
+              <span class="ex-arrow">›</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Output Section (shown after build) -->
+        <div class="output-section" id="output-section">
+          <div class="sec-head"><span class="sec-label">Generated Files</span></div>
+          <div class="files-row" id="files-row"></div>
+          <!-- Code View -->
+          <div class="code-box" id="code-box" style="display:none;">
+            <div class="code-header">
+              <div class="code-dots">
+                <div class="code-dot" style="background:#ff5f57;"></div>
+                <div class="code-dot" style="background:#febc2e;"></div>
+                <div class="code-dot" style="background:#28c840;"></div>
+              </div>
+              <span class="code-fname" id="code-fname">index.html</span>
+              <div class="code-actions">
+                <button class="code-btn" id="copy-btn" onclick="copyCode()">Copy</button>
+                <button class="code-btn" onclick="downloadFile()">Save</button>
+              </div>
+            </div>
+            <div class="code-body">
+              <pre class="code-pre" id="code-pre"></pre>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /build-scroll -->
+
+      <!-- FAB -->
+      <button id="fab" class="state-ready" onclick="handleBuild()" aria-label="Activate Agents">
+        <div class="fab-tooltip" id="fab-tip">Activate Agents</div>
+        <svg id="fab-svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+      </button>
+
+    </div><!-- /page-build -->
+
+    <!-- ══ PAGE: TERMINAL ══ -->
+    <div class="page" id="page-terminal">
+      <div class="term-wrap">
+        <div class="term-header">
+          <div class="mac-dots">
+            <div class="mac-dot" style="background:#ff5f57;"></div>
+            <div class="mac-dot" style="background:#febc2e;"></div>
+            <div class="mac-dot" style="background:#28c840;"></div>
+          </div>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" style="flex-shrink:0;">
+            <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+          </svg>
+          <span class="term-title">Agent Log Stream</span>
+          <div class="live-badge" id="live-badge">
+            <div class="pdot" style="position:relative;display:inline-flex;width:7px;height:7px;">
+              <div id="live-ring" style="position:absolute;inset:-2px;border-radius:50%;background:#22d3ee;opacity:.4;animation:pdot-ping 1.5s cubic-bezier(0,0,.2,1) infinite;"></div>
+              <div style="position:relative;width:7px;height:7px;border-radius:50%;background:#22d3ee;box-shadow:0 0 6px #22d3ee;"></div>
+            </div>
+            LIVE
+          </div>
+        </div>
+        <div class="term-body" id="term-body">
+          <div style="color:var(--txt4);padding:4px 0;">$ awaiting activation...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: PREVIEW ══ -->
+    <div class="page" id="page-preview">
+      <div class="preview-wrap">
+        <div class="preview-bar">
+          <div class="url-chip">
+            <div class="url-secure"></div>
+            <span class="url-text" id="url-text">godfather://preview/index.html</span>
+          </div>
+          <button class="preview-action" onclick="refreshPreview()" aria-label="Refresh">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"/>
+              <polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+            </svg>
+          </button>
+          <button class="preview-action" onclick="openFullscreen()" aria-label="Open fullscreen">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 3 21 3 21 9"/>
+              <polyline points="9 21 3 21 3 15"/>
+              <line x1="21" y1="3" x2="14" y2="10"/>
+              <line x1="3" y1="21" x2="10" y2="14"/>
+            </svg>
+          </button>
+        </div>
+        <div class="preview-container" id="preview-container">
+          <div class="preview-empty" id="preview-empty">
+            <div class="pe-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <span class="pe-title">No Preview Yet</span>
+            <span class="pe-sub">Activate the agents on the Build tab.<br>Your generated site will appear here.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pages -->
+
+  <!-- ── BOTTOM NAV ── -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="bn-tab active" id="bn-build" onclick="switchTab('build')">
+      <span class="bn-icon">⚡</span>
+      <span class="bn-label">Build</span>
+    </button>
+    <button class="bn-tab" id="bn-terminal" onclick="switchTab('terminal')">
+      <span class="bn-icon">⌨️</span>
+      <span class="bn-label">Terminal</span>
+      <span class="bn-badge" id="log-badge"></span>
+    </button>
+    <button class="bn-tab" id="bn-preview" onclick="switchTab('preview')">
+      <span class="bn-icon">👁️</span>
+      <span class="bn-label">Preview</span>
+      <span class="bn-dot" id="preview-dot"></span>
+    </button>
+  </nav>
+
+  <!-- ── STATUS BAR ── -->
+  <div class="statusbar">
+    <span class="sb-item" id="sb-host">HF: jaezyh-digital-godfather-core</span>
+    <span class="sb-item" id="sb-files">Files: 0</span>
+    <span class="sb-item" id="sb-logs">Logs: 0</span>
+    <div class="sb-spacer"></div>
+    <span class="sb-item" id="sb-state">○ READY</span>
+  </div>
+
+</div><!-- /app -->
+
+<!-- ── TOAST ── -->
+<div id="toast"></div>
+
+<!-- ════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── CONFIG ─────────────────────────────────────────── */
+// IMPORTANT: Replace with your actual Hugging Face Space URL
+const HF_URL        = 'https://jaezyh-digital-godfather-core.hf.space';
+const BUILD_EP      = HF_URL + '/build';
+const DEPLOY_EP     = HF_URL + '/deploy';
+const STREAM_EP     = HF_URL + '/stream';
+
+/* ── STATE ──────────────────────────────────────────── */
+let isRunning    = false;
+let isDone       = false;
+let logs         = [];
+let files        = {};
+let activeFile   = null;
+let currentTab   = 'build';
+let unreadLogs   = 0;
+
+let agentStates = {
+  architect: { status: 'idle', thought: '' },
+  developer: { status: 'idle', thought: '' },
+  debugger:  { status: 'idle', thought: '' },
+};
+
+/* ── AGENT DEFINITIONS ──────────────────────────────── */
+const AGENTS = {
+  architect: {
+    label: 'Lead Architect',
+    color: '#f59e0b',
+    bg:    'rgba(245,158,11,0.09)',
+    bdr:   'rgba(245,158,11,0.24)',
+    glow:  'rgba(245,158,11,0.12)',
+    icon:  /* crown SVG */ '<path d="m2 4 3 12h14l3-12-6 5-4-5-4 5-6-5z"/><path d="M5 16h14"/>',
+  },
+  developer: {
+    label: 'Sr. Developer',
+    color: '#22d3ee',
+    bg:    'rgba(34,211,238,0.09)',
+    bdr:   'rgba(34,211,238,0.24)',
+    glow:  'rgba(34,211,238,0.12)',
+    icon:  /* code SVG */ '<path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/>',
+  },
+  debugger: {
+    label: 'QA Debugger',
+    color: '#a78bfa',
+    bg:    'rgba(167,139,250,0.09)',
+    bdr:   'rgba(167,139,250,0.24)',
+    glow:  'rgba(167,139,250,0.12)',
+    icon:  /* bug SVG */ '<path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6z"/><path d="M12 20v-9"/>',
+  },
+};
+
+const LOG_CFG = {
+  system:       { color: '#22d3ee', pfx: 'SYS' },
+  agent_status: { color: '#f59e0b', pfx: 'AGT' },
+  agent:        { color: '#f59e0b', pfx: 'AGT' },
+  thought:      { color: '#a78bfa', pfx: 'THK' },
+  code:         { color: '#22c55e', pfx: 'COD' },
+  error:        { color: '#f43f5e', pfx: 'ERR' },
+  success:      { color: '#22c55e', pfx: 'OK ' },
+  info:         { color: '#475569', pfx: 'INF' },
+  raw:          { color: '#334155', pfx: 'RAW' },
+};
+
+/* ── INIT ───────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  renderAgents();
+  document.getElementById('inp-idea').addEventListener('input', e => {
+    document.getElementById('idea-count').textContent = e.target.value.length + ' / 600';
+  });
+});
+
+/* ── AGENT STRIP ────────────────────────────────────── */
+function renderAgents() {
+  const strip = document.getElementById('agents-strip');
+  strip.innerHTML = '';
+
+  Object.entries(AGENTS).forEach(([id, ag]) => {
+    const st      = agentStates[id];
+    const isActive = st.status === 'active';
+    const isDoneA  = st.status === 'done';
+
+    const el = document.createElement('div');
+    el.id    = 'agent-' + id;
+    el.className = 'agent-card' +
+      (isActive ? ' active' : '') +
+      (isDoneA  ? ' done'   : '');
+
+    if (isActive) {
+      el.style.setProperty('--ac-border', ag.bdr);
+      el.style.setProperty('--ac-bg',     ag.bg);
+      el.style.setProperty('--ac-glow',   ag.glow);
+    }
+
+    const statusColor = isActive ? ag.color : isDoneA ? '#22c55e' : '#334155';
+    const statusTxt   = isActive ? '● ACTIVE' : isDoneA ? '✓ DONE' : '○ STANDBY';
+
+    const dotBg     = isActive ? ag.color : isDoneA ? '#22c55e' : '#1e293b';
+    const dotShadow = isActive ? `0 0 7px ${ag.color}` : 'none';
+
+    el.innerHTML = `
+      <div class="agent-shimmer"></div>
+      <div class="agent-icon-box" style="background:${ag.bg};border:1px solid ${ag.bdr};">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${ag.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ag.icon}</svg>
+      </div>
+      <div class="agent-info">
+        <div class="agent-name">${ag.label}</div>
+        <div class="agent-status" style="color:${statusColor};">${statusTxt}</div>
+      </div>
+      <div class="pdot" style="position:relative;display:inline-flex;flex-shrink:0;">
+        ${isActive ? `<div class="pdot-ring active" style="position:absolute;inset:-2px;border-radius:50%;background:${ag.color};"></div>` : ''}
+        <div class="pdot-core" style="width:7px;height:7px;border-radius:50%;position:relative;background:${dotBg};box-shadow:${dotShadow};transition:all .35s;"></div>
+      </div>
+    `;
+    strip.appendChild(el);
+  });
+}
+
+function setAgentState(id, status, thought) {
+  if (!agentStates[id]) return;
+  agentStates[id] = { status, thought: thought || '' };
+  renderAgents();
+}
+
+/* ── TABS ───────────────────────────────────────────── */
+function switchTab(tab) {
+  currentTab = tab;
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+
+  document.querySelectorAll('.bn-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('bn-' + tab).classList.add('active');
+
+  if (tab === 'terminal') {
+    unreadLogs = 0;
+    document.getElementById('log-badge').style.display = 'none';
+    document.getElementById('log-badge').textContent   = '';
+  }
+  if (tab === 'preview') {
+    document.getElementById('preview-dot').style.display = 'none';
+  }
+}
+
+/* ── EXAMPLE LOADER ─────────────────────────────────── */
+function loadExample(name, idea) {
+  document.getElementById('inp-name').value = name;
+  const ta = document.getElementById('inp-idea');
+  ta.value = idea;
+  document.getElementById('idea-count').textContent = idea.length + ' / 600';
+  showToast('✓ Loaded: ' + name, 't-ok');
+  // Scroll top
+  document.getElementById('build-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── BUILD HANDLER ──────────────────────────────────── */
+async function handleBuild() {
+  const name = document.getElementById('inp-name').value.trim();
+  const idea = document.getElementById('inp-idea').value.trim();
+
+  if (!name) { showToast('Enter a startup name', 't-err'); return; }
+  if (!idea) { showToast('Describe your startup idea', 't-err'); return; }
+  if (isRunning) { showToast('Agents already running...', 't-err'); return; }
+
+  // Reset state
+  isRunning = true;
+  isDone    = false;
+  logs      = [];
+  files     = {};
+  activeFile = null;
+  unreadLogs = 0;
+  agentStates = {
+    architect: { status: 'idle', thought: '' },
+    developer: { status: 'idle', thought: '' },
+    debugger:  { status: 'idle', thought: '' },
+  };
+
+  // Reset UI
+  document.getElementById('term-body').innerHTML = '';
+  document.getElementById('output-section').classList.remove('show');
+  document.getElementById('files-row').innerHTML  = '';
+  document.getElementById('code-box').style.display = 'none';
+  document.getElementById('log-badge').style.display = 'none';
+  document.getElementById('preview-dot').style.display = 'none';
+  updatePreview(null);
+  setFabState('running');
+  updateStatusBar();
+  renderAgents();
+
+  addLog('system', '▶ ACTIVATING AGENTS — "' + name + '"');
+  addLog('system', 'Backend: ' + HF_URL);
+  addLog('info',   'Connecting to Godfather Core...');
+  showToast('Agents activated!', 't-info');
+  switchTab('terminal');
+
+  /* ── Try GET SSE /stream first ── */
+  const sseUrl = STREAM_EP +
+    '?startup_name=' + encodeURIComponent(name) +
+    '&startup_idea='  + encodeURIComponent(idea);
+
+  addLog('info', 'Trying SSE stream...');
+
+  const es        = new EventSource(sseUrl);
+  let   gotData   = false;
+
+  const sseTimer = setTimeout(() => {
+    if (!gotData) {
+      es.close();
+      addLog('info', 'SSE timeout — switching to POST /deploy...');
+      postDeploy(name, idea);
+    }
+  }, 6000);
+
+  es.onmessage = e => {
+    gotData = true;
+    clearTimeout(sseTimer);
+    try { processMsg(JSON.parse(e.data)); }
+    catch { processMsg({ type: 'raw', content: e.data }); }
+  };
+
+  es.onerror = () => {
+    es.close();
+    clearTimeout(sseTimer);
+    if (!gotData) {
+      addLog('info', 'SSE unavailable — using POST /deploy...');
+      postDeploy(name, idea);
+    }
+  };
+}
+
+/* ── POST /deploy FALLBACK ──────────────────────────── */
+async function postDeploy(name, idea) {
+  addLog('info', 'POST ' + DEPLOY_EP);
+  try {
+    const res = await fetch(DEPLOY_EP, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      // CRITICAL: Keys match Pydantic model exactly
+      body: JSON.stringify({ startup_name: name, startup_idea: idea }),
+    });
+
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    const ct = res.headers.get('content-type') || '';
+
+    if (ct.includes('event-stream') || ct.includes('text/plain')) {
+      // SSE from POST body
+      addLog('info', 'Streaming response received');
+      const reader  = res.body.getReader();
+      const decoder = new TextDecoder();
+      let   buffer  = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // keep incomplete line
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try { processMsg(JSON.parse(line.slice(6))); } catch { /* skip malformed */ }
+          }
+        }
+      }
+
+      // Flush remaining buffer
+      if (buffer.startsWith('data: ')) {
+        try { processMsg(JSON.parse(buffer.slice(6))); } catch {}
+      }
+
+    } else {
+      // JSON response from /build endpoint
+      addLog('info', 'JSON response received');
+      const data = await res.json();
+      if (data.files) {
+        Object.entries(data.files).forEach(([fname, content]) => {
+          processMsg({ type: 'file', filename: fname, content });
+        });
+      }
+      processMsg({ type: 'done' });
+    }
+
+  } catch (err) {
+    // Final fallback to /build (synchronous JSON)
+    addLog('warn', 'Deploy failed, trying /build... (' + err.message + ')');
+    postBuild(name, idea);
+  }
+}
+
+/* ── POST /build FINAL FALLBACK ─────────────────────── */
+async function postBuild(name, idea) {
+  addLog('info', 'POST ' + BUILD_EP);
+  try {
+    const res = await fetch(BUILD_EP, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      // CRITICAL: Keys match Pydantic BuildRequest model exactly
+      body: JSON.stringify({ startup_name: name, startup_idea: idea }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error('HTTP ' + res.status + ': ' + errText.substring(0, 200));
+    }
+
+    const data = await res.json();
+
+    if (data.files) {
+      Object.entries(data.files).forEach(([fname, content]) => {
+        processMsg({ type: 'file', filename: fname, content });
+      });
+    }
+    processMsg({ type: 'done' });
+
+  } catch (err) {
+    addLog('error', 'All endpoints failed: ' + err.message);
+    isRunning = false;
+    isDone    = false;
+    setFabState('ready');
+    updateStatusBar();
+    showToast('Connection failed', 't-err');
+  }
+}
+
+/* ── MESSAGE PROCESSOR ──────────────────────────────── */
+function processMsg(data) {
+  if (!data) return;
+
+  const type    = data.type    || 'info';
+  const message = data.message || data.content || '';
+
+  // Log everything
+  if (message) {
+    addLog(type, typeof message === 'object' ? JSON.stringify(message) : String(message));
+  }
+
+  // Agent status update
+  if (data.agent) {
+    const status = data.status || 'active';
+    const thought = data.thought || data.message || '';
+    setAgentState(data.agent, status, thought);
+  }
+
+  // File received
+  if (type === 'file' && data.filename && data.content) {
+    files[data.filename] = data.content;
+    renderFiles();
+    if (data.filename === 'index.html') {
+      updatePreview(data.content);
+    }
+    updateStatusBar();
+    addLog('success', 'File ready: ' + data.filename + ' (' + (data.content.length / 1024).toFixed(1) + ' KB)');
+  }
+
+  // Full result batch
+  if (type === 'result' && data.files) {
+    Object.entries(data.files).forEach(([fname, content]) => {
+      files[fname] = content;
+    });
+    renderFiles();
+    if (files['index.html']) updatePreview(files['index.html']);
+    updateStatusBar();
+  }
+
+  // Done
+  if (type === 'done') {
+    isRunning = false;
+    isDone    = true;
+
+    // Mark all active agents as done
+    Object.keys(agentStates).forEach(k => {
+      if (agentStates[k].status === 'active') {
+        setAgentState(k, 'done', '');
+      }
+    });
+
+    addLog('success', '✓ All agents complete — output ready!');
+    document.getElementById('live-badge').classList.remove('show');
+    setFabState('done');
+    updateStatusBar();
+    showToast('Build complete! 🎉', 't-ok');
+
+    if (Object.keys(files).length > 0) {
+      document.getElementById('preview-dot').style.display = 'block';
+    }
+  }
+
+  // Error
+  if (type === 'error') {
+    isRunning = false;
+    addLog('error', 'SYSTEM ERROR: ' + (data.message || 'Unknown error'));
+    document.getElementById('live-badge').classList.remove('show');
+    setFabState('ready');
+    updateStatusBar();
+    showToast('Error: ' + (data.message || '').substring(0, 60), 't-err');
+  }
+}
+
+/* ── LOG ENGINE ─────────────────────────────────────── */
+function addLog(type, content) {
+  if (!content) return;
+  logs.push({ type, content });
+
+  const body = document.getElementById('term-body');
+  const cfg  = LOG_CFG[type] || LOG_CFG.info;
+  const idx  = logs.length;
+
+  // Remove previous cursor
+  const oldCursor = body.querySelector('.cursor-line');
+  if (oldCursor) oldCursor.remove();
+
+  // Build line
+  const line = document.createElement('div');
+  line.className = 'term-line';
+  line.innerHTML =
+    '<span class="t-num">' + String(idx).padStart(3, '0') + '</span>' +
+    '<span class="t-pfx" style="color:' + cfg.color + ';">' + cfg.pfx + '</span>' +
+    '<span class="t-msg" style="color:' + cfg.color + ';">' + escHtml(String(content)) + '</span>';
+  body.appendChild(line);
+
+  // Blinking cursor while running
+  if (isRunning) {
+    const cursorLine = document.createElement('div');
+    cursorLine.className = 'term-line cursor-line';
+    cursorLine.innerHTML =
+      '<span class="t-num"></span>' +
+      '<span class="t-pfx"></span>' +
+      '<span class="t-msg"><span class="term-cursor-block"></span></span>';
+    body.appendChild(cursorLine);
+    document.getElementById('live-badge').classList.add('show');
+  }
+
+  body.scrollTop = body.scrollHeight;
+
+  // Badge when not on terminal tab
+  if (currentTab !== 'terminal') {
+    unreadLogs++;
+    const badge = document.getElementById('log-badge');
+    badge.textContent   = unreadLogs > 99 ? '99+' : String(unreadLogs);
+    badge.style.display = 'block';
+  }
+
+  // Update counter
+  document.getElementById('sb-logs').textContent = 'Logs: ' + logs.length;
+}
+
+/* ── FILE RENDERING ─────────────────────────────────── */
+function renderFiles() {
+  const section  = document.getElementById('output-section');
+  const row      = document.getElementById('files-row');
+  const fnames   = Object.keys(files);
+
+  if (fnames.length === 0) {
+    section.classList.remove('show');
+    return;
+  }
+
+  section.classList.add('show');
+  row.innerHTML = '';
+
+  fnames.forEach(fname => {
+    const ext = fname.split('.').pop();
+    const extColors = { html: '#f97316', css: '#a78bfa', js: '#fbbf24', json: '#22d3ee', md: '#64748b' };
+    const color = extColors[ext] || '#64748b';
+
+    const pill = document.createElement('button');
+    pill.className = 'file-pill anim-in' + (activeFile === fname ? ' active' : '');
+    pill.innerHTML =
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="' + color + '" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>' +
+      '<span>' + fname + '</span>';
+    pill.onclick = () => showFile(fname);
+    row.appendChild(pill);
+  });
+}
+
+function showFile(fname) {
+  activeFile = fname;
+  renderFiles();
+
+  const content = files[fname] || '';
+  document.getElementById('code-fname').textContent = fname;
+  document.getElementById('code-pre').innerHTML     = syntaxHL(content);
+  document.getElementById('code-box').style.display = 'block';
+
+  // Scroll to code box
+  const cb = document.getElementById('code-box');
+  setTimeout(() => cb.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+}
+
+function copyCode() {
+  if (!activeFile || !files[activeFile]) return;
+  const btn = document.getElementById('copy-btn');
+  navigator.clipboard.writeText(files[activeFile]).then(() => {
+    btn.textContent = 'Copied!';
+    showToast('Copied to clipboard', 't-ok');
+    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = files[activeFile];
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+function downloadFile() {
+  if (!activeFile || !files[activeFile]) return;
+  const blob = new Blob([files[activeFile]], { type: 'text/plain' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = activeFile;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Saving ' + activeFile, 't-ok');
+}
+
+/* ── PREVIEW ────────────────────────────────────────── */
+function updatePreview(htmlContent) {
+  const container = document.getElementById('preview-container');
+  const empty     = document.getElementById('preview-empty');
+
+  if (!htmlContent) {
+    empty.style.display = 'flex';
+    const old = document.getElementById('preview-iframe');
+    if (old) old.remove();
+    return;
+  }
+
+  empty.style.display = 'none';
+
+  let iframe = document.getElementById('preview-iframe');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = 'preview-iframe';
+    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+    iframe.style.cssText = 'flex:1;border:none;display:block;background:#fff;width:100%;height:100%;';
+    container.appendChild(iframe);
+  }
+
+  // Inject CSS and JS inline
+  let content = htmlContent;
+  const css = files['styles.css'] || files['style.css'] || '';
+  const js  = files['app.js']     || files['script.js']  || files['main.js'] || '';
+  if (css) content = content.replace('</head>', '<style>' + css + '</style></head>');
+  if (js)  content = content.replace('</body>', '<script>' + js + '<\/script></body>');
+
+  const doc = iframe.contentDocument;
+  doc.open(); doc.write(content); doc.close();
+
+  document.getElementById('preview-dot').style.display = 'block';
+}
+
+function refreshPreview() {
+  if (files['index.html']) updatePreview(files['index.html']);
+}
+
+function openFullscreen() {
+  if (!files['index.html']) { showToast('No preview yet', 't-err'); return; }
+  let content = files['index.html'];
+  const css = files['styles.css'] || files['style.css'] || '';
+  const js  = files['app.js']     || files['script.js']  || files['main.js'] || '';
+  if (css) content = content.replace('</head>', '<style>' + css + '</style></head>');
+  if (js)  content = content.replace('</body>', '<script>' + js + '<\/script></body>');
+  const blob = new Blob([content], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+}
+
+/* ── FAB STATE ──────────────────────────────────────── */
+function setFabState(state) {
+  const fab  = document.getElementById('fab');
+  const svg  = document.getElementById('fab-svg');
+  const tip  = document.getElementById('fab-tip');
+
+  fab.className = 'state-' + state;
+
+  if (state === 'running') {
+    svg.innerHTML   = '<line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>';
+    svg.style.animation = 'spin 1.2s linear infinite';
+    tip.textContent     = 'Agents Working...';
+  } else if (state === 'done') {
+    svg.innerHTML       = '<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>';
+    svg.style.animation = '';
+    tip.textContent     = 'Build Again';
+  } else {
+    svg.innerHTML       = '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>';
+    svg.style.animation = '';
+    tip.textContent     = 'Activate Agents';
+  }
+}
+
+/* ── STATUS BAR ─────────────────────────────────────── */
+function updateStatusBar() {
+  document.getElementById('sb-files').textContent = 'Files: ' + Object.keys(files).length;
+  const sb = document.getElementById('sb-state');
+  if (isRunning) {
+    sb.textContent = '● RUNNING';
+    sb.className   = 'sb-item s-run';
+  } else if (isDone) {
+    sb.textContent = '✓ COMPLETE';
+    sb.className   = 'sb-item s-done';
+  } else {
+    sb.textContent = '○ READY';
+    sb.className   = 'sb-item';
+  }
+}
+
+/* ── SYNTAX HIGHLIGHT ───────────────────────────────── */
+function syntaxHL(code) {
+  return escHtml(code)
+    // HTML tags
+    .replace(/(&lt;\/?[a-zA-Z][^&\n]*?&gt;)/g,
+      '<span class="sh-tag">$1</span>')
+    // CSS-style properties (word: value)
+    .replace(/([\w-]+)(\s*:(?!:))/g,
+      '<span class="sh-attr">$1</span>$2')
+    // JS keywords
+    .replace(/\b(const|let|var|function|return|if|else|for|while|class|import|export|from|async|await|new|this|typeof|null|undefined|true|false)\b/g,
+      '<span class="sh-kw">$1</span>')
+    // Strings
+    .replace(/(&quot;[^&\n]*?&quot;|&#x27;[^&\n]*?&#x27;)/g,
+      '<span class="sh-str">$1</span>')
+    // Comments
+    .replace(/(\/\/[^\n]*)/g,
+      '<span class="sh-cmt">$1</span>');
+}
+
+/* ── UTILITIES ──────────────────────────────────────── */
+function escHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
+let toastTimer = null;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  if (toastTimer) clearTimeout(toastTimer);
+  t.textContent = msg;
+  t.className   = 'show ' + (type || 't-ok');
+  toastTimer = setTimeout(() => { t.className = ''; }, 3200);
+}
+</script>
+</body>
+</html>
